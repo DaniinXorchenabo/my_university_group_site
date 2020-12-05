@@ -1,0 +1,4 @@
+apps/bot/settings/settings.ini
+*.sqlite
+.idea/
+*\__pycache__\
