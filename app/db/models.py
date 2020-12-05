@@ -9,6 +9,7 @@ from app.settings.config import *
 
 db = Database()
 
+
 class Admin(db.Entity):
     user = PrimaryKey('User')
 
@@ -116,9 +117,9 @@ class SeniorInTheGroup(db.Entity):
     PrimaryKey(user, group)
 
 
-
 def is_DB_created():
     from os.path import isfile
+
     if not isfile(DB_PATH):
         db.bind(provider=cfg.get("db", "type"), filename=DB_PATH, create_db=True)
         db.generate_mapping(create_tables=True)
