@@ -1,7 +1,9 @@
 # -*- coding: utf-8 -*-
 
 if __name__ == '__main__':
-    from apps.settings.config import *
+    print('-------------')
+    from os import chdir
+    from app.settings.config import HOME_DIR, SETTINGS_FILE, EXAMPLE_SETTINGS_FILE
 
     chdir(HOME_DIR)
 
@@ -25,8 +27,8 @@ def create_new_settings(config_path, example_settings_filename):
                        for string in iter(file.read().split('\n'))]), file=wtiten_file)
 
 
-def create_cfg(config_path="settings.ini",
-               example_settings_filename="bot/settings/example_settings.ini"):
+def create_cfg(config_path='',
+               example_settings_filename=''):
     import sys
     from configparser import ConfigParser
     from os.path import exists
@@ -56,22 +58,6 @@ def save_change_in_cinfig_file(cfg=None):
 
 
 if __name__ == '__main__':
-    cfg = create_cfg()
-# class Config():
-#
-#     base_path = os.path.dirname(os.path.abspath(__file__))
-#     config_path = os.path.join(base_path, "settings.ini")
-#     cfg = None
-#
-#     @classmethod
-#     def start(cls):
-#         if os.path.exists(cls.config_path):
-#             cls.cfg = ConfigParser(allow_no_value=True, converters={'list': lambda x: [i.strip() for i in x.split(',')]})
-#             cls.cfg.read(cls.config_path)
-#         else:
-#             print("Config not found! Exiting!")
-#             sys.exit(1)
-#
-#     @classmethod
-#     def change_init_file(cls, *args):
-#         cls.cfg.set(*args)
+    print('---------------')
+    print(EXAMPLE_SETTINGS_FILE)
+    cfg = create_cfg(SETTINGS_FILE, EXAMPLE_SETTINGS_FILE)
