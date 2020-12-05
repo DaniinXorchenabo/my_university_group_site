@@ -5,8 +5,7 @@ from datetime import datetime
 from datetime import time
 from pony.orm import *
 
-from apps.bot.base.libs import *
-
+from app.settings.config import *
 
 db = Database()
 
@@ -119,6 +118,7 @@ class SeniorInTheGroup(db.Entity):
 
 
 def is_DB_created():
+    from os.path import isfile
     if not isfile(DB_PATH):
         db.bind(provider=cfg.get("db", "type"), filename=DB_PATH, create_db=True)
         db.generate_mapping(create_tables=True)
@@ -136,6 +136,8 @@ def is_DB_created():
 # is_DB_created()
 
 if __name__ == '__main__':
+    from os import chdir
+
     chdir(HOME_DIR)
 
 # string = input()
