@@ -134,7 +134,7 @@ def is_DB_created():
             db.generate_mapping(create_tables=True)
 
 
-# is_DB_created()
+is_DB_created()
 
 if __name__ == '__main__':
     from os import chdir
