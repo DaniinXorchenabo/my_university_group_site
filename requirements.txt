@@ -3,3 +3,7 @@ regex
 nltk
 pony
 vk-api
+uvicorn
+wheel -U
+fastapi[all]
+pydantic
