@@ -20,7 +20,7 @@ def login(login: str, password: str, _id: int):
         return {"Вы уже зарегестрировались!"}
     else:
         user1 = User(id=_id, name=login, password=password)
-    return {"Привет, дорогой пользовватель, ты зарегестрирован как " + login + " "}
+    return {"Привет, дорогой пользовватель,    ты зарегестрирован как " + login + " "}
 
 
 @app.get("/api/sign_in/{login}/{password}")
