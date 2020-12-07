@@ -1,13 +1,20 @@
-# Ilya_develop_front
+# Проект для удобства жизни студента
+## installing:
+    
+    git clone https://github.com/DaniinXorchenabo/Ilya_develop_front.git
+    cd Ilya_develop_front
+    pip install -r requirements.txt
+    
+## Run:
 
-## Наша база данных:
-  - [Pony ORM Editor][Pony ORM Editor]
+    python app/web/main_web.py
+    python app/bot/main.py
+    
+## Наши web-ресурсы:
 
-## Наше трелло:
-  - [trello.com][trello.com]
-
-## Наш дизайн:
-  - [Figma][Figma]
+  - [Pony ORM Editor][Pony ORM Editor] - Наша база данных
+  - [trello.com][trello.com] - Наше трелло
+  - [Figma][Figma] - Наш дизайн
 
 # API
 
