@@ -4,7 +4,6 @@ from fastapi import FastAPI
 
 from app.db.models import *
 
-
 # is_DB_created()
 app = FastAPI()
 
@@ -24,7 +23,9 @@ def log_in(login: str, password: str):
             session_key = random.random()
             user.session_key_for_app = str(session_key)
             User.select().show()
-            return {'answer : True' + ', group_name : ' + 'user.groups' + ', name : ' + user.name + ', session_key : ' + str(session_key)}
+            return {
+                'answer : True' + ', group_name : ' + 'user.groups' + ', name : ' + user.name + ', session_key : ' + str(
+                    session_key)}
         return {"answer : False"}
     return {"answer : False"}
 
@@ -34,7 +35,8 @@ def log_in(login: str, password: str):
 def news(session_key: str, group_name: str):
     """Новости"""
     if User.exists(session_key_for_app=session_key):
-        return {"first : Это новости, ты просто не видишь их,  second : Да-да, это именно так, не удивляйся, third : Именно так и должно быть"}
+        return {
+            "first : Это новости, ты просто не видишь их,  second : Да-да, это именно так, не удивляйся, third : Именно так и должно быть"}
     return {"Ты накосячил с session_key. Взломать пытался, нехороший человек! Ухади!"}
 
 
@@ -44,7 +46,7 @@ def all_homework(session_key: str, group_name: str):
     """Домашние задания (все)"""
     if User.exists(session_key_for_app=session_key):
         return {"Тут домашка"
-            "<дд.мм.гггг> : { <Предмет1> : {домашка1, домашка2, ..., домашка}, <Предмет2> : {домашка1, домашка2, ..., домашка}, ... <Предмет> : {домашка1, домашка2, ..., домашка}"}
+                "<дд.мм.гггг> : { <Предмет1> : {домашка1, домашка2, ..., домашка}, <Предмет2> : {домашка1, домашка2, ..., домашка}, ... <Предмет> : {домашка1, домашка2, ..., домашка}"}
     return {"Ты накосячил с session_key. Взломать пытался, нехороший человек! Ухади!"}
 
 
@@ -54,9 +56,11 @@ def subject_homework(session_key: str, group_name: str, subject: str):
     """Домашние задания (по предмету)"""
     if User.exists(session_key_for_app=session_key):
         if subject == "rus":
-            return {"rus : <дд.мм.гггг> : {домашка1, домашка2, ..., домашка}, <дд.мм.гггг> : {домашка1, домашка2, ..., домашка},... <дд.мм.гггг> : {домашка1, домашка2, ..., домашка},"}
+            return {
+                "rus : <дд.мм.гггг> : {домашка1, домашка2, ..., домашка}, <дд.мм.гггг> : {домашка1, домашка2, ..., домашка},... <дд.мм.гггг> : {домашка1, домашка2, ..., домашка},"}
         elif subject == "sit":
-            return {"sit : <дд.мм.гггг> : {домашка1, домашка2, ..., домашка}, <дд.мм.гггг> : {домашка1, домашка2, ..., домашка},... <дд.мм.гггг> : {домашка1, домашка2, ..., домашка},"}
+            return {
+                "sit : <дд.мм.гггг> : {домашка1, домашка2, ..., домашка}, <дд.мм.гггг> : {домашка1, домашка2, ..., домашка},... <дд.мм.гггг> : {домашка1, домашка2, ..., домашка},"}
         return {"У нас нет такого предмета"}
     return {"Ты накосячил с session_key. Взломать пытался, нехороший человек! Ухади!"}
 
@@ -66,7 +70,9 @@ def subject_homework(session_key: str, group_name: str, subject: str):
 def data_homework(session_key: str, group_name: str, data: str):
     """Домашние задания (по дате)"""
     if User.exists(session_key_for_app=session_key):
-        return {"<Предмет1> : {домашка1, домашка2, ..., домашка}, <Предмет2> : {домашка1, домашка2, ..., домашка}, ... <Предмет> : {домашка1, домашка2, ..., домашка},"}
+        return {"Предмет1": ["домашка1", "домашка2", "домашка"],
+                "Предмет2": ["домашка1", "домашка2", "домашка"],
+                "Предмет3": ["домашка1", "домашка2", "домашка"], }
     return {"Ты накосячил с session_key. Взломать пытался, нехороший человек! Ухади!"}
 
 
@@ -75,7 +81,11 @@ def data_homework(session_key: str, group_name: str, data: str):
 def teachers(session_key: str, group_name: str):
     """Информация о преподавателях"""
     if User.exists(session_key_for_app=session_key):
-        return {"<ФИО> : {инфа1, инфа2, ..., инфа}, <ФИО> : {инфа1, инфа2, ..., инфа}, ... , <ФИО> : {инфа1, инфа2, ..., инфа},"}
+        return {
+            "ФИО1": ["инфа1", "инфа2", 'инфа'],
+            "ФИО2": ["инфа1", "инфа2", 'инфа'],
+            "ФИО3": ["инфа1", "инфа2", 'инфа']
+        }
     return {"Ты накосячил с session_key. Взломать пытался, нехороший человек! Ухади!"}
 
 
@@ -93,7 +103,8 @@ def schedule(session_key: str, group_name: str, change: str):
 def educational_materials(session_key: str, group_name: str):
     """Получает образовательные материалы"""
     if User.exists(session_key_for_app=session_key):
-        return {"Файлы с учебниками: <предмет> : {инфа1, инфа2, ..., инфа}, <предмет> : {инфа1, инфа2, ..., инфа}, ... , <предмет> : {инфа1, инфа2, ..., инфа},"}
+        return {
+            "Файлы с учебниками: <предмет> : {инфа1, инфа2, ..., инфа}, <предмет> : {инфа1, инфа2, ..., инфа}, ... , <предмет> : {инфа1, инфа2, ..., инфа},"}
     return {"Ты накосячил с session_key. Взломать пытался, нехороший человек! Ухади!"}
 
 
@@ -138,7 +149,8 @@ def settings_user_get(session_key: str):
         return {"<какой-то параметр> : <какое-то значение>"}
     return {"Ты накосячил с session_key. Взломать пытался, нехороший человек! Ухади!"}
 
-#Установка настроек - не знаю, как сделать
+
+# Установка настроек - не знаю, как сделать
 
 
 @app.get("/api/{session_key}/settings_admin/get")
@@ -168,11 +180,5 @@ def settings_group_senior(session_key: str):
     return {"Ты накосячил с session_key. Взломать пытался, нехороший человек! Ухади!"}
 
 
-
 if __name__ == "__main__":
     uvicorn.run("main_web:app", host="127.0.0.1", port=8000, reload=True)
-
-
-
-
-
