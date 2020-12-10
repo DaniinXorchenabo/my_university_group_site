@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 
 if __name__ == '__main__':
-    print('-------------')
     from os import chdir
     from app.settings.config import HOME_DIR, SETTINGS_FILE, EXAMPLE_SETTINGS_FILE
 
@@ -58,6 +57,4 @@ def save_change_in_cinfig_file(cfg=None):
 
 
 if __name__ == '__main__':
-    print('---------------')
-    print(EXAMPLE_SETTINGS_FILE)
     cfg = create_cfg(SETTINGS_FILE, EXAMPLE_SETTINGS_FILE)
