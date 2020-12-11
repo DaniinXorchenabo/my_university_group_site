@@ -194,12 +194,37 @@ def get_subject_name(self):
 
 
 @Group.add_arttr
-def grt_time_list(self):
+def get_time_list(self):
     """Возвращает сущности расписания группы"""
-    return select(
-        (j, j.number_week, j.weekday, j.time) for i in self.subjects for j in i.weekday_and_time_subjects).sort_by(2, 3,
-                                                                                                                   4)[:]
-    # return [j for i in self.subjects.select()[:] for j in i.weekday_and_time_subjects.select()]
+    return (i[0] for i in select((j, j.number_week, j.weekday, j.time)
+                                 for i in self.subjects for j in i.weekday_and_time_subjects).sort_by(2, 3, 4)[:])
+
+@Group.add_arttr
+def get_time_list_data(self):
+    """Возвращает расписания группы в формате"
+    [((номер_недели, номер_дня_недели, время, название предмета), (препод1, препод2, ...)), (...), ...]"""
+    return [(i[:-1], select(j.name for j in i[-1].teachers)[:]) for i in
+            select((j.number_week, j.weekday, j.time, i.name, i) for i in self.subjects
+                   for j in i.weekday_and_time_subjects).sort_by(1, 2, 3)]
+
+@Group.add_arttr
+def get_hometask(self):
+    """возвращает сущности всего домашнего задания в порядке возрастания даты
+    (от старого к новому)
+    если дата или время не указано, то считается, что это меньше всего"""
+    return (i[0] for i in select((j, j.deadline_date, j.deadline_time)
+                                 for i in self.subjects for j in i.home_tasks).sort_by(2, 3,)[:])
+
+@Group.add_arttr
+def get_hometask_data(self):
+    """возвращает данные всего домашнего задания в порядке возрастания даты
+    (от старого к новому)
+    если дата или время не указано, то считается, что это меньше всего
+    формат:
+    [((дата дедлайна, время дедлайна, название предмета, текст задания), [препод1, препод2, ...]) (...), ...]"""
+    return [(i[:-1], select(j.name for j in i[-1].teachers)[:])
+            for i in select((j.deadline_date, j.deadline_time, i.name, j.text, i)
+                            for i in self.subjects for j in i.home_tasks).sort_by(1, 2)]
 
 
 def controller_migration_version(db_path=DB_PATH):

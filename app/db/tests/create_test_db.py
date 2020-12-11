@@ -59,9 +59,12 @@ def create_test_db_1():
     Teacher(name="Такташкин", subjects={SIT})
     Teacher(name="Второй препод по СИТу", subjects={SIT})
     Teacher(name="Гурьянов", subjects={PROGA})
-    HomeTask(subject=PPO)
-    HomeTask(subject=PPO)
-    HomeTask(subject=PROGA)
+    HomeTask(subject=PPO, deadline_date="2020-11-15", deadline_time="12:00:00", text='сдать 10 лабу')
+    HomeTask(subject=PPO, deadline_date="2020-11-15", deadline_time="12:30:00", text='срочно сдать 10 лабу!')
+    HomeTask(subject=PPO, deadline_date="2020-11-15", text='показать конспект лекций')
+    HomeTask(subject=PPO, text='сделать хоть что-нибудь')
+    HomeTask(subject=PROGA, deadline_date="2020-12-15", text="починить интернет Гурьянову")
+    HomeTask(subject=PROGA, text="сдать работу по динамическим стрктурам")
     [WeekdayAndTimeSubject(subject=PROGA, number_week=i, weekday=j, type=k, time=t) for i in range(1, 3) for j, [k, t]
      in
      {1: ["лекция", '11:40'], 4: ["консультация", '17:00'],
@@ -99,6 +102,6 @@ if __name__ == '__main__':
     # create_test_db_1()
     show_all()
     with db_session:
-        print(*Group.cl_grt_time_list(name='20ВП1'), sep='\n')
+        print(*enumerate(Group.cl_get_hometask_data(name='20ВП1'), 1), sep='\n')
     from pprint import pprint
     # pprint(db.entities)
