@@ -4,7 +4,6 @@ from fastapi import FastAPI
 
 from app.db.models import *
 
-# is_DB_created()
 app = FastAPI()
 
 
@@ -181,4 +180,5 @@ def settings_group_senior(session_key: str):
 
 
 if __name__ == "__main__":
+    is_DB_created()
     uvicorn.run("main_web:app", host="127.0.0.1", port=8000, reload=True)
