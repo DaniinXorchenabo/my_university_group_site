@@ -10,6 +10,7 @@ from app.settings.config import *
 db = Database()
 
 
+
 class Admin(db.Entity):
     user = PrimaryKey('User')
 
@@ -26,19 +27,25 @@ class User(db.Entity):
     admin = Optional(Admin)
     login_EIES = Optional(str)
     password_EIES = Optional(str)
+    verification_status = Required(bool, default='false')
+    my_verification = Optional('NoneVerification', reverse='it_is_i')  # если поле пустое - то я верифицирован, если нет - то у меня нет доступа к информации группы
+    i_verificate_thei = Set('NoneVerification', reverse='he_verificate_me')
+    # те пользователи, которых я могу верифицировать
+    # Это поле может быть не пустым только если я сам верифицирован
+    curse_count = Optional(int)  # Счетчик мата
 
 
 class DustbiningChat(db.Entity):
     """Флудилка, чат, где будут спрашивать домашку"""
     id = PrimaryKey(int)
-    groups = Optional('Group')
+    group = Optional('Group')
 
 
 class ImportantChat(db.Entity):
     """Основная конфа, куда будут стекаться уведомления"""
     id = PrimaryKey(int)
     important_messages = Set('ImportantMessage')
-    groups = Set('Group')
+    group = Set('Group')
 
 
 class ImportantMessage(db.Entity):
@@ -61,7 +68,7 @@ class Group(db.Entity):
 
 class HomeTask(db.Entity):
     id = PrimaryKey(int, auto=True)
-    subjects = Optional('Subject')
+    subject = Optional('Subject')
     deadline_date = Optional(date)
     deadline_time = Optional(time)
     text = Optional(str)
@@ -70,25 +77,25 @@ class HomeTask(db.Entity):
 
 class Subject(db.Entity):
     """Предмет для одной группы"""
-    groups = Required(Group)
+    group = Required(Group)
     home_tasks = Set(HomeTask)
     weekday_and_time_subjects = Set('WeekdayAndTimeSubject')
     name = Required(str)
     teachers = Set('Teacher')
-    PrimaryKey(groups, name)
+    PrimaryKey(group, name)
 
 
 class WeekdayAndTimeSubject(db.Entity):
     """Так как предметы могут повторятся за две недели, то для каждого предмета введена вспомогательная таблица, в которой указываются день, номер недели и время предмета"""
     subject = Optional(Subject)
-    id_group = Required(str)
     number_week = Required(int)
     weekday = Required(str)
-    time = Required(time)
+    time = Required(time, default="00:00")
     classroom_number = Optional(str)
     e_learning_url = Optional('ELearningUrl')
     update_time = Required(datetime, default=lambda: datetime.now())
-    PrimaryKey(id_group, number_week, weekday, time)
+    group_id = Required(int)
+    PrimaryKey(number_week, weekday, time, group_id)
 
 
 class ELearningUrl(db.Entity):
@@ -129,6 +136,17 @@ class News(db.Entity):
     text = Optional(str)
     files = Optional(Json)
     some = Optional(str)
+
+
+class NoneVerification(db.Entity):
+    """представляет из себя не отдельно взятого пользователя, а поле верификации одного полльзователя другим (уже верифицированным пользователем)"""
+    it_is_i = Required(User, reverse='my_verification')
+    he_verificate_me = Required(User, reverse='i_verificate_thei')  # моя группа, которая должна подтвердить, что я с ними в одной группе
+    confirmation = Optional(int, default=0)
+    # 0 - пользователь ничего не ответил
+    # 1 - ответил отрицательно
+    # 2 - ответил положительно
+    PrimaryKey(it_is_i, he_verificate_me)
 
 
 def controller_migration_version(db_path=DB_PATH):
@@ -223,7 +241,10 @@ def is_DB_created(db_path=DB_PATH, deep=0):
                 print("Удалена исходная база данных, создаём новую")
                 os.remove(db_path)
                 # controller_migration_version(db_path)
-                is_DB_created(db_path=db_path, deep=deep + 1)
+                print('\n---------------------------\n\nдля создания новой БД перезапустите код.....')
+                import sys
+                sys.exit()
+                # is_DB_created(db_path=db_path, deep=deep + 1)
 
 
 # is_DB_created()
@@ -232,7 +253,6 @@ if __name__ == '__main__':
     from os import chdir
 
     chdir(HOME_DIR)
-    print(join(HOME_DIR, "db", 'migrations'))
     is_DB_created()
     # db.migrate(command='make',
     #            migration_dir=join(HOME_DIR, "db", 'migrations'),
