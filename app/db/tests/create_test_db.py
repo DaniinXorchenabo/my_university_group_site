@@ -11,7 +11,12 @@ from app.db.models import *
 
 @db_session
 def create_test_db_1():
-    User(name='Петя', id=100, password="123")
+    """создает тестовую БД для того, чтобы можно было поиграться с ней"""
+    try:
+        User(name='Петя', id=100, password="123")
+    except Exception as e:
+        print('произошла ошибка при заполнении БД', e)
+        print('похоже, что БД уже содержит данное заполнение')
     User(name='Вася', id=101, password="123")
     User(name='Ваня', id=102, password="123")
     User(name='Вася Админ', id=103, password="123")
@@ -47,12 +52,13 @@ def create_test_db_1():
 
 @db_session
 def show_all():
+    """Показывает все сущьности все сущности всех БД"""
     [(print('\n', key), val.select().show()) for key, val in db.entities.items()]
 
 if __name__ == '__main__':
     # db.bind(provider=cfg.get("db", "type"), filename=join(HOME_DIR, "db", "tests", "test_" + cfg.get('db', "name")))
     # db.generate_mapping(create_tables=True)
-    make_migrate_file()
+    # make_migrate_file()
     is_DB_created()
     # create_test_db_1()
     show_all()

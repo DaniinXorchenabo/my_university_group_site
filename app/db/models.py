@@ -8,9 +8,7 @@ from pony.orm import *
 from app.settings.config import *
 
 db = Database()
-MIGRATIOMS_DIR = join(HOME_DIR, "db", 'migrations')
-TEST_DB = join(HOME_DIR, "db", "tests", "test_" + cfg.get('db', "name"))
-DB_BACKUPS = join(HOME_DIR, "db", "backups")
+
 
 class Admin(db.Entity):
     user = PrimaryKey('User')
@@ -138,12 +136,12 @@ def controller_migration_version(db_path=DB_PATH):
     db.provider = db.schema = None
     db.migrate(
         # command='apply --fake-initial',
-               migration_dir=join(HOME_DIR, "db", 'migrations'),
-               allow_auto_upgrade=True,
-               # create_tables=True,
-               # create_db=True,
-               provider=cfg.get("db", "type"),
-               filename=db_path)
+        migration_dir=MIGRATIONS_DIR,
+        allow_auto_upgrade=True,
+        # create_tables=True,
+        # create_db=True,
+        provider=cfg.get("db", "type"),
+        filename=db_path)
     print('миграция прошла успешно')
     print('перезапустите программу для дальнейшего использования')
     import sys
@@ -155,6 +153,24 @@ def controller_migration_version(db_path=DB_PATH):
     # else:
     #     with open(join(MIGRATIOMS_DIR, 'controller.txt'), 'r', encoding='utf-8') as f:
     #         version = int(f.read().split()[0])
+
+
+def make_migrate_file():
+    """не работает, не использовать"""
+    db.migrate(command='make',
+               migration_dir=MIGRATIONS_DIR,
+               # allow_auto_upgrade=True,
+               # create_tables=True,
+               create_db=True,
+               provider=cfg.get("db", "type"),
+               filename=":memory:")
+    print('файл миграции создан, осуществляю выход из системы')
+    print('чтобы применить миграцию, используйте controller_migration_version()')
+    print("""Для этого вам также будет необходимо использовать аргумент командной строки
+     apply --fake-initial при запуске кода""")
+    import sys
+    sys.exit()
+
 
 def is_DB_created(db_path=DB_PATH, deep=0):
     from os.path import isfile
@@ -209,26 +225,10 @@ def is_DB_created(db_path=DB_PATH, deep=0):
                 # controller_migration_version(db_path)
                 is_DB_created(db_path=db_path, deep=deep + 1)
 
-def make_migrate_file():
-    """не работает, не использовать"""
-    db.migrate(command='make',
-               migration_dir=join(HOME_DIR, "db", 'migrations'),
-               # allow_auto_upgrade=True,
-               # create_tables=True,
-               create_db=True,
-               provider=cfg.get("db", "type"),
-               filename=":memory:")
-    print('файл миграции создан, осуществляю выход из системы')
-    print('чтобы применить миграцию, используйте controller_migration_version()')
-    print("""Для этого вам также будет необходимо использовать аргумент командной строки
-     apply --fake-initial при запуске кода""")
-    import sys
-    sys.exit()
 
 # is_DB_created()
 
 if __name__ == '__main__':
-
     from os import chdir
 
     chdir(HOME_DIR)
@@ -261,11 +261,5 @@ if __name__ == '__main__':
     #            provider=cfg.get("db", "type"),
     #            filename=":memory:")
 
-
     with db_session():
         User.select().show()
-
-# string = input()
-# arr = [string[i:i+2] for i in range(len(string)-1)]
-# print({i: string.count(i) for i in arr})
-# print((lambda word: ''.join([i.upper() if i.isalpha() and ind > 0 and (ind > 2 and word[ind-1] == ' ' and word[ind-2] == '.' or word[ind-1] == '.') else i for ind, i in enumerate(list(word))]))(' '.join(input().split())))
