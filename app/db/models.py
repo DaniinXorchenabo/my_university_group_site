@@ -9,18 +9,28 @@ from app.settings.config import *
 
 db = Database()
 
+
 class AddArrtInDbClass(object):
     @classmethod
     def add_arttr(cls, func):
-        import types
+        """Для всех штук, обладающих декоратором @<Entity>.add_arttr есть 2 варианта вызова:
+        Примеры:
+        Group.cl_get_subject(**params)
+        и
+        gr = Group.get(**params)
+        gr.get_subject
+        где params - те параметры (в нашем случае, name='20ВП1'),
+        по которым можно найти интересующую группу"""
         setattr(cls, func.__name__, property(func))  # types.MethodType(func, cls)
-        cl_metod = getattr(cls, func.__name__)
+
         def w(*arfs, **kwargs):
             if cls.exists(**kwargs):
                 ent = cls.get(**kwargs)
                 return getattr(ent, func.__name__)
             return None
+
         setattr(cls, 'cl_' + func.__name__, classmethod(w))
+
 
 class Admin(db.Entity):
     user = PrimaryKey('User')
@@ -38,7 +48,8 @@ class User(db.Entity):
     admin = Optional(Admin)
     login_EIES = Optional(str)
     password_EIES = Optional(str)
-    my_verification = Set('NoneVerification', reverse='it_is_i')  # если поле пустое - то я верифицирован, если нет - то у меня нет доступа к информации группы
+    my_verification = Set('NoneVerification',
+                          reverse='it_is_i')  # если поле пустое - то я верифицирован, если нет - то у меня нет доступа к информации группы
     i_verificate_thei = Set('NoneVerification', reverse='he_verificate_me')
     # те пользователи, которых я могу верифицировать
     # Это поле может быть не пустым только если я сам верифицирован
@@ -99,7 +110,7 @@ class WeekdayAndTimeSubject(db.Entity):
     """Так как предметы могут повторятся за две недели, то для каждого предмета введена вспомогательная таблица, в которой указываются день, номер недели и время предмета"""
     subject = Optional(Subject)
     number_week = Required(int)
-    weekday = Required(str)
+    weekday = Required(int)  # Номер дня недели, начиная с 1
     time = Optional(time, default="00:00")
     classroom_number = Optional(str)
     e_learning_url = Optional('ELearningUrl')
@@ -149,7 +160,8 @@ class News(db.Entity):
 class NoneVerification(db.Entity):
     """представляет из себя не отдельно взятого пользователя, а поле верификации одного полльзователя другим (уже верифицированным пользователем)"""
     it_is_i = Required(User, reverse='my_verification')
-    he_verificate_me = Required(User, reverse='i_verificate_thei')  # моя группа, которая должна подтвердить, что я с ними в одной группе
+    he_verificate_me = Required(User,
+                                reverse='i_verificate_thei')  # моя группа, которая должна подтвердить, что я с ними в одной группе
     confirmation = Optional(int, default=0)
     # 0 - пользователь ничего не ответил
     # 1 - ответил отрицательно
@@ -160,9 +172,35 @@ class NoneVerification(db.Entity):
 for name, ent in db.entities.items():
     ent.__bases__ = tuple(list(ent.__bases__) + [AddArrtInDbClass])
 
+
 @Group.add_arttr
 def get_subject(self):
+    """возвращает сущности всех предметов"""
+    """Для всех штук, обладающих декоратором @<Entity>.add_arttr есть 2 варианта вызова:
+    Примеры:
+    Group.cl_get_subject(**params)
+    и 
+    gr = Group.get(**params)
+    gr.get_subject
+    где params - те параметры (в нашем случае, name='20ВП1'),
+    по которым можно найти интересующую группу"""
     return self.subjects.select()[:]
+
+
+@Group.add_arttr
+def get_subject_name(self):
+    """Возвращает названия всех предметов"""
+    return self.subjects.select()[:]
+
+
+@Group.add_arttr
+def grt_time_list(self):
+    """Возвращает сущности расписания группы"""
+    return select(
+        (j, j.number_week, j.weekday, j.time) for i in self.subjects for j in i.weekday_and_time_subjects).sort_by(2, 3,
+                                                                                                                   4)[:]
+    # return [j for i in self.subjects.select()[:] for j in i.weekday_and_time_subjects.select()]
+
 
 def controller_migration_version(db_path=DB_PATH):
     """не работает, не использовать"""

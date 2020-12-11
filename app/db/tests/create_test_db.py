@@ -62,14 +62,15 @@ def create_test_db_1():
     HomeTask(subject=PPO)
     HomeTask(subject=PPO)
     HomeTask(subject=PROGA)
-    [WeekdayAndTimeSubject(subject=PROGA, number_week=i, weekday=j, type=k, time=t) for i in range(2) for j, [k, t] in
-     {"понидельник": ["лекция", '11:40'], "четверг": ["консультация", '17:00'],
-      "суббота": ["практика", '9:50']}.items()]
-    a = WeekdayAndTimeSubject(subject=PPO, number_week=1, weekday="суббота", type="лекция", time="15:35")
-    a1 = WeekdayAndTimeSubject(subject=PPO, number_week=2, weekday="суббота", type="практика", time="11:40",
+    [WeekdayAndTimeSubject(subject=PROGA, number_week=i, weekday=j, type=k, time=t) for i in range(1, 3) for j, [k, t]
+     in
+     {1: ["лекция", '11:40'], 4: ["консультация", '17:00'],
+      6: ["практика", '9:50']}.items()]
+    a = WeekdayAndTimeSubject(subject=PPO, number_week=1, weekday=6, type="лекция", time="15:35")
+    a1 = WeekdayAndTimeSubject(subject=PPO, number_week=2, weekday=6, type="практика", time="11:40",
                                update_time="2020-11-15 00:00:00")  #
-    a2 = [WeekdayAndTimeSubject(subject=PPO, number_week=i, weekday="четверг", type="консультация", time="15:35") for i
-          in range(2)]
+    a2 = [WeekdayAndTimeSubject(subject=PPO, number_week=i, weekday=4, type="консультация", time="15:35") for i
+          in range(1, 3)]
     commit()
     print(a1.update_time)
     ELearningUrl(url="https://us05web.zoom.us/j/86213813841?pwd=eXVPZjhoajNsUW9HemlkWER2ZG16Zz09#success",
@@ -78,7 +79,7 @@ def create_test_db_1():
                  login='82 781 947 757', password='8ezXfd', weekday_and_time_subject=a1)
     [ELearningUrl(url="https://us05web.zoom.us/j/88911176462?pwd=ZDU0RjI1bnBHWnhOajFXS2xqUDFSdz09#success",
                   login='88 911 176 462', password='5hyAg4', weekday_and_time_subject=i) for i in a2]
-    a3 = WeekdayAndTimeSubject.get(subject=PROGA, number_week=1, weekday='понидельник')
+    a3 = WeekdayAndTimeSubject.get(subject=PROGA, number_week=1, weekday=1)
     ELearningUrl(url="https://us05web.zoom.us/j/85655737563?pwd=LzFqUlQ1cy9FMlZidDhwY0J3NjFwUT09#success",
                  login='85655737563', password='3TxTxb', weekday_and_time_subject=a3)
     commit()
@@ -90,10 +91,6 @@ def show_all():
     [(print('\n', key), val.select().show()) for key, val in db.entities.items()]
 
 
-
-
-
-
 if __name__ == '__main__':
     # db.bind(provider=cfg.get("db", "type"), filename=join(HOME_DIR, "db", "tests", "test_" + cfg.get('db', "name")))
     # db.generate_mapping(create_tables=True)
@@ -101,11 +98,7 @@ if __name__ == '__main__':
     is_DB_created()
     # create_test_db_1()
     show_all()
-    # with db_session:
-    #     print(db.entities)
-    #
-    #     News.testing()
-    #     gr = Group['20ВП1']
-    #     print(gr.get_subject)
+    with db_session:
+        print(*Group.cl_grt_time_list(name='20ВП1'), sep='\n')
     from pprint import pprint
     # pprint(db.entities)
