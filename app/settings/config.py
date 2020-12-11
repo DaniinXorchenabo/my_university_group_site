@@ -16,6 +16,9 @@ EXAMPLE_SETTINGS_FILE = join(HOME_DIR, SETTINGS_DIR, EXAMPLE_SETTINGS_FILE)
 print(SETTINGS_FILE, EXAMPLE_SETTINGS_FILE)
 cfg = create_cfg(SETTINGS_FILE, EXAMPLE_SETTINGS_FILE)
 DB_PATH = join(HOME_DIR, "db", cfg.get('db', "name"))
+MIGRATIONS_DIR = join(HOME_DIR, "db", 'migrations')
+TEST_DB = join(HOME_DIR, "db", "tests", "test_" + cfg.get('db', "name"))
+DB_BACKUPS = join(HOME_DIR, "db", "backups")
 
 if __name__ == '__main__':
     chdir(HOME_DIR)
