@@ -46,10 +46,15 @@ def create_test_db_1():
     commit()
 
 @db_session
-def create_users_1():
-    pass
+def show_all():
+    [(print('\n', key), val.select().show()) for key, val in db.entities.items()]
 
 if __name__ == '__main__':
-    db.bind(provider=cfg.get("db", "type"), filename=join(HOME_DIR, "db", "tests", "test_" + cfg.get('db', "name")), create_db=True)
-    db.generate_mapping(create_tables=True)
-    create_test_db_1()
+    # db.bind(provider=cfg.get("db", "type"), filename=join(HOME_DIR, "db", "tests", "test_" + cfg.get('db', "name")))
+    # db.generate_mapping(create_tables=True)
+    make_migrate_file()
+    is_DB_created()
+    # create_test_db_1()
+    show_all()
+    from pprint import pprint
+    # pprint(db.entities)
