@@ -20,5 +20,15 @@ MIGRATIONS_DIR = join(HOME_DIR, "db", 'migrations')
 TEST_DB = join(HOME_DIR, "db", "tests", "test_" + cfg.get('db', "name"))
 DB_BACKUPS = join(HOME_DIR, "db", "backups")
 
+weekdays_num = {1: "Понидельник",
+                2: "Вторник",
+                3: "Среда",
+                4: "Четверг",
+                5: "Пятница",
+                6: "Суббота",
+                7: "Воскресенье"}
+
+weekdays = {val: key for key, val in weekdays_num.items()}
+
 if __name__ == '__main__':
     chdir(HOME_DIR)
