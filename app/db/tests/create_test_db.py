@@ -25,14 +25,27 @@ def create_test_db_1():
     admin = User[103]
     Admin(user=admin)
     Group(name='20ВП1', users={admin, User[100], User[101], User[102], User[104]})
+    # non_verivicared = {User[100], User[101], User[102]}
+    # verivicared = {User[104], User[103]}
+    NoneVerification(it_is_i=User[100], he_verificate_me=User[104])
+    NoneVerification(it_is_i=User[101], he_verificate_me=User[104])
+    NoneVerification(it_is_i=User[102], he_verificate_me=User[104])
+    commit()
+    NoneVerification(it_is_i=User[100], he_verificate_me=User[103])
+    NoneVerification(it_is_i=User[101], he_verificate_me=User[103])
+    NoneVerification(it_is_i=User[102], he_verificate_me=User[103])
+    # [NoneVerification(it_is_i=non_verif_user, he_verificate_me=verificates_user) for non_verif_user in non_verivicared
+    #  for verificates_user in verivicared]
     commit()
     gr = Group['20ВП1']
-    DustbiningChat(id=30000001, groups=gr)
-    DustbiningChat(id=30000002, groups=gr)
-    ImportantChat(id=30000001, groups=gr)
-    Subject(name="ППО", groups=gr)
-    Subject(name="СИТ", groups=gr)
-    Subject(name="Прога", groups=gr)
+    DustbiningChat(id=30000001, group=gr)
+    DustbiningChat(id=30000002, group=gr)
+    ImportantChat(id=30000001, group=gr)
+    Subject(name="ППО", group=gr)
+    Subject(name="СИТ", group=gr)
+    Subject(name="Прога", group=gr)
+    News(group=gr, title='Мату нет!', text="в беседах мат будет запрещен")
+    News(group=gr, title='неужели без дурки?', text="на совещании представителей группы было высказано предложение о запрете мемов про дурку")
     commit()
     SeniorInTheGroup(group=gr, user=User[104])
     chat = ImportantChat[30000001]
@@ -45,9 +58,9 @@ def create_test_db_1():
     Teacher(name="Такташкин", subjects={SIT})
     Teacher(name="Второй препод по СИТу", subjects={SIT})
     Teacher(name="Гурьянов", subjects={PROGA})
-    HomeTask(subjects=PPO)
-    HomeTask(subjects=PPO)
-    HomeTask(subjects=PROGA)
+    HomeTask(subject=PPO)
+    HomeTask(subject=PPO)
+    HomeTask(subject=PROGA)
     commit()
 
 @db_session
@@ -60,7 +73,9 @@ if __name__ == '__main__':
     # db.generate_mapping(create_tables=True)
     # make_migrate_file()
     is_DB_created()
-    # create_test_db_1()
+    create_test_db_1()
+    # with db_session:
+    #     NoneVerification(it_is_i=User[102], he_verificate_me=User[103])
     show_all()
     from pprint import pprint
     # pprint(db.entities)

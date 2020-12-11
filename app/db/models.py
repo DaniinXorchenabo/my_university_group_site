@@ -9,8 +9,6 @@ from app.settings.config import *
 
 db = Database()
 
-
-
 class Admin(db.Entity):
     user = PrimaryKey('User')
 
@@ -27,8 +25,7 @@ class User(db.Entity):
     admin = Optional(Admin)
     login_EIES = Optional(str)
     password_EIES = Optional(str)
-    # verification_status = Required(bool, default='false')
-    my_verification = Optional('NoneVerification', reverse='it_is_i')  # если поле пустое - то я верифицирован, если нет - то у меня нет доступа к информации группы
+    my_verification = Set('NoneVerification', reverse='it_is_i')  # если поле пустое - то я верифицирован, если нет - то у меня нет доступа к информации группы
     i_verificate_thei = Set('NoneVerification', reverse='he_verificate_me')
     # те пользователи, которых я могу верифицировать
     # Это поле может быть не пустым только если я сам верифицирован
@@ -90,12 +87,10 @@ class WeekdayAndTimeSubject(db.Entity):
     subject = Optional(Subject)
     number_week = Required(int)
     weekday = Required(str)
-    time = Required(time, default="00:00")
+    time = Optional(time, default="00:00")
     classroom_number = Optional(str)
     e_learning_url = Optional('ELearningUrl')
     update_time = Required(datetime, default=lambda: datetime.now())
-    group_id = Required(int)
-    PrimaryKey(number_week, weekday, time, group_id)
 
 
 class ELearningUrl(db.Entity):
@@ -135,7 +130,6 @@ class News(db.Entity):
     title = Optional(str)
     text = Optional(str)
     files = Optional(Json)
-    some = Optional(str)
 
 
 class NoneVerification(db.Entity):
@@ -147,6 +141,7 @@ class NoneVerification(db.Entity):
     # 1 - ответил отрицательно
     # 2 - ответил положительно
     PrimaryKey(it_is_i, he_verificate_me)
+
 
 
 def controller_migration_version(db_path=DB_PATH):
