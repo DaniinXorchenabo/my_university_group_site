@@ -27,7 +27,7 @@ class User(db.Entity):
     admin = Optional(Admin)
     login_EIES = Optional(str)
     password_EIES = Optional(str)
-    verification_status = Required(bool, default='false')
+    # verification_status = Required(bool, default='false')
     my_verification = Optional('NoneVerification', reverse='it_is_i')  # если поле пустое - то я верифицирован, если нет - то у меня нет доступа к информации группы
     i_verificate_thei = Set('NoneVerification', reverse='he_verificate_me')
     # те пользователи, которых я могу верифицировать
