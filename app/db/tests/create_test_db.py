@@ -61,8 +61,23 @@ def create_test_db_1():
     HomeTask(subject=PPO)
     HomeTask(subject=PPO)
     HomeTask(subject=PROGA)
+    [WeekdayAndTimeSubject(subject=PROGA, number_week=i, weekday=j, type=k, time=t) for i in range(2) for j, [k, t] in
+     {"понидельник": ["лекция", '11:40'], "четверг":["консультация", '17:00'], "суббота":["практика", '9:50']}.items()]
+    a = WeekdayAndTimeSubject(subject=PPO, number_week=1, weekday="суббота", type="лекция", time="15:35")
+    a1 = WeekdayAndTimeSubject(subject=PPO, number_week=2, weekday="суббота", type="практика", time="11:40", update_time="2020-11-15 00:00:00") #
+    a2 = [WeekdayAndTimeSubject(subject=PPO, number_week=i, weekday="четверг", type="консультация", time="15:35") for i in range(2)]
     commit()
-
+    print(a1.update_time)
+    ELearningUrl(url="https://us05web.zoom.us/j/86213813841?pwd=eXVPZjhoajNsUW9HemlkWER2ZG16Zz09#success",
+                 login='86 213 813 841', password='0wFSjb', weekday_and_time_subject=a)
+    ELearningUrl(url="https://us05web.zoom.us/j/82781947757?pwd=S2VKTW9CSmFqbHIwdkJNTXpFaWhFdz09#success",
+                 login='82 781 947 757', password='8ezXfd', weekday_and_time_subject=a1)
+    [ELearningUrl(url="https://us05web.zoom.us/j/88911176462?pwd=ZDU0RjI1bnBHWnhOajFXS2xqUDFSdz09#success",
+                 login='88 911 176 462', password='5hyAg4', weekday_and_time_subject=i) for i in a2]
+    a3 = WeekdayAndTimeSubject.get(subject=PROGA, number_week=1, weekday='понидельник')
+    ELearningUrl(url="https://us05web.zoom.us/j/85655737563?pwd=LzFqUlQ1cy9FMlZidDhwY0J3NjFwUT09#success",
+                 login='85655737563', password='3TxTxb', weekday_and_time_subject=a3)
+    commit()
 @db_session
 def show_all():
     """Показывает все сущьности все сущности всех БД"""
@@ -73,6 +88,7 @@ if __name__ == '__main__':
     # db.generate_mapping(create_tables=True)
     # make_migrate_file()
     is_DB_created()
+    create_test_db_1()
     show_all()
     from pprint import pprint
     # pprint(db.entities)
