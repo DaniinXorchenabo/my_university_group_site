@@ -9,6 +9,19 @@ from app.settings.config import *
 
 db = Database()
 
+class AddArrtInDbClass(object):
+    @classmethod
+    def add_arttr(cls, func):
+        import types
+        setattr(cls, func.__name__, property(func))  # types.MethodType(func, cls)
+        cl_metod = getattr(cls, func.__name__)
+        def w(*arfs, **kwargs):
+            if cls.exists(**kwargs):
+                ent = cls.get(**kwargs)
+                return getattr(ent, func.__name__)
+            return None
+        setattr(cls, 'cl_' + func.__name__, classmethod(w))
+
 class Admin(db.Entity):
     user = PrimaryKey('User')
 
@@ -144,6 +157,12 @@ class NoneVerification(db.Entity):
     PrimaryKey(it_is_i, he_verificate_me)
 
 
+for name, ent in db.entities.items():
+    ent.__bases__ = tuple(list(ent.__bases__) + [AddArrtInDbClass])
+
+@Group.add_arttr
+def get_subject(self):
+    return self.subjects.select()[:]
 
 def controller_migration_version(db_path=DB_PATH):
     """не работает, не использовать"""
@@ -250,6 +269,7 @@ if __name__ == '__main__':
 
     chdir(HOME_DIR)
     is_DB_created()
+
     # db.migrate(command='make',
     #            migration_dir=join(HOME_DIR, "db", 'migrations'),
     #            # allow_auto_upgrade=True,
@@ -277,5 +297,5 @@ if __name__ == '__main__':
     #            provider=cfg.get("db", "type"),
     #            filename=":memory:")
 
-    with db_session():
-        User.select().show()
+    # with db_session():
+    #     User.select().show()
