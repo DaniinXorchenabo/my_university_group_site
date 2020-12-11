@@ -73,9 +73,6 @@ if __name__ == '__main__':
     # db.generate_mapping(create_tables=True)
     # make_migrate_file()
     is_DB_created()
-    create_test_db_1()
-    # with db_session:
-    #     NoneVerification(it_is_i=User[102], he_verificate_me=User[103])
     show_all()
     from pprint import pprint
     # pprint(db.entities)

@@ -91,6 +91,7 @@ class WeekdayAndTimeSubject(db.Entity):
     classroom_number = Optional(str)
     e_learning_url = Optional('ELearningUrl')
     update_time = Required(datetime, default=lambda: datetime.now())
+    type = Optional(str)  # лекция, практика и т.д.
 
 
 class ELearningUrl(db.Entity):
