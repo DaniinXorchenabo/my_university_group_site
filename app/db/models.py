@@ -44,6 +44,7 @@ class AddArrtInDbClass(object):
         и так 
         Group['20ВП1'].func(ваши параметры, которые требует функция)"""
         setattr(cls, func.__name__, func)  # types.MethodType(func, cls)
+
         def w(*arfs, **kwargs):
             if cls.exists(id=kwargs.get('id', -1234)):
                 ent = cls.get(id=kwargs.get('id', -1234))
@@ -263,6 +264,27 @@ def get_hometask_data(self):
     return [(i[:-1], select(j.name for j in i[-1].teachers)[:])
             for i in select((j.deadline_date, j.deadline_time, i.name, j.text, i)
                             for i in self.subjects for j in i.home_tasks).sort_by(1, 2)]
+
+
+@Group.getter_and_classmethod
+def get_teachers(self):
+    """Возвращает сущности учителей"""
+    return select(t for i in self.subjects for t in i.teachers)[:]
+
+
+@Group.getter_and_classmethod
+def get_teachers_data(self):
+    """Возвращает словарь с ключем - имя учителя и значением:
+    - список предметов, которые он ведет
+    - емеил
+    - номер телефона"""
+    ans = dict()
+    for [name, sub, em, num] in select(
+            (t.name, i.name, t.email, t.phone_number) for i in self.subjects for t in i.teachers):
+        ans[name] = ans.get(name, [[sub], em, num])
+        ans[name][0].append(sub)
+    return ans
+    # return [(j.name, j.email, j.phone_number, select(sub.name for sub in j.subjects)[:]) for j in select(t for i in self.subjects for t in i.teachers)[:]]
 
 
 @User.getter_and_classmethod
