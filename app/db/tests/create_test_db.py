@@ -101,7 +101,11 @@ if __name__ == '__main__':
     is_DB_created()
     # create_test_db_1()
     show_all()
-    with db_session:
-        print(*enumerate(Group.cl_get_hometask_data(name='20ВП1'), 1), sep='\n')
+    # with db_session:
+    #     gr = Group['20ВП1']
+    #     u = User(name='Вася Тестовый-Второй', id=106, password="123", groups=gr)
+    #     commit()
+    #     print(User[106].my_verification)
+    #     print(User[106].i_verificate_thei)
     from pprint import pprint
     # pprint(db.entities)

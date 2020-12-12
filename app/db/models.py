@@ -31,6 +31,29 @@ class AddArrtInDbClass(object):
 
         setattr(cls, 'cl_' + func.__name__, classmethod(w))
 
+    @classmethod
+    def add_arttr_no_cl(cls, func):
+        """Для всех штук, обладающих декоратором @<Entity>.add_arttr есть 2 варианта вызова:
+        Примеры:
+        gr = Group(**params)
+        gr.func(*args, **kwargs)
+        где params - те параметры (в нашем случае, name='20ВП1'),
+        по которым можно найти интересующую группу
+
+        *args - список аргументов, необходимых функции для работы
+        **kwargs - список именованный аргументов, необходимых функции для работы"""
+        setattr(cls, func.__name__, func)  # types.MethodType(func, cls)
+
+    @classmethod
+    def add_setter(cls, func):
+        """Для всех штук, обладающих декоратором @<Entity>.add_arttr есть 2 варианта вызова:
+        Примеры:
+        gr = Group.get(**params)
+        gr.get_subject = 34312
+        где params - те параметры (в нашем случае, name='20ВП1'),
+        по которым можно найти интересующую группу"""
+        setattr(cls, func.__name__, getattr(cls, func.__name__).setter(func))  # types.MethodType(func, cls)
+
 
 class Admin(db.Entity):
     user = PrimaryKey('User')
@@ -199,6 +222,7 @@ def get_time_list(self):
     return (i[0] for i in select((j, j.number_week, j.weekday, j.time)
                                  for i in self.subjects for j in i.weekday_and_time_subjects).sort_by(2, 3, 4)[:])
 
+
 @Group.add_arttr
 def get_time_list_data(self):
     """Возвращает расписания группы в формате"
@@ -207,13 +231,15 @@ def get_time_list_data(self):
             select((j.number_week, j.weekday, j.time, i.name, i) for i in self.subjects
                    for j in i.weekday_and_time_subjects).sort_by(1, 2, 3)]
 
+
 @Group.add_arttr
 def get_hometask(self):
     """возвращает сущности всего домашнего задания в порядке возрастания даты
     (от старого к новому)
     если дата или время не указано, то считается, что это меньше всего"""
     return (i[0] for i in select((j, j.deadline_date, j.deadline_time)
-                                 for i in self.subjects for j in i.home_tasks).sort_by(2, 3,)[:])
+                                 for i in self.subjects for j in i.home_tasks).sort_by(2, 3, )[:])
+
 
 @Group.add_arttr
 def get_hometask_data(self):
@@ -226,6 +252,58 @@ def get_hometask_data(self):
             for i in select((j.deadline_date, j.deadline_time, i.name, j.text, i)
                             for i in self.subjects for j in i.home_tasks).sort_by(1, 2)]
 
+@User.add_arttr
+def is_verificated(self):
+    """Возвращает True, если пользователь верифицирован
+    False - в противном случае"""
+    return not bool(self.my_verification)
+
+@User.add_setter
+def is_verificated(self, value: bool):
+    """устанавлмвает значение верификации
+    True - пользователь верифицирован
+    False - пользователь не верифицирован"""
+    if value:
+        self.my_verification = set()
+        self.i_verificate_thei = set()
+        commit()
+        [NoneVerification(**params) for params in
+         (dict(it_is_i=u, he_verificate_me=self) for u in User.select(lambda u: not u.is_verificated))
+          if not NoneVerification.exists(**params)]
+        commit()
+    else:
+        self.my_verification = set()
+        commit()
+        self.i_verificate_thei = set()
+        commit()
+        delete(i for i in NoneVerification if i.he_verificate_me == self)
+        commit()
+        delete(i for i in NoneVerification if i.it_is_i == self)
+        commit()
+        [NoneVerification(**params) for params in
+         (dict(it_is_i=self, he_verificate_me=u) for u in User.select(lambda u: u.is_verificated and u != self))
+          if not NoneVerification.exists(**params)]
+        commit()
+
+@User.add_arttr_no_cl
+def __init__(self, *args, **kwargs):
+    # print(self, args, kwargs)
+    """при инициализации пользователя делаем его неверифицированным, если не указано иное"""
+    init_kw = kwargs.copy()
+    super(User, self).__init__(*args, **kwargs)
+    commit()
+    if "my_verification" not in init_kw and "i_verificate_thei" not in init_kw:
+        if User.exists(**init_kw):
+            print('существует')
+            self_user = User.get(**init_kw)
+            if "groups" in init_kw:
+                my_group = init_kw.get('groups', '')
+                my_group_friends = set(select(i for i in User if i.groups == my_group and i.is_verificated)[:]) - {self}
+                print(my_group_friends)
+                [NoneVerification(it_is_i=self, he_verificate_me=u) for u in my_group_friends]
+                commit()
+        else:
+            print('не существует')
 
 def controller_migration_version(db_path=DB_PATH):
     """не работает, не использовать"""
