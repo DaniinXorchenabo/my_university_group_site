@@ -257,7 +257,7 @@ def get_hometask_data(self):
 def is_verificated(self):
     """Возвращает True, если пользователь верифицирован
     False - в противном случае"""
-    return not bool(self.my_verification)
+    pass
 
 
 @User.add_setter
@@ -290,7 +290,22 @@ def is_verificated(self, value: bool):
 
 @User.add_arttr
 def check_verificated(self):
-    self.my_verification.select(lambda:)
+    """если по большинству голосов за пользователя он получается веривицированным, то функция верифицирует его"""
+    if bool(self.my_verification):
+        num, count, *_ = zip(*((i.confirmation, 1) for i in self.my_verification.select()))
+        if sum(count) // 2 <= sum(num):
+            self.is_verificated = True
+            return True
+        return False
+    return not self.groups is None
+
+
+@User.add_arttr
+def is_verificated(self):
+    """Возвращает True, если пользователь верифицирован
+    False - в противном случае"""
+    return self.check_verificated
+
 
 @User.add_arttr_no_cl
 def __init__(self, *args, **kwargs):
