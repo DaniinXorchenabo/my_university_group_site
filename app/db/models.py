@@ -12,15 +12,13 @@ db = Database()
 
 class AddArrtInDbClass(object):
     @classmethod
-    def add_arttr(cls, func):
-        """Для всех штук, обладающих декоратором @<Entity>.add_arttr есть 2 варианта вызова:
-        Примеры:
-        Group.cl_get_subject(**params)
-        и
-        gr = Group.get(**params)
-        gr.get_subject
-        где params - те параметры (в нашем случае, name='20ВП1'),
-        по которым можно найти интересующую группу"""
+    def getter_and_classmethod(cls, func):
+        """добавляет одноимянный атрибут и метод сласса"""
+        """"Это означает, что можно так:
+        Group['20ВП1'].func
+        и Group.cl_func(name='20ВП1')
+        вместо name='20ВП1' могут быть любые параметры, идентифицирующие сущность
+        """
         setattr(cls, func.__name__, property(func))  # types.MethodType(func, cls)
 
         def w(*arfs, **kwargs):
@@ -32,27 +30,41 @@ class AddArrtInDbClass(object):
         setattr(cls, 'cl_' + func.__name__, classmethod(w))
 
     @classmethod
-    def add_arttr_no_cl(cls, func):
-        """Для всех штук, обладающих декоратором @<Entity>.add_arttr есть 2 варианта вызова:
-        Примеры:
-        gr = Group(**params)
-        gr.func(*args, **kwargs)
-        где params - те параметры (в нашем случае, name='20ВП1'),
-        по которым можно найти интересующую группу
-
-        *args - список аргументов, необходимых функции для работы
-        **kwargs - список именованный аргументов, необходимых функции для работы"""
+    def only_func(cls, func):
+        """добавляет к классу одноимянную функцию"""
+        """Это означает, что можно так:
+        Group['20ВП1'].func(ваши параметры, которые требует функция)"""
         setattr(cls, func.__name__, func)  # types.MethodType(func, cls)
 
     @classmethod
-    def add_setter(cls, func):
-        """Для всех штук, обладающих декоратором @<Entity>.add_arttr есть 2 варианта вызова:
-        Примеры:
-        gr = Group.get(**params)
-        gr.get_subject = 34312
-        где params - те параметры (в нашем случае, name='20ВП1'),
-        по которым можно найти интересующую группу"""
+    def func_and_classmethod(cls, func):
+        """добавляет к классу одноимянную функцию и метод класса"""
+        """Это означает, что можно так:
+        Group['20ВП1'].func(ваши параметры, которые требует функция)
+        и так 
+        Group['20ВП1'].func(ваши параметры, которые требует функция)"""
+        setattr(cls, func.__name__, func)  # types.MethodType(func, cls)
+        def w(*arfs, **kwargs):
+            if cls.exists(id=kwargs.get('id', -1234)):
+                ent = cls.get(id=kwargs.get('id', -1234))
+                return getattr(ent, func.__name__)(*arfs, **kwargs)
+            return None
+
+        setattr(cls, 'cl_' + func.__name__, classmethod(w))
+
+    @classmethod
+    def only_setter(cls, func):
+        """добавляет к классу одноимянную функцию и метод класса"""
+        """Это означает, что можно так:
+        Group['20ВП1'].func = ваше значение"""
         setattr(cls, func.__name__, getattr(cls, func.__name__).setter(func))  # types.MethodType(func, cls)
+
+    @classmethod
+    def only_classmetod(cls, func):
+        """добавляет к классу метод класса"""
+        """Это означает, что можно так:
+        Group.func()"""
+        setattr(cls, func.__name__, classmethod(func))
 
 
 class Admin(db.Entity):
@@ -196,7 +208,7 @@ for name, ent in db.entities.items():
     ent.__bases__ = tuple(list(ent.__bases__) + [AddArrtInDbClass])
 
 
-@Group.add_arttr
+@Group.getter_and_classmethod
 def get_subject(self):
     """возвращает сущности всех предметов"""
     """Для всех штук, обладающих декоратором @<Entity>.add_arttr есть 2 варианта вызова:
@@ -210,20 +222,20 @@ def get_subject(self):
     return self.subjects.select()[:]
 
 
-@Group.add_arttr
+@Group.getter_and_classmethod
 def get_subject_name(self):
     """Возвращает названия всех предметов"""
     return self.subjects.select()[:]
 
 
-@Group.add_arttr
+@Group.getter_and_classmethod
 def get_time_list(self):
     """Возвращает сущности расписания группы"""
     return (i[0] for i in select((j, j.number_week, j.weekday, j.time)
                                  for i in self.subjects for j in i.weekday_and_time_subjects).sort_by(2, 3, 4)[:])
 
 
-@Group.add_arttr
+@Group.getter_and_classmethod
 def get_time_list_data(self):
     """Возвращает расписания группы в формате"
     [((номер_недели, номер_дня_недели, время, название предмета), (препод1, препод2, ...)), (...), ...]"""
@@ -232,7 +244,7 @@ def get_time_list_data(self):
                    for j in i.weekday_and_time_subjects).sort_by(1, 2, 3)]
 
 
-@Group.add_arttr
+@Group.getter_and_classmethod
 def get_hometask(self):
     """возвращает сущности всего домашнего задания в порядке возрастания даты
     (от старого к новому)
@@ -241,7 +253,7 @@ def get_hometask(self):
                                  for i in self.subjects for j in i.home_tasks).sort_by(2, 3, )[:])
 
 
-@Group.add_arttr
+@Group.getter_and_classmethod
 def get_hometask_data(self):
     """возвращает данные всего домашнего задания в порядке возрастания даты
     (от старого к новому)
@@ -253,14 +265,14 @@ def get_hometask_data(self):
                             for i in self.subjects for j in i.home_tasks).sort_by(1, 2)]
 
 
-@User.add_arttr
+@User.getter_and_classmethod
 def is_verificated(self):
     """Возвращает True, если пользователь верифицирован
     False - в противном случае"""
     pass
 
 
-@User.add_setter
+@User.only_setter
 def is_verificated(self, value: bool):
     """устанавлмвает значение верификации
     True - пользователь верифицирован
@@ -288,7 +300,7 @@ def is_verificated(self, value: bool):
         commit()
 
 
-@User.add_arttr
+@User.getter_and_classmethod
 def check_verificated(self):
     """если по большинству голосов за пользователя он получается веривицированным, то функция верифицирует его"""
     if bool(self.my_verification):
@@ -297,17 +309,17 @@ def check_verificated(self):
             self.is_verificated = True
             return True
         return False
-    return not self.groups is None
+    return self.groups is not None
 
 
-@User.add_arttr
+@User.getter_and_classmethod
 def is_verificated(self):
     """Возвращает True, если пользователь верифицирован
     False - в противном случае"""
     return self.check_verificated
 
 
-@User.add_arttr_no_cl
+@User.only_func
 def __init__(self, *args, **kwargs):
     # print(self, args, kwargs)
     """при инициализации пользователя делаем его неверифицированным, если не указано иное"""
@@ -326,6 +338,42 @@ def __init__(self, *args, **kwargs):
                 commit()
         else:
             print('не существует')
+
+
+@User.func_and_classmethod
+def add_group(self, *args, **params):
+    """Функция для добавления пользователю группы
+    =======! Внимание !=======
+    никаким образом больше добавлять группы нельзя!!!!!"""
+    """Использование:
+    User.add_group('20ВП1', id=123078234)
+    User.add_group(Group['20ВП1'], id=123078234)
+    User.add_group('20ВП1', id=123078234, name='Billy' <и другие параметры пользователя>)
+    User.add_group(Group['20ВП1'], id=123078234, name='Billy' <и другие параметры пользователя>)
+    User[123078234].add_group('20ВП1')
+    User[123078234].add_group(Group['20ВП1'])
+    User[123078234].add_group('20ВП1', name='Billy' <и другие параметры пользователя>)
+    User[123078234].add_group(Group['20ВП1'], name='Billy' <и другие параметры пользователя>)
+    """
+
+    if bool(args) and type(args[0]) in [str, Group]:
+        if bool(params):
+            self.set(**params)
+            commit()
+        self.groups = Group[args[0]] if type(args[0]) == str else args[0]
+        commit()
+        self.is_verificated = False
+        return True
+    elif bool(params):
+        flag = False
+        if "groups" in params and self.groups is None:
+            flag = True
+        self.set(**params)
+        commit()
+        if flag:
+            self.is_verificated = False
+        return True
+    return False
 
 
 def controller_migration_version(db_path=DB_PATH):
