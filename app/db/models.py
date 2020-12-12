@@ -187,8 +187,8 @@ class NoneVerification(db.Entity):
                                 reverse='i_verificate_thei')  # моя группа, которая должна подтвердить, что я с ними в одной группе
     confirmation = Optional(int, default=0)
     # 0 - пользователь ничего не ответил
-    # 1 - ответил отрицательно
-    # 2 - ответил положительно
+    # -1 - ответил отрицательно
+    # 1 - ответил положительно
     PrimaryKey(it_is_i, he_verificate_me)
 
 
@@ -252,11 +252,13 @@ def get_hometask_data(self):
             for i in select((j.deadline_date, j.deadline_time, i.name, j.text, i)
                             for i in self.subjects for j in i.home_tasks).sort_by(1, 2)]
 
+
 @User.add_arttr
 def is_verificated(self):
     """Возвращает True, если пользователь верифицирован
     False - в противном случае"""
     return not bool(self.my_verification)
+
 
 @User.add_setter
 def is_verificated(self, value: bool):
@@ -269,7 +271,7 @@ def is_verificated(self, value: bool):
         commit()
         [NoneVerification(**params) for params in
          (dict(it_is_i=u, he_verificate_me=self) for u in User.select(lambda u: not u.is_verificated))
-          if not NoneVerification.exists(**params)]
+         if not NoneVerification.exists(**params)]
         commit()
     else:
         self.my_verification = set()
@@ -282,8 +284,13 @@ def is_verificated(self, value: bool):
         commit()
         [NoneVerification(**params) for params in
          (dict(it_is_i=self, he_verificate_me=u) for u in User.select(lambda u: u.is_verificated and u != self))
-          if not NoneVerification.exists(**params)]
+         if not NoneVerification.exists(**params)]
         commit()
+
+
+@User.add_arttr
+def check_verificated(self):
+    self.my_verification.select(lambda:)
 
 @User.add_arttr_no_cl
 def __init__(self, *args, **kwargs):
@@ -304,6 +311,7 @@ def __init__(self, *args, **kwargs):
                 commit()
         else:
             print('не существует')
+
 
 def controller_migration_version(db_path=DB_PATH):
     """не работает, не использовать"""
