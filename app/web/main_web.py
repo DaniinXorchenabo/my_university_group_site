@@ -2,7 +2,7 @@ import uvicorn
 import random
 from fastapi import FastAPI
 
-from app.db.models import *
+from app.db.all_tools_db import *
 
 app = FastAPI()
 
