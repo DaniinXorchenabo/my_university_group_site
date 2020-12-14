@@ -1,5 +1,7 @@
 # -*- coding: utf-8 -*-
 
+"""Функции, нужные для тестирования БД"""
+
 from datetime import date
 from datetime import datetime
 from datetime import time
@@ -98,16 +100,16 @@ if __name__ == '__main__':
     # db.bind(provider=cfg.get("db", "type"), filename=join(HOME_DIR, "db", "tests", "test_" + cfg.get('db', "name")))
     # db.generate_mapping(create_tables=True)
     # make_migrate_file()
-    is_DB_created()
+    # is_DB_created()
     # create_test_db_1()
-    show_all()
-    with db_session:
+    # show_all()
+    # with db_session:
     #     gr = Group['20ВП1']
     #     u = User(name='Вася Тестовый-Второй', id=105, password="123")
     #     commit()
     #     NoneVerification[User[106], User[104]].confirmation = 1
-        print(*Group['20ВП1'].get_teachers_data, sep='\n')
-        # print(User[105].check_verificated)
+    #     print(*Group['20ВП1'].get_teachers_data, sep='\n')
+    #     print(User[105].check_verificated)
     #     print(User[106].i_verificate_thei)
     from pprint import pprint
     # pprint(db.entities)
