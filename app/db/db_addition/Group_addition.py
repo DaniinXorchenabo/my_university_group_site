@@ -18,7 +18,7 @@ if __name__ == '__main__':
 @Group.getter_and_classmethod
 def get_subject(self):
     """возвращает сущности всех предметов"""
-    """Для всех штук, обладающих декоратором @<Entity>.add_arttr есть 2 варианта вызова:
+    """Для всех штук, обладающих декоратором @<Entity>.getter_and_classmethod есть 2 варианта вызова:
     Примеры:
     Group.cl_get_subject(**params)
     и 
@@ -81,7 +81,7 @@ def get_teachers(self):
 @Group.getter_and_classmethod
 def get_teachers_data(self):
     """Возвращает словарь с ключем - имя учителя и значением:
-    - список предметов, которые он ведет
+    - список предметов, которые он ведет (у этой группы)
     - емеил
     - номер телефона"""
     ans = dict()

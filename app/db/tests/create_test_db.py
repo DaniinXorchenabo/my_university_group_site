@@ -97,6 +97,7 @@ def show_all():
 
 
 if __name__ == '__main__':
+    pass
     # db.bind(provider=cfg.get("db", "type"), filename=join(HOME_DIR, "db", "tests", "test_" + cfg.get('db', "name")))
     # db.generate_mapping(create_tables=True)
     # make_migrate_file()

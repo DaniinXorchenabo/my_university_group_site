@@ -58,9 +58,14 @@ def check_verificated(self):
         num, count, *_ = zip(*((i.confirmation, 1) for i in self.my_verification.select()))
         if sum(count) // 2 <= sum(num):
             self.is_verificated = True
+            # print('-----True')
             return True
+        # print('-----False')
         return False
-    return self.groups is not None
+    User._expanded_white_list.add('groups')
+    gr = self.groups
+    # print('------', [gr])
+    return gr is not None and type(gr) != str
 
 
 @User.getter_and_classmethod
@@ -89,6 +94,37 @@ def __init__(self, *args, **kwargs):
                 commit()
         else:
             print('не существует')
+
+
+@User.only_func
+def __getattribute__(self, item, ):
+    # print(super(User.__bases__[0], self))
+    if item in User._expanded_white_list or item[0] == '_':
+        User._expanded_white_list = User._white_list.copy()
+        return super(User.__bases__[0], self).__getattribute__(item)
+    # self.my_verification
+    # print(item, User.my_verification, item in {'senior_in_the_group': None, 'groups': "вы не авторизированы"})
+    block_attr = {'senior_in_the_group': None, 'groups': 'Вы не выбрали группу'}
+    # print("*****", item, not self.is_verificated,  item in block_attr)
+    if item in block_attr and not self.is_verificated:
+        if item == 'groups':
+            # print('*************')
+            User._expanded_white_list.add(item)
+            block_attr['groups'] = super(User.__bases__[0], self).__getattribute__(item) or block_attr['groups']
+            block_attr['groups'] = (type(block_attr['groups']) == str and block_attr['groups']) or block_attr['groups'].name
+        return block_attr[item]
+    else:
+        User._expanded_white_list.add(item)
+        return super(User.__bases__[0], self).__getattribute__(item)
+    # ans = super(User, self).__getattribute__(item)
+    # if callable(ans):
+    #     return super(User, self).__getattribute__(item)
+
+    # bloking = dict() if self.is_verificated else {'senior_in_the_group': None, 'groups': "вы не авторизированы"}
+    # if item == 'groups':
+    #     bloking['groups'] = Group[self.group]
+    #     bloking['groups'] = bloking['groups'] and bloking['groups'].name
+    # return bloking.get(item, super(User.__bases__[0], self).__getattribute__(item))
 
 
 @User.func_and_classmethod

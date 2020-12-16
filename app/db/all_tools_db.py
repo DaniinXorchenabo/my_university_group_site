@@ -21,6 +21,8 @@ if __name__ == '__main__':
     is_DB_created()
     show_all()
 
-    # with db_session:
-    #     print(User[105].is_verificated)
-    #     print(Group['20ВП1'].get_teachers_data)
+    with db_session:
+        print(User[103].is_verificated, User[103].groups, User[103].id)
+        print(User[101].is_verificated, User[101].groups, User[101].id)
+        print(User[105].is_verificated, User[105].groups, User[105].id)
+        # print(Group['20ВП1'].get_teachers_data)
