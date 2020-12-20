@@ -7,6 +7,7 @@ from pony.orm import *
 
 from app.settings.config import *
 from app.db.models import *
+from app.db.db_addition.user_addition import *
 
 if __name__ == '__main__':
     from os import chdir
@@ -92,3 +93,47 @@ def get_teachers_data(self):
     return ans
     # return [(j.name, j.email, j.phone_number, select(sub.name for sub in j.subjects)[:]) for j in select(t for i in self.subjects for t in i.teachers)[:]]
 
+
+def protect_attr(attr_name='users'):
+    new_attr_name = '_' + attr_name
+
+    def decorator(cls):
+        print('!!!!!!!!!!')
+
+        @property
+        def attr(self):
+            return frozenset(filter(lambda i: i.is_verificated, getattr(self, new_attr_name).select()))
+
+        @attr.setter
+        def attr(self, val):
+            val = frozenset(val)
+            old_val = frozenset(self._users.select()[:])
+            print('val', val)
+            print('old_val', old_val)
+            self._users = val
+            for u in ((val - old_val) | (old_val - val)):  # новые пользователи и удалённые пользователи
+                u._is_verificated = False
+                print('u', u)
+            return True
+
+        last_attr = getattr(cls, attr_name)
+        setattr(cls, new_attr_name, last_attr)
+        setattr(cls, attr_name, attr)
+        return cls
+
+    return decorator
+
+
+User = protect_attr(attr_name='users')(Group)
+
+
+@Group.getter_and_classmethod
+def all_group(self):
+    """Возвращает как верифицированных пользователей, так и не верифицированных"""
+    return self._users
+
+
+@Group.getter_and_classmethod
+def no_verificated_users(self):
+    """Возвращает только неверифицированных пользователей"""
+    return frozenset(filter(lambda i: not i.is_verificated, self._users.select()))

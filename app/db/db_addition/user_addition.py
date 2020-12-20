@@ -63,7 +63,7 @@ def _is_verificated(self, value: bool):
         self.i_verificate_thei = set()
         commit()
         [NoneVerification(**params) for params in
-         (dict(it_is_i=u, he_verificate_me=self) for u in self._groups.users.select(lambda u: not u._is_verificated and u != self))
+         (dict(it_is_i=u, he_verificate_me=self) for u in self._groups._users.select(lambda u: not u._is_verificated and u != self))
          if not NoneVerification.exists(**params)]
         commit()
     else:
@@ -75,17 +75,18 @@ def _is_verificated(self, value: bool):
         commit()
         delete(i for i in NoneVerification if i.it_is_i == self)
         commit()
-        [NoneVerification(**params) for params in
-         (dict(it_is_i=self, he_verificate_me=u) for u in self._groups.users.select(lambda u: u._is_verificated and u != self))
-         if not NoneVerification.exists(**params)]
-        commit()
+        if self._groups:
+            [NoneVerification(**params) for params in
+             (dict(it_is_i=self, he_verificate_me=u) for u in self._groups._users.select(
+                 lambda u: u._is_verificated and u != self)) if not NoneVerification.exists(**params)]
+            commit()
 
 
 @User.only_setter
 def is_verificated(self, value: bool):
     print(self._is_verificated)
     if not(self._is_verificated == value == True):
-        [u.check_verificated for u in self._groups.users.select()]
+        [u.check_verificated for u in self._groups._users.select()]
         # self.check_verificated
         commit()
         self._is_verificated = value
@@ -101,7 +102,7 @@ def __init__(self, *args, **kwargs):
         if User.exists(**init_kw):
             print('существует')
             if init_kw.get("groups", None):
-                my_group_friends = set(select(i for i in self._groups.users if i._is_verificated)[:]) - {self}
+                my_group_friends = set(select(i for i in self._groups._users if i._is_verificated)[:]) - {self}
                 print(my_group_friends)
                 [NoneVerification(it_is_i=self, he_verificate_me=u) for u in my_group_friends
                  if not NoneVerification.exists(it_is_i=self, he_verificate_me=u)]
@@ -171,35 +172,35 @@ def __init__(self, *args, **kwargs):
 #     return False
 #
 
-def protect_groups(param_name='groups'):
-    new_param_name = '_' + param_name
+def protect_attr(attr_name='groups'):
+    new_attr_name = '_' + attr_name
 
     def decorator(cls):
         print('!!!!!!!!!!')
 
         @property
-        def groups(self):
+        def attr(self):
             if self._is_verificated:
                 return self._groups
-            return getattr(self, new_param_name) and getattr(self, new_param_name).name
+            return getattr(self, new_attr_name) and getattr(self, new_attr_name).name
 
-        @groups.setter
-        def groups(self, val):
+        @attr.setter
+        def attr(self, val):
             if type(val) == Group or val is None:
-                setattr(self, new_param_name, val)
-            elif Group.exists(name=str(val)):
-                setattr(self, new_param_name, Group.get(name=val))
+                setattr(self, new_attr_name, val)
+            elif Group.exists(name=str(val)):  # если указанная група (в строковом формате) существует
+                setattr(self, new_attr_name, Group.get(name=val))
             else:
                 return False
             self.is_verificated = False
             return True
 
-        last_attr = getattr(cls, param_name)
-        setattr(cls, new_param_name, last_attr)
-        setattr(cls, param_name, groups)
+        last_attr = getattr(cls, attr_name)
+        setattr(cls, new_attr_name, last_attr)
+        setattr(cls, attr_name, attr)
         return cls
 
     return decorator
 
 
-User = protect_groups(param_name='groups')(User)
+User = protect_attr(attr_name='groups')(User)
