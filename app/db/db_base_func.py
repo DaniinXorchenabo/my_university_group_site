@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 """В этом коде пишется и объявляется то, что нужно еще до объявления сущностей БД"""
+
 from datetime import date
 from datetime import datetime
 from datetime import time
