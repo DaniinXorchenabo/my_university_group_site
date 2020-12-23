@@ -22,10 +22,10 @@ from app.db.db_control_func import *
 if __name__ == '__main__':
     from os import chdir
 
-    # chdir(HOME_DIR)
-    # is_DB_created()
-    # create_test_db_1()
-    # show_all()
+    chdir(HOME_DIR)
+    is_DB_created()
+    create_test_db_1()
+    show_all()
     #
     # with db_session:
     #     print(Group['20ВП1'].users)
