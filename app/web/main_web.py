@@ -6,10 +6,12 @@ import uvicorn
 from fastapi import FastAPI
 
 from app.db.all_tools_db import *
-from app.web.api_app import *
+
 
 
 app = FastAPI()
+
+from app.web.api_app import *
 
 app.include_router(api_app)
 

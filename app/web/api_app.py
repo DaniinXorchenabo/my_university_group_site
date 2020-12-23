@@ -5,11 +5,15 @@
 import random
 
 import uvicorn
-from fastapi import FastAPI
+from fastapi import FastAPI, APIRouter
 
 from app.db.all_tools_db import *
 
-api_app = FastAPI()
+
+api_app = APIRouter()
+
+if __name__ == "__main__":
+    is_DB_created()
 
 
 @api_app.get("/")
@@ -183,6 +187,8 @@ def settings_group_senior(session_key: str):
         return {"<какой-то параметр> : <какое-то значение>"}
     return {"Ты накосячил с session_key. Взломать пытался, нехороший человек! Ухади!"}
 
+
 if __name__ == "__main__":
-    is_DB_created()
+    # is_DB_created()
+    show_all()
     uvicorn.run("main_web:api_app", host="127.0.0.1", port=8000, reload=True)
