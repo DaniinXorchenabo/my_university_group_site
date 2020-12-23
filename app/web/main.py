@@ -1,17 +1,12 @@
 # -*- coding: utf-8 -*-
 
-import random
+"""Главный файл нашего web-приложения"""
 
-import uvicorn
 from fastapi import FastAPI
-
-from app.db.all_tools_db import *
-
-
 
 app = FastAPI()
 
-from app.web.api_app import *
+from app.web.routers.api_app import *
 
 app.include_router(api_app)
 
