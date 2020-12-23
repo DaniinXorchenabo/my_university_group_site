@@ -2,6 +2,8 @@
 
 """Дополнение к пользователю"""
 
+import uuid
+import hashlib
 from datetime import date
 from datetime import datetime
 from datetime import time
@@ -65,7 +67,8 @@ def _is_verificated(self, value: bool):
         self.i_verificate_thei = set()
         commit()
         [NoneVerification(**params) for params in
-         (dict(it_is_i=u, he_verificate_me=self) for u in self._groups._users.select(lambda u: not u._is_verificated and u != self))
+         (dict(it_is_i=u, he_verificate_me=self) for u in
+          self._groups._users.select(lambda u: not u._is_verificated and u != self))
          if not NoneVerification.exists(**params)]
         commit()
     else:
@@ -87,7 +90,7 @@ def _is_verificated(self, value: bool):
 @User.only_setter
 def is_verificated(self, value: bool):
     print(self._is_verificated)
-    if not(self._is_verificated == value == True):
+    if not (self._is_verificated == value == True):
         [u.check_verificated for u in self._groups._users.select()]
         # self.check_verificated
         commit()
@@ -196,6 +199,46 @@ def protect_attr(attr_name='groups'):
                 return False
             self.is_verificated = False
             return True
+
+        last_attr = getattr(cls, attr_name)
+        setattr(cls, new_attr_name, last_attr)
+        setattr(cls, attr_name, attr)
+        return cls
+
+    return decorator
+
+
+def protect_password(attr_name='groups'):
+    new_attr_name = '_' + attr_name
+    from hashlib import pbkdf2_hmac
+    import binascii
+
+    def decorator(cls):
+        print('!!!!!!!!!!')
+
+        @property
+        def attr(self):
+            if self._is_verificated:
+                return self._groups
+            return getattr(self, new_attr_name) and getattr(self, new_attr_name).name
+
+        @attr.setter
+        def attr(self, val):
+            from hashlib import pbkdf2_hmac
+            import binascii
+            from os import urandom
+
+            salt = urandom(32)
+            key = hashlib.pbkdf2_hmac(hash_name='sha256',
+                                      password='mypassw6ord'.encode('utf-8'),
+                                      salt=salt,
+                                      iterations=100000)
+
+            # Хранение как
+            storage = salt + key
+
+            dk += ":" + salt
+            return str(binascii.hexlify(dk), encoding="utf-8")
 
         last_attr = getattr(cls, attr_name)
         setattr(cls, new_attr_name, last_attr)
