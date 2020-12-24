@@ -55,16 +55,20 @@ def make_migrate_file(db_l=db):
 def is_DB_created(db_path=DB_PATH, deep=0, db_l=db):
     """
     Создает соединение с БД
-    :param db_path:
-    :param deep:
-    :param db_l:
+    :param db_path: путь к БД
+    :param deep: глубина рекурсии
+    :param db_l: объект БД
     :return:
     """
-    from os.path import isfile
+    from os.path import isfile, split, join
+    from os import remove, rename
+    from sys import exit
+    from time import ctime
+    from shutil import copy as shutil_copy
+
     if deep > 5:
         print('в коннекте с базой данных наблюдается большая рекурсия, значит что-то идет не так')
-        import sys
-        sys.exit()
+        exit()
 
     if not isfile(db_path):
         db_l.connect(allow_auto_upgrade=True,
@@ -97,22 +101,18 @@ def is_DB_created(db_path=DB_PATH, deep=0, db_l=db):
                 print('получилось')
             except Exception as e:
                 print("Начинаем миграцию")
-                import shutil
-                import os
-                from os.path import split, join
-                import time
-                t = time.ctime().split()[1:]
+                t = ctime().split()[1:]
                 t[0], t[1], t[2] = t[2], t[1], t[0]
-                copy_name = shutil.copy(db_path, DB_BACKUPS)
+                copy_name = shutil_copy(db_path, DB_BACKUPS)
                 new_name = join(split(copy_name)[0], '_'.join(t).replace(":", "-") + "_" + split(db_path)[1])
-                os.rename(copy_name, new_name)
+                rename(copy_name, new_name)
                 print("создан бекап:", new_name)
                 print("Удалена исходная база данных, создаём новую")
-                os.remove(db_path)
+                remove(db_path)
                 # controller_migration_version(db_path)
-                print('\n---------------------------\n\nдля создания новой БД перезапустите код.....')
-                import sys
-                sys.exit()
+                print('\n=========================================\n\n\t\tдля создания новой БД перезапустите код.....')
+                print('\n=========================================')
+                exit()
                 # is_DB_created(db_path=db_path, deep=deep + 1)
 
 

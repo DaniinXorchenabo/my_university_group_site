@@ -94,8 +94,6 @@ class AddArrtInDbClass(object):
         setattr(cls, func.__name__, classmethod(func))
 
 
-
-
 if __name__ == '__main__':
     from os import chdir
 
