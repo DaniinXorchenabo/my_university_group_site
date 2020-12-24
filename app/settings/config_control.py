@@ -1,5 +1,7 @@
 # -*- coding: utf-8 -*-
 
+"""Тут находятся функции для работы с .ini файлом"""
+
 if __name__ == '__main__':
     from os import chdir
     from app.settings.config import HOME_DIR, SETTINGS_FILE, EXAMPLE_SETTINGS_FILE

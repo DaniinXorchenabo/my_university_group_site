@@ -2,9 +2,11 @@
 
 """Место для настроек, которые нельзя записать в .ini"""
 
-from app.settings.config_control import *
 from os.path import split, dirname, abspath, join
 from os import chdir
+
+from app.settings.config_control import *
+
 
 HOME_DIR = split(dirname(abspath(__file__)))[0]
 SETTINGS_DIR = join(HOME_DIR, "settings")
