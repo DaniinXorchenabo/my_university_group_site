@@ -15,27 +15,33 @@ from app.db.models import *
 def create_test_db_1():
     """создает тестовую БД для того, чтобы можно было поиграться с ней"""
     try:
-        User(name='Петя', id=100, password="123")
+        Group(name='20ВП1')
+        commit()
+
     except Exception as e:
         print('произошла ошибка при заполнении БД', e)
         print('похоже, что БД уже содержит данное заполнение')
-    User(name='Вася', id=101, password="123")
-    User(name='Ваня', id=102, password="123")
-    User(name='Вася Админ', id=103, password="123")
-    User(name='Вася Староста', id=104, password="123")
+        return
+
+    gr = Group['20ВП1']
+    User(name='Петя', id=100, password="123", groups=gr)
+    User(name='Вася', id=101, password="123", groups=gr)
+    User(name='Ваня', id=102, password="123", groups=gr)
+    User(name='Вася Админ', id=103, password="123", groups=gr)
+    User(name='Вася Староста', id=104, password="123", groups=gr)
     commit()
     admin = User[103]
     Admin(user=admin)
-    Group(name='20ВП1', users={admin, User[100], User[101], User[102], User[104]})
+
     # non_verivicared = {User[100], User[101], User[102]}
     # verivicared = {User[104], User[103]}
-    NoneVerification(it_is_i=User[100], he_verificate_me=User[104])
-    NoneVerification(it_is_i=User[101], he_verificate_me=User[104])
-    NoneVerification(it_is_i=User[102], he_verificate_me=User[104])
-    commit()
-    NoneVerification(it_is_i=User[100], he_verificate_me=User[103])
-    NoneVerification(it_is_i=User[101], he_verificate_me=User[103])
-    NoneVerification(it_is_i=User[102], he_verificate_me=User[103])
+    # NoneVerification(it_is_i=User[100], he_verificate_me=User[104])
+    # NoneVerification(it_is_i=User[101], he_verificate_me=User[104])
+    # NoneVerification(it_is_i=User[102], he_verificate_me=User[104])
+    # commit()
+    # NoneVerification(it_is_i=User[100], he_verificate_me=User[103])
+    # NoneVerification(it_is_i=User[101], he_verificate_me=User[103])
+    # NoneVerification(it_is_i=User[102], he_verificate_me=User[103])
     # [NoneVerification(it_is_i=non_verif_user, he_verificate_me=verificates_user) for non_verif_user in non_verivicared
     #  for verificates_user in verivicared]
     commit()
@@ -97,6 +103,7 @@ def show_all():
 
 
 if __name__ == '__main__':
+    pass
     # db.bind(provider=cfg.get("db", "type"), filename=join(HOME_DIR, "db", "tests", "test_" + cfg.get('db', "name")))
     # db.generate_mapping(create_tables=True)
     # make_migrate_file()

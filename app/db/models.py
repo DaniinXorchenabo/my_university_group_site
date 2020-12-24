@@ -159,6 +159,13 @@ for name, ent in db.entities.items():
 # is_DB_created()
 
 if __name__ == '__main__':
+    from app.db.db_control_func import *
+    is_DB_created()
+    with db_session:
+        User[103].is_verificated = True
+        print(User[103].is_verificated)
+        # User[105].groups = None
+        commit()
     from os import chdir
 
     chdir(HOME_DIR)
