@@ -28,7 +28,7 @@ if __name__ == '__main__':
     show_all()
 
     # with db_session:
-    #     print(len(User[100].password), User[100].password)
+    #     print(User[100].check_password('1234653'))
     #     print(len(User[100]._password), User[100]._password)
     #     print(len(User[100]._get_password), User[100]._get_password)
     #     print(len(User[100]._get_salt_password + User[100]._get_key_password), User[100]._get_salt_password + User[100]._get_key_password)

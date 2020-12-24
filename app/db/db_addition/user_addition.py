@@ -97,9 +97,6 @@ def is_verificated(self, value: bool):
         self._is_verificated = value
 
 
-
-
-
 # @User.only_func
 # def __getattribute__(self, item, ):
 #     # print(super(User.__bases__[0], self))
@@ -161,6 +158,18 @@ def is_verificated(self, value: bool):
 #     return False
 #
 
+@User.only_staticmethod
+def create_hash(string, salt):
+    from hashlib import pbkdf2_hmac
+    from binascii import unhexlify
+
+    if type(salt) == str:
+        if len(salt) % 2 != 0:
+            salt = salt + 'a'
+        salt = unhexlify(salt)
+    return pbkdf2_hmac('sha256', str(string).encode('utf-8'), salt, 100000, dklen=32)
+
+
 def protect_attr(attr_name='groups'):
     new_attr_name = '_' + attr_name
 
@@ -194,7 +203,7 @@ def protect_attr(attr_name='groups'):
 
 def protect_password(attr_name='groups'):
     from hashlib import pbkdf2_hmac
-    import binascii
+    from binascii import unhexlify, hexlify
     from os import urandom
 
     new_attr_name = '_' + attr_name
@@ -214,11 +223,11 @@ def protect_password(attr_name='groups'):
         def attr(self, new_password):
             """Будет выполнятся при присваивании нового значения атрибуту attr_name"""
             salt = urandom(32)  # размер строки - 64
-            key = pbkdf2_hmac('sha256', str(new_password).encode('utf-8'), salt, 100000, dklen=32)  # размер строки - 64
+            key = self.create_hash(new_password, salt)  # размер строки - 64
             # print(len(str(binascii.hexlify(key), encoding="utf-8")))
             # print(len(str(binascii.hexlify(salt), encoding="utf-8")))
             storage = salt + key
-            setattr(self, new_attr_name, str(binascii.hexlify(storage), encoding="utf-8"))
+            setattr(self, new_attr_name, str(hexlify(storage), encoding="utf-8"))
             commit()
 
         @property
@@ -227,7 +236,7 @@ def protect_password(attr_name='groups'):
             if getattr(self, new_attr_name):
                 password_hash = getattr(self, new_attr_name)
                 return password_hash if type(password_hash) == str \
-                    else str(binascii.hexlify(password_hash), encoding="utf-8")
+                    else str(hexlify(password_hash), encoding="utf-8")
             return getattr(self, new_attr_name) or ""
 
         @property
@@ -236,7 +245,7 @@ def protect_password(attr_name='groups'):
             if getattr(self, new_attr_name):
                 salt_from_storage = getattr(self, new_attr_name)[:64]  # 32 является длиной соли
                 return salt_from_storage if type(salt_from_storage) == str \
-                    else str(binascii.hexlify(salt_from_storage), encoding="utf-8")
+                    else str(hexlify(salt_from_storage), encoding="utf-8")
             return getattr(self, new_attr_name) or ""
 
         @property
@@ -245,7 +254,7 @@ def protect_password(attr_name='groups'):
             if getattr(self, new_attr_name):
                 key_from_storage = getattr(self, new_attr_name)[64:]
                 return key_from_storage if type(key_from_storage) == str \
-                    else str(binascii.hexlify(key_from_storage), encoding="utf-8")
+                    else str(hexlify(key_from_storage), encoding="utf-8")
             return getattr(self, new_attr_name) or ""
 
         last_attr = getattr(cls, attr_name)
@@ -261,6 +270,21 @@ def protect_password(attr_name='groups'):
 
 User = protect_attr(attr_name='groups')(User)
 User = protect_password(attr_name='password')(User)
+
+
+@User.func_and_classmethod
+def check_password(self, password: str = ""):
+    """Выполняет проверку пароля пользователя"""
+    from binascii import hexlify
+
+    salt = self._get_salt_password
+    testing_password_hash = self.create_hash(password, salt)
+    testing_password_hash = str(hexlify(testing_password_hash), encoding="utf-8")
+    count = 0
+    print(testing_password_hash, self._get_key_password)
+    for ch1, ch2 in zip(testing_password_hash, self._get_key_password):
+        count += 1 if ch1 == ch2 else 2
+    return count == len(self._get_key_password) and len(testing_password_hash) == len(self._get_key_password)
 
 
 @User.only_func
@@ -284,9 +308,3 @@ def __init__(self, *args, **kwargs):
                 commit()
         else:
             print('не существует')
-
-
-# @User.only_func
-# def __setattr__(self, key, value):
-#     print(key, value)
-#     super(User, self).__setattr__(key, value)
