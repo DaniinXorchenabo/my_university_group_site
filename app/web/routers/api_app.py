@@ -5,130 +5,50 @@
 import random
 
 import uvicorn
-from fastapi import FastAPI, APIRouter
+from fastapi import FastAPI, APIRouter, Depends
 
-from app.db.all_tools_db import *
-
-
-api_app = APIRouter()
+from app.web.dependencies import *
+from pony.orm import *
 
 if __name__ == "__main__":
-    is_DB_created()
+    pass
+
+session_keyless_api = APIRouter(prefix="/api",
+                                # dependencies=[Depends(lambda : {1: 2})],
+                                )  # Для роутов, не использующих session_key
+
+# =======! Роуты, не использующие session_key !=======
+if __name__ == "__main__":
+    from app.db.all_tools_db import *
 
 
-@api_app.get("/")
-def read_root():
-    return {"Привет!": "World"}
+@session_keyless_api.get("/")
+def test1():
+    return {"answer-------------- : False"}
 
 
-@api_app.get("/api/log_in/{login}/{password}")
-@db_session
+@session_keyless_api.get("/log_in/{login}/{password}")
+# @db_session
 def log_in(login: str, password: str):
-    """Авторизация"""
-    if User.exists(name=login):
-        user = User.get(name=login)
-        if user.password == password:
-            session_key = random.random()
-            user.session_key_for_app = str(session_key)
-            User.select().show()
-            return {
-                'answer : True' + ', group_name : ' + 'user.groups' + ', name : ' + user.name + ', session_key : ' + str(
-                    session_key)}
-        return {"answer : False"}
+    # show_all()
+    print(db)
+    if False:
+        # with db_session:
+        """Авторизация"""
+        if User.exists(name=login):
+            user = User.get(name=login)
+            if user.password == password:
+                session_key = random.random()
+                user.session_key_for_app = str(session_key)
+                User.select().show()
+                return {
+                    'answer : True' + ', group_name : ' + 'user.groups' + ', name : ' + user.name + ', session_key : ' + str(
+                        session_key)}
+            return {"answer : False"}
     return {"answer : False"}
 
 
-@api_app.get("/api/sign_in/{session_key}/news/{group_name}")
-@db_session
-def news(session_key: str, group_name: str):
-    """Новости"""
-    if User.exists(session_key_for_app=session_key):
-        return {
-            "first : Это новости, ты просто не видишь их,  second : Да-да, это именно так, не удивляйся, third : Именно так и должно быть"}
-    return {"Ты накосячил с session_key. Взломать пытался, нехороший человек! Ухади!"}
-
-
-@api_app.get("/api/{session_key}/homework/{group_name}/all")
-@db_session
-def all_homework(session_key: str, group_name: str):
-    """Домашние задания (все)"""
-    if User.exists(session_key_for_app=session_key):
-        return {"Тут домашка"
-                "<дд.мм.гггг> : { <Предмет1> : {домашка1, домашка2, ..., домашка}, <Предмет2> : {домашка1, домашка2, ..., домашка}, ... <Предмет> : {домашка1, домашка2, ..., домашка}"}
-    return {"Ты накосячил с session_key. Взломать пытался, нехороший человек! Ухади!"}
-
-
-@api_app.get("/api/{session_key}/homework/{group_name}/subject/{subject}")
-@db_session
-def subject_homework(session_key: str, group_name: str, subject: str):
-    """Домашние задания (по предмету)"""
-    if User.exists(session_key_for_app=session_key):
-        if subject == "rus":
-            return {
-                "rus : <дд.мм.гггг> : {домашка1, домашка2, ..., домашка}, <дд.мм.гггг> : {домашка1, домашка2, ..., домашка},... <дд.мм.гггг> : {домашка1, домашка2, ..., домашка},"}
-        elif subject == "sit":
-            return {
-                "sit : <дд.мм.гггг> : {домашка1, домашка2, ..., домашка}, <дд.мм.гггг> : {домашка1, домашка2, ..., домашка},... <дд.мм.гггг> : {домашка1, домашка2, ..., домашка},"}
-        return {"У нас нет такого предмета"}
-    return {"Ты накосячил с session_key. Взломать пытался, нехороший человек! Ухади!"}
-
-
-@api_app.get("/api/{session_key}/homework/{group_name}/day/{data}")
-@db_session
-def data_homework(session_key: str, group_name: str, data: str):
-    """Домашние задания (по дате)"""
-    if User.exists(session_key_for_app=session_key):
-        return {"Предмет1": ["домашка1", "домашка2", "домашка"],
-                "Предмет2": ["домашка1", "домашка2", "домашка"],
-                "Предмет3": ["домашка1", "домашка2", "домашка"], }
-    return {"Ты накосячил с session_key. Взломать пытался, нехороший человек! Ухади!"}
-
-
-@api_app.get("/api/{session_key}/teachers/{group_name}/")
-@db_session
-def teachers(session_key: str, group_name: str):
-    """Информация о преподавателях"""
-    if User.exists(session_key_for_app=session_key):
-        return {
-            "ФИО1": ["инфа1", "инфа2", 'инфа'],
-            "ФИО2": ["инфа1", "инфа2", 'инфа'],
-            "ФИО3": ["инфа1", "инфа2", 'инфа']
-        }
-    return {"Ты накосячил с session_key. Взломать пытался, нехороший человек! Ухади!"}
-
-
-@api_app.get("/api/{session_key}/{group_name}/schedule/{change}")
-@db_session
-def schedule(session_key: str, group_name: str, change: str):
-    """Расписание"""
-    if User.exists(session_key_for_app=session_key):
-        return {"Тут будет расписание на 2 недели"}
-    return {"Ты накосячил с session_key. Взломать пытался, нехороший человек! Ухади!"}
-
-
-@api_app.get("/api/{session_key}/educational_materials/{group_name}")
-@db_session
-def educational_materials(session_key: str, group_name: str):
-    """Получает образовательные материалы"""
-    if User.exists(session_key_for_app=session_key):
-        return {
-            "Файлы с учебниками: <предмет> : {инфа1, инфа2, ..., инфа}, <предмет> : {инфа1, инфа2, ..., инфа}, ... , <предмет> : {инфа1, инфа2, ..., инфа},"}
-    return {"Ты накосячил с session_key. Взломать пытался, нехороший человек! Ухади!"}
-
-
-@api_app.get("/api/{session_key}/log_out")
-@db_session
-def log_out(session_key: str):
-    """Выход из пользователя"""
-    if User.exists(session_key_for_app=session_key):
-        k = 1
-        if k == 1:
-            return {"True"}
-        return {"False"}
-    return {"Ты накосячил с session_key. Взломать пытался, нехороший человек! Ухади!"}
-
-
-@api_app.get("/api/sign_in/{login}/{password}/{_id}")
+@session_keyless_api.get("/sign_in/{login}/{password}/{_id}")
 @db_session
 def sign_in(login: str, password: str, _id: int):
     """Регистрация пользователя"""
@@ -139,9 +59,93 @@ def sign_in(login: str, password: str, _id: int):
     return {"true"}
 
 
-@api_app.get("/api/reg_group/{group_name}")
+# =======! Дальше роуты, использующие session_key1 !=======
+
+api_app = APIRouter(  # Для роутов, которые используют session_key
+    prefix="/api/{session_key1}",
+    dependencies=[Depends(checking_session_key)],
+)
+
+
+@api_app.get("/news/{group_name}")
 @db_session
-def reg_group(session_key: str):
+def news(group_name: str):
+    """Новости"""
+    return {
+            "first : Это новости, ты просто не видишь их,  second : Да-да, это именно так, не удивляйся, third : Именно так и должно быть"}
+
+
+@api_app.get("/homework/{group_name}/all")
+@db_session
+def all_homework(group_name: str):
+    """Домашние задания (все)"""
+    return {"Тут домашка"
+                "<дд.мм.гггг> : { <Предмет1> : {домашка1, домашка2, ..., домашка}, <Предмет2> : {домашка1, домашка2, ..., домашка}, ... <Предмет> : {домашка1, домашка2, ..., домашка}"}
+
+
+
+@api_app.get("/homework/{group_name}/subject/{subject}")
+@db_session
+def subject_homework(group_name: str, subject: str):
+    """Домашние задания (по предмету)"""
+    if subject == "rus":
+        return {
+            "rus : <дд.мм.гггг> : {домашка1, домашка2, ..., домашка}, <дд.мм.гггг> : {домашка1, домашка2, ..., домашка},... <дд.мм.гггг> : {домашка1, домашка2, ..., домашка},"}
+    elif subject == "sit":
+        return {
+            "sit : <дд.мм.гггг> : {домашка1, домашка2, ..., домашка}, <дд.мм.гггг> : {домашка1, домашка2, ..., домашка},... <дд.мм.гггг> : {домашка1, домашка2, ..., домашка},"}
+    return {"У нас нет такого предмета"}
+
+
+@api_app.get("/homework/{group_name}/day/{data}")
+@db_session
+def data_homework(group_name: str, data: str):
+    """Домашние задания (по дате)"""
+    return {"Предмет1": ["домашка1", "домашка2", "домашка"],
+            "Предмет2": ["домашка1", "домашка2", "домашка"],
+            "Предмет3": ["домашка1", "домашка2", "домашка"], }
+
+
+@api_app.get("/teachers/{group_name}/")
+@db_session
+def teachers(group_name: str):
+    """Информация о преподавателях"""
+    return {
+        "ФИО1": ["инфа1", "инфа2", 'инфа'],
+        "ФИО2": ["инфа1", "инфа2", 'инфа'],
+        "ФИО3": ["инфа1", "инфа2", 'инфа']
+    }
+
+
+@api_app.get("/{group_name}/schedule/{change}")
+@db_session
+def schedule(group_name: str, change: str):
+    """Расписание"""
+
+    return {"Тут будет расписание на 2 недели"}
+
+
+@api_app.get("/educational_materials/{group_name}")
+@db_session
+def educational_materials(group_name: str):
+    """Получает образовательные материалы"""
+    return {
+        "Файлы с учебниками: <предмет> : {инфа1, инфа2, ..., инфа}, <предмет> : {инфа1, инфа2, ..., инфа}, ... , <предмет> : {инфа1, инфа2, ..., инфа},"}
+
+
+@api_app.get("/log_out")
+@db_session
+def log_out():
+    """Выход из пользователя"""
+    k = 1
+    if k == 1:
+        return {"True"}
+    return {"False"}
+
+
+@api_app.get("/reg_group/{group_name}")
+@db_session
+def reg_group(group_name: str):
     """Регистрация группы"""
     k = 1
     if k == 1:
@@ -149,46 +153,47 @@ def reg_group(session_key: str):
     return {"Falseg"}
 
 
-@api_app.get("/api/{session_key}/settings_user/get")
+@api_app.get("/settings_user/get")
 @db_session
-def settings_user_get(session_key: str):
+def settings_user_get():
     """Получить настройки пользователя"""
-    if User.exists(session_key_for_app=session_key):
-        return {"<какой-то параметр> : <какое-то значение>"}
-    return {"Ты накосячил с session_key. Взломать пытался, нехороший человек! Ухади!"}
+    return {"<какой-то параметр> : <какое-то значение>"}
 
 
 # Установка настроек - не знаю, как сделать
 
 
-@api_app.get("/api/{session_key}/settings_admin/get")
+@api_app.get("/settings_admin/get")
 @db_session
-def settings_user_admin(session_key: str):
+def settings_user_admin():
     """Получить настройки для администратора"""
-    if User.exists(session_key_for_app=session_key):
-        return {"<какой-то параметр> : <какое-то значение>"}
-    return {"Ты накосячил с session_key. Взломать пытался, нехороший человек! Ухади!"}
+    return {"<какой-то параметр> : <какое-то значение>"}
 
 
-@api_app.get("/api/{session_key}/settings_bot/get")
+@api_app.get("/settings_bot/get")
 @db_session
-def settings_user_bot(session_key: str):
+def settings_user_bot():
     """Получить настройки для бота (для личного пользования)"""
-    if User.exists(session_key_for_app=session_key):
-        return {"<какой-то параметр> : <какое-то значение>"}
-    return {"Ты накосячил с session_key. Взломать пытался, нехороший человек! Ухади!"}
+    return {"<какой-то параметр> : <какое-то значение>"}
 
 
-@api_app.get("/api/{session_key}/settings_group_senior/get")
+@api_app.get("/settings_group_senior/get")
 @db_session
-def settings_group_senior(session_key: str):
+def settings_group_senior():
     """Получить настройки старосты"""
-    if User.exists(session_key_for_app=session_key):
-        return {"<какой-то параметр> : <какое-то значение>"}
-    return {"Ты накосячил с session_key. Взломать пытался, нехороший человек! Ухади!"}
+    return {"<какой-то параметр> : <какое-то значение>"}
 
+
+# api_app.include_router(session_keyless_api)
+app = FastAPI()
+app.include_router(api_app)
+app.include_router(session_keyless_api)
 
 if __name__ == "__main__":
-    # is_DB_created()
+    is_DB_created()
     show_all()
-    uvicorn.run("main_web:api_app", host="127.0.0.1", port=8000, reload=True)
+
+    # app = FastAPI()
+    # app.include_router(api_app)
+    # app.include_router(session_keyless_api)
+    uvicorn.run("api_app:app", host="127.0.0.1", port=8000, reload=True)
