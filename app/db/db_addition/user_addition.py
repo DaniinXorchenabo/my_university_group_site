@@ -97,23 +97,7 @@ def is_verificated(self, value: bool):
         self._is_verificated = value
 
 
-@User.only_func
-def __init__(self, *args, **kwargs):
-    """при инициализации пользователя делаем его неверифицированным, если не указано иное"""
-    init_kw = kwargs.copy()
-    super(User, self).__init__(*args, **kwargs)
-    commit()
-    if "my_verification" not in init_kw and "i_verificate_thei" not in init_kw:
-        if User.exists(**init_kw):
-            print('существует')
-            if init_kw.get("groups", None):
-                my_group_friends = set(select(i for i in self._groups._users if i._is_verificated)[:]) - {self}
-                print(my_group_friends)
-                [NoneVerification(it_is_i=self, he_verificate_me=u) for u in my_group_friends
-                 if not NoneVerification.exists(it_is_i=self, he_verificate_me=u)]
-                commit()
-        else:
-            print('не существует')
+
 
 
 # @User.only_func
@@ -209,43 +193,100 @@ def protect_attr(attr_name='groups'):
 
 
 def protect_password(attr_name='groups'):
-    new_attr_name = '_' + attr_name
     from hashlib import pbkdf2_hmac
     import binascii
+    from os import urandom
+
+    new_attr_name = '_' + attr_name
+    get_system_atr_name = '_get_' + attr_name
+    get_salt_name = '_get_salt_' + attr_name
+    get_key_password_name = '_get_key_' + attr_name
 
     def decorator(cls):
         print('!!!!!!!!!!')
 
         @property
         def attr(self):
-            if self._is_verificated:
-                return self._groups
-            return getattr(self, new_attr_name) and getattr(self, new_attr_name).name
+            """Будет возвращаться при попытке получить значение атрибута attr_name"""
+            return "***"
 
         @attr.setter
-        def attr(self, val):
-            from hashlib import pbkdf2_hmac
-            import binascii
-            from os import urandom
-
-            salt = urandom(32)
-            key = hashlib.pbkdf2_hmac(hash_name='sha256',
-                                      password='mypassw6ord'.encode('utf-8'),
-                                      salt=salt,
-                                      iterations=100000)
-
-            # Хранение как
+        def attr(self, new_password):
+            """Будет выполнятся при присваивании нового значения атрибуту attr_name"""
+            salt = urandom(32)  # размер строки - 64
+            key = pbkdf2_hmac('sha256', str(new_password).encode('utf-8'), salt, 100000, dklen=32)  # размер строки - 64
+            # print(len(str(binascii.hexlify(key), encoding="utf-8")))
+            # print(len(str(binascii.hexlify(salt), encoding="utf-8")))
             storage = salt + key
+            setattr(self, new_attr_name, str(binascii.hexlify(storage), encoding="utf-8"))
+            commit()
 
-            dk += ":" + salt
-            return str(binascii.hexlify(dk), encoding="utf-8")
+        @property
+        def get_all_password(self):
+            """Получить весь пароль (захешированный)"""
+            if getattr(self, new_attr_name):
+                password_hash = getattr(self, new_attr_name)
+                return password_hash if type(password_hash) == str \
+                    else str(binascii.hexlify(password_hash), encoding="utf-8")
+            return getattr(self, new_attr_name) or ""
+
+        @property
+        def get_salt(self):
+            """Получить соль захешированного пароля"""
+            if getattr(self, new_attr_name):
+                salt_from_storage = getattr(self, new_attr_name)[:64]  # 32 является длиной соли
+                return salt_from_storage if type(salt_from_storage) == str \
+                    else str(binascii.hexlify(salt_from_storage), encoding="utf-8")
+            return getattr(self, new_attr_name) or ""
+
+        @property
+        def get_key(self):
+            """получить только ключ захешированного пароля"""
+            if getattr(self, new_attr_name):
+                key_from_storage = getattr(self, new_attr_name)[64:]
+                return key_from_storage if type(key_from_storage) == str \
+                    else str(binascii.hexlify(key_from_storage), encoding="utf-8")
+            return getattr(self, new_attr_name) or ""
 
         last_attr = getattr(cls, attr_name)
         setattr(cls, new_attr_name, last_attr)
         setattr(cls, attr_name, attr)
+        setattr(cls, get_system_atr_name, get_all_password)
+        setattr(cls, get_salt_name, get_salt)
+        setattr(cls, get_key_password_name, get_key)
         return cls
 
     return decorator
 
 
 User = protect_attr(attr_name='groups')(User)
+User = protect_password(attr_name='password')(User)
+
+
+@User.only_func
+def __init__(self, *args, **kwargs):
+    """при инициализации пользователя делаем его неверифицированным, если не указано иное"""
+    init_kw = kwargs.copy()
+
+    super(User, self).__init__(*args, **kwargs)
+
+    if 'password' in kwargs:
+        self.password = kwargs['password']
+    commit()
+    if "my_verification" not in init_kw and "i_verificate_thei" not in init_kw:
+        if User.exists(**init_kw):
+            print('существует')
+            if init_kw.get("groups", None):
+                my_group_friends = set(select(i for i in self._groups._users if i._is_verificated)[:]) - {self}
+                print(my_group_friends)
+                [NoneVerification(it_is_i=self, he_verificate_me=u) for u in my_group_friends
+                 if not NoneVerification.exists(it_is_i=self, he_verificate_me=u)]
+                commit()
+        else:
+            print('не существует')
+
+
+# @User.only_func
+# def __setattr__(self, key, value):
+#     print(key, value)
+#     super(User, self).__setattr__(key, value)

@@ -139,6 +139,7 @@ class News(db.Entity):
     files = Optional(Json)
 
 
+
 class NoneVerification(db.Entity):
     """представляет из себя не отдельно взятого пользователя, а поле верификации одного полльзователя другим (уже верифицированным пользователем)"""
     it_is_i = Required(User, reverse='my_verification')
