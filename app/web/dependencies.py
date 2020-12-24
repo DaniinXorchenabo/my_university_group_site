@@ -16,4 +16,4 @@ def checking_session_key(session_key1: str = "None"):
     pass
 
 
-is_DB_created()
+connect_with_db()
