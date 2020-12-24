@@ -1,5 +1,9 @@
 # -*- coding: utf-8 -*-
 
+"""Дополнение к пользователю"""
+
+import uuid
+import hashlib
 from datetime import date
 from datetime import datetime
 from datetime import time
@@ -63,7 +67,8 @@ def _is_verificated(self, value: bool):
         self.i_verificate_thei = set()
         commit()
         [NoneVerification(**params) for params in
-         (dict(it_is_i=u, he_verificate_me=self) for u in self._groups._users.select(lambda u: not u._is_verificated and u != self))
+         (dict(it_is_i=u, he_verificate_me=self) for u in
+          self._groups._users.select(lambda u: not u._is_verificated and u != self))
          if not NoneVerification.exists(**params)]
         commit()
     else:
@@ -85,30 +90,11 @@ def _is_verificated(self, value: bool):
 @User.only_setter
 def is_verificated(self, value: bool):
     print(self._is_verificated)
-    if not(self._is_verificated == value == True):
+    if not (self._is_verificated == value == True):
         [u.check_verificated for u in self._groups._users.select()]
         # self.check_verificated
         commit()
         self._is_verificated = value
-
-
-@User.only_func
-def __init__(self, *args, **kwargs):
-    """при инициализации пользователя делаем его неверифицированным, если не указано иное"""
-    init_kw = kwargs.copy()
-    super(User, self).__init__(*args, **kwargs)
-    commit()
-    if "my_verification" not in init_kw and "i_verificate_thei" not in init_kw:
-        if User.exists(**init_kw):
-            print('существует')
-            if init_kw.get("groups", None):
-                my_group_friends = set(select(i for i in self._groups._users if i._is_verificated)[:]) - {self}
-                print(my_group_friends)
-                [NoneVerification(it_is_i=self, he_verificate_me=u) for u in my_group_friends
-                 if not NoneVerification.exists(it_is_i=self, he_verificate_me=u)]
-                commit()
-        else:
-            print('не существует')
 
 
 # @User.only_func
@@ -172,6 +158,18 @@ def __init__(self, *args, **kwargs):
 #     return False
 #
 
+@User.only_staticmethod
+def create_hash(string, salt):
+    from hashlib import pbkdf2_hmac
+    from binascii import unhexlify
+
+    if type(salt) == str:
+        if len(salt) % 2 != 0:
+            salt = salt + 'a'
+        salt = unhexlify(salt)
+    return pbkdf2_hmac('sha256', str(string).encode('utf-8'), salt, 100000, dklen=32)
+
+
 def protect_attr(attr_name='groups'):
     new_attr_name = '_' + attr_name
 
@@ -203,4 +201,110 @@ def protect_attr(attr_name='groups'):
     return decorator
 
 
+def protect_password(attr_name='groups'):
+    from hashlib import pbkdf2_hmac
+    from binascii import unhexlify, hexlify
+    from os import urandom
+
+    new_attr_name = '_' + attr_name
+    get_system_atr_name = '_get_' + attr_name
+    get_salt_name = '_get_salt_' + attr_name
+    get_key_password_name = '_get_key_' + attr_name
+
+    def decorator(cls):
+        print('!!!!!!!!!!')
+
+        @property
+        def attr(self):
+            """Будет возвращаться при попытке получить значение атрибута attr_name"""
+            return "***"
+
+        @attr.setter
+        def attr(self, new_password):
+            """Будет выполнятся при присваивании нового значения атрибуту attr_name"""
+            salt = urandom(32)  # размер строки - 64
+            key = self.create_hash(new_password, salt)  # размер строки - 64
+            # print(len(str(binascii.hexlify(key), encoding="utf-8")))
+            # print(len(str(binascii.hexlify(salt), encoding="utf-8")))
+            storage = salt + key
+            setattr(self, new_attr_name, str(hexlify(storage), encoding="utf-8"))
+            commit()
+
+        @property
+        def get_all_password(self):
+            """Получить весь пароль (захешированный)"""
+            if getattr(self, new_attr_name):
+                password_hash = getattr(self, new_attr_name)
+                return password_hash if type(password_hash) == str \
+                    else str(hexlify(password_hash), encoding="utf-8")
+            return getattr(self, new_attr_name) or ""
+
+        @property
+        def get_salt(self):
+            """Получить соль захешированного пароля"""
+            if getattr(self, new_attr_name):
+                salt_from_storage = getattr(self, new_attr_name)[:64]  # 32 является длиной соли
+                return salt_from_storage if type(salt_from_storage) == str \
+                    else str(hexlify(salt_from_storage), encoding="utf-8")
+            return getattr(self, new_attr_name) or ""
+
+        @property
+        def get_key(self):
+            """получить только ключ захешированного пароля"""
+            if getattr(self, new_attr_name):
+                key_from_storage = getattr(self, new_attr_name)[64:]
+                return key_from_storage if type(key_from_storage) == str \
+                    else str(hexlify(key_from_storage), encoding="utf-8")
+            return getattr(self, new_attr_name) or ""
+
+        last_attr = getattr(cls, attr_name)
+        setattr(cls, new_attr_name, last_attr)
+        setattr(cls, attr_name, attr)
+        setattr(cls, get_system_atr_name, get_all_password)
+        setattr(cls, get_salt_name, get_salt)
+        setattr(cls, get_key_password_name, get_key)
+        return cls
+
+    return decorator
+
+
 User = protect_attr(attr_name='groups')(User)
+User = protect_password(attr_name='password')(User)
+
+
+@User.func_and_classmethod
+def check_password(self, password: str = ""):
+    """Выполняет проверку пароля пользователя"""
+    from binascii import hexlify
+
+    salt = self._get_salt_password
+    testing_password_hash = self.create_hash(password, salt)
+    testing_password_hash = str(hexlify(testing_password_hash), encoding="utf-8")
+    count = 0
+    print(testing_password_hash, self._get_key_password)
+    for ch1, ch2 in zip(testing_password_hash, self._get_key_password):
+        count += 1 if ch1 == ch2 else 2
+    return count == len(self._get_key_password) and len(testing_password_hash) == len(self._get_key_password)
+
+
+@User.only_func
+def __init__(self, *args, **kwargs):
+    """при инициализации пользователя делаем его неверифицированным, если не указано иное"""
+    init_kw = kwargs.copy()
+
+    super(User, self).__init__(*args, **kwargs)
+
+    if 'password' in kwargs:
+        self.password = kwargs['password']
+    commit()
+    if "my_verification" not in init_kw and "i_verificate_thei" not in init_kw:
+        if User.exists(**init_kw):
+            print('существует')
+            if init_kw.get("groups", None):
+                my_group_friends = set(select(i for i in self._groups._users if i._is_verificated)[:]) - {self}
+                print(my_group_friends)
+                [NoneVerification(it_is_i=self, he_verificate_me=u) for u in my_group_friends
+                 if not NoneVerification.exists(it_is_i=self, he_verificate_me=u)]
+                commit()
+        else:
+            print('не существует')

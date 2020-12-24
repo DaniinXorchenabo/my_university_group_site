@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 # from app.db.models import *
 #
 # MIGRATIONS_DIRictory = join(HOME_DIR, "db", "migrations")

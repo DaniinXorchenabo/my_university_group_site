@@ -1,5 +1,7 @@
 # -*- coding: utf-8 -*-
 
+"""Дополнения к сущности верифификации"""
+
 from datetime import date
 from datetime import datetime
 from datetime import time
