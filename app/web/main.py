@@ -2,22 +2,9 @@
 
 """Главный файл нашего web-приложения"""
 
-import random
-
-import uvicorn
-from fastapi import FastAPI, APIRouter, Depends
-
-
 from app.web.dependencies import *
 from app.web.routers.api_app import *
 
-
-# def get_db():
-#     db = SessionLocal()
-#     try:
-#         yield db
-#     finally:
-#         db.close()
 
 app = FastAPI()
 

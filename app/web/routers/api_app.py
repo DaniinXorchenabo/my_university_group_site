@@ -2,24 +2,12 @@
 
 """Тут будут только роуты, предназначенные для API (взаимодействия с android)"""
 
-import random
-
-import uvicorn
-from fastapi import FastAPI, APIRouter, Depends
-
 from app.web.dependencies import *
-from pony.orm import *
 
-if __name__ == "__main__":
-    pass
 
-session_keyless_api = APIRouter(prefix="/api",
-                                # dependencies=[Depends(lambda : {1: 2})],
-                                )  # Для роутов, не использующих session_key
+session_keyless_api = APIRouter(prefix="/api")  # Для роутов, не использующих session_key
 
 # =======! Роуты, не использующие session_key !=======
-if __name__ == "__main__":
-    from app.db.all_tools_db import *
 
 
 @session_keyless_api.get("/")
@@ -28,23 +16,19 @@ def test1():
 
 
 @session_keyless_api.get("/log_in/{login}/{password}")
-# @db_session
+@db_session
 def log_in(login: str, password: str):
-    # show_all()
-    print(db)
-    if False:
-        # with db_session:
-        """Авторизация"""
-        if User.exists(name=login):
-            user = User.get(name=login)
-            if user.password == password:
-                session_key = random.random()
-                user.session_key_for_app = str(session_key)
-                User.select().show()
-                return {
-                    'answer : True' + ', group_name : ' + 'user.groups' + ', name : ' + user.name + ', session_key : ' + str(
-                        session_key)}
-            return {"answer : False"}
+    """Авторизация"""
+    if User.exists(name=login):
+        user = User.get(name=login)
+        if user.password == password:
+            session_key = random.random()
+            user.session_key_for_app = str(session_key)
+            User.select().show()
+            return {
+                'answer : True' + ', group_name : ' + 'user.groups' + ', name : ' + user.name + ', session_key : ' + str(
+                    session_key)}
+        return {"answer : False"}
     return {"answer : False"}
 
 
@@ -72,7 +56,7 @@ api_app = APIRouter(  # Для роутов, которые используют
 def news(group_name: str):
     """Новости"""
     return {
-            "first : Это новости, ты просто не видишь их,  second : Да-да, это именно так, не удивляйся, third : Именно так и должно быть"}
+        "first : Это новости, ты просто не видишь их,  second : Да-да, это именно так, не удивляйся, third : Именно так и должно быть"}
 
 
 @api_app.get("/homework/{group_name}/all")
@@ -80,8 +64,7 @@ def news(group_name: str):
 def all_homework(group_name: str):
     """Домашние задания (все)"""
     return {"Тут домашка"
-                "<дд.мм.гггг> : { <Предмет1> : {домашка1, домашка2, ..., домашка}, <Предмет2> : {домашка1, домашка2, ..., домашка}, ... <Предмет> : {домашка1, домашка2, ..., домашка}"}
-
+            "<дд.мм.гггг> : { <Предмет1> : {домашка1, домашка2, ..., домашка}, <Предмет2> : {домашка1, домашка2, ..., домашка}, ... <Предмет> : {домашка1, домашка2, ..., домашка}"}
 
 
 @api_app.get("/homework/{group_name}/subject/{subject}")
@@ -184,16 +167,8 @@ def settings_group_senior():
     return {"<какой-то параметр> : <какое-то значение>"}
 
 
-# api_app.include_router(session_keyless_api)
-app = FastAPI()
-app.include_router(api_app)
-app.include_router(session_keyless_api)
-
 if __name__ == "__main__":
-    is_DB_created()
+    # is_DB_created()
     show_all()
 
-    # app = FastAPI()
-    # app.include_router(api_app)
-    # app.include_router(session_keyless_api)
-    uvicorn.run("api_app:app", host="127.0.0.1", port=8000, reload=True)
+    # uvicorn.run("api_app:app", host="127.0.0.1", port=8000, reload=True)
