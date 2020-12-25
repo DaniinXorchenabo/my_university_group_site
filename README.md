@@ -7,7 +7,7 @@
     
 ## Run:
 
-    python app/web/main_web.py
+    python app/web/main.py
     python app/bot/main.py
     
 ## Наши web-ресурсы:
