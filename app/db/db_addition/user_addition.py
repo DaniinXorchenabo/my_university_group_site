@@ -293,10 +293,6 @@ def __init__(self, *args, **kwargs):
     init_kw = kwargs.copy()
 
     super(User, self).__init__(*args, **kwargs)
-
-    if 'password' in kwargs:
-        self.password = kwargs['password']
-    commit()
     if "my_verification" not in init_kw and "i_verificate_thei" not in init_kw:
         if User.exists(**init_kw):
             print('существует')
@@ -308,3 +304,7 @@ def __init__(self, *args, **kwargs):
                 commit()
         else:
             print('не существует')
+
+    if 'password' in kwargs:
+        self.password = kwargs['password']
+    commit()

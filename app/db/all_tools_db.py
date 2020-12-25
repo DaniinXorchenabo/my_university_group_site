@@ -41,9 +41,9 @@ if __name__ == '__main__':
     #     print(Group['20ВП1'].no_verificated_users)
     #     commit()
 
-    import hashlib
-    import os
-    import binascii
+    # import hashlib
+    # import os
+    # import binascii
 
     # Пример генерации
     # salt = os.urandom(32)
