@@ -24,11 +24,11 @@ def create_test_db_1():
         return
 
     gr = Group['20ВП1']
-    User(name='Петя', id=100, password="123", groups=gr)
-    User(name='Вася', id=101, password="123", groups=gr)
-    User(name='Ваня', id=102, password="123", groups=gr)
-    User(name='Вася Админ', id=103, password="123", groups=gr)
-    User(name='Вася Староста', id=104, password="123", groups=gr)
+    User(name='Петя', id=100, password="123", groups=gr, login='Петя1')
+    User(name='Вася', id=101, password="123", groups=gr, login='Вася1')
+    User(name='Ваня', id=102, password="123", groups=gr, login='Ваня')
+    User(name='Вася Админ', id=103, password="123", groups=gr, login='Вася2')
+    User(name='Вася Староста', id=104, password="123", groups=gr, login='Вася3')
     commit()
     admin = User[103]
     Admin(user=admin)
