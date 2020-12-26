@@ -16,6 +16,7 @@ from app.db.db_addition.Group_addition import *
 from app.db.db_addition.NoneVerification_additions import *
 from app.db.db_addition.Admin_additions import *
 from app.db.db_addition.SeniorInTheGroup_additions import *
+from app.db.db_addition.SeniorVerification_additions import *
 from app.db.tests.create_test_db import *
 from app.db.db_control_func import *
 
@@ -27,7 +28,8 @@ if __name__ == '__main__':
     create_test_db_1()
     show_all()
 
-    # with db_session:
+    with db_session:
+        print(Group['20ВП1'].users)
     #     print(User[100].check_password('1234653'))
     #     print(len(User[100]._password), User[100]._password)
     #     print(len(User[100]._get_password), User[100]._get_password)

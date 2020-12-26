@@ -132,6 +132,7 @@ class Teacher(db.Entity):
 
 
 class SeniorInTheGroup(db.Entity):
+    """Это сущность старосты"""
     user = Required(User)
     senior_verifications = Set('SeniorVerification')
     group = Required(Group)
@@ -159,6 +160,7 @@ class NoneVerification(db.Entity):
 
 
 class Queue(db.Entity):
+    """Сущность очереди. Реализует механизм кто что и за кем занял"""
     id = PrimaryKey(int, auto=True)
     user_has_queues = Set('UserHasQueue')
     group = Required(Group)
@@ -167,10 +169,11 @@ class Queue(db.Entity):
 
 
 class UserHasQueue(db.Entity):
+    """Это вспомогательная сущность очереди,  олицетворяет какой пользователь в какой очереди занял какой место. По идее, не должна использоваться вне кода БД"""
     user = Required(User)
     queue = Required(Queue)
     number = Required(int, default="-1")
-    PrimaryKey(queue, number)
+    id = PrimaryKey(int, auto=True)
 
 
 class Reminder(db.Entity):
@@ -182,6 +185,7 @@ class Reminder(db.Entity):
 
 
 class SeniorVerification(db.Entity):
+    """Сущность, нужная для верификации старосты (для каждой пары староста- верифицированный пользователь группы)"""
     senior_in_the_group = Required(SeniorInTheGroup)
     user = PrimaryKey(User)
     confirmation = Required(int, default=0)

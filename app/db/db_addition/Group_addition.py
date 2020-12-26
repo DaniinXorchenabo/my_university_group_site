@@ -127,7 +127,45 @@ def protect_attr(attr_name='users'):
     return decorator
 
 
-User = protect_attr(attr_name='users')(Group)
+def protect_senior(attr_name='senior_in_the_group'):
+    new_attr_name = '_' + attr_name
+
+    def decorator(cls):
+        print('!!!!!!!!!!')
+
+        @property
+        def attr(self):
+            senior = getattr(self, new_attr_name)
+            return 'Староста не назначен' if senior is None else \
+                (senior.user if senior.is_verification else 'Староста не верифицирован')
+
+        @attr.setter
+        def attr(self, val):
+            if val is None:
+                senior = getattr(self, new_attr_name)
+                if senior:
+                    senior.is_verification = False
+                    senior.delite()
+                    commit()
+            elif type(val) == User and not SeniorInTheGroup.exists(user=val, group=self):
+                SeniorInTheGroup(user=val, group=self)
+                commit()
+            elif type(val) == SeniorInTheGroup:
+                setattr(self, new_attr_name, val)
+            else:
+                return False
+            return True
+
+        last_attr = getattr(cls, attr_name)
+        setattr(cls, new_attr_name, last_attr)
+        setattr(cls, attr_name, attr)
+        return cls
+
+    return decorator
+
+
+Group = protect_attr(attr_name='users')(Group)
+Group = protect_senior(attr_name='senior_in_the_group')(Group)
 
 
 @Group.getter_and_classmethod
@@ -140,3 +178,12 @@ def all_group(self):
 def no_verificated_users(self):
     """Возвращает только неверифицированных пользователей"""
     return frozenset(filter(lambda i: not i.is_verificated, self._users.select()))
+
+
+@User.only_func
+def __init__(self, *args, **kwargs):
+    """при инициализации делаем всех доступных пользователей верифицированными"""
+    super(User, self).__init__(*args, **kwargs)  # создание пользователя
+    for u in kwargs.get('users', []):
+        u.is_verificated = True
+    commit()
