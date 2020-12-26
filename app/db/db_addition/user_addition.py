@@ -344,13 +344,12 @@ def check_password(self, password: str = ""):
 def __init__(self, *args, **kwargs):
     """при инициализации пользователя делаем его неверифицированным, если не указано иное"""
     init_kw = kwargs.copy()
-    is_verificated_user = kwargs.pop('is_verificated')
+    is_verificated_user = kwargs.pop('is_verificated', None)
     verificate_bool = (is_verificated_user is None and
                        ("my_verification" not in init_kw and "i_verificate_thei" not in init_kw)) \
                       or is_verificated_user == False  # True, если пользователь неверифицирован
-
     if verificate_bool:  # если пользователь не верифицирован
-        kwargs.pop('senior_in_the_group')  # то он не может быть старостой
+        kwargs.pop('senior_in_the_group', None)  # то он не может быть старостой
     super(User, self).__init__(*args, **kwargs)  # создание пользователя
     if verificate_bool:  # если пользователь не верифицирован
         if User.exists(**init_kw):

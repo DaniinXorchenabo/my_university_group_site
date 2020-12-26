@@ -180,10 +180,10 @@ def no_verificated_users(self):
     return frozenset(filter(lambda i: not i.is_verificated, self._users.select()))
 
 
-@User.only_func
+@Group.only_func
 def __init__(self, *args, **kwargs):
     """при инициализации делаем всех доступных пользователей верифицированными"""
-    super(User, self).__init__(*args, **kwargs)  # создание пользователя
+    super(Group, self).__init__(*args, **kwargs)  # создание пользователя
     for u in kwargs.get('users', []):
         u.is_verificated = True
     commit()

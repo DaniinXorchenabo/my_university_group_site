@@ -26,10 +26,10 @@ if __name__ == '__main__':
     chdir(HOME_DIR)
     is_DB_created()
     create_test_db_1()
-    show_all()
+    # show_all()
 
-    with db_session:
-        print(Group['20ВП1'].users)
+    # with db_session:
+    #     print(Group['20ВП1'].users)
     #     print(User[100].check_password('1234653'))
     #     print(len(User[100]._password), User[100]._password)
     #     print(len(User[100]._get_password), User[100]._get_password)
