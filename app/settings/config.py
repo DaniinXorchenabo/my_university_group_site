@@ -2,14 +2,17 @@
 
 """Место для настроек, которые нельзя записать в .ini"""
 
-from app.settings.config_control import *
 from os.path import split, dirname, abspath, join
 from os import chdir
+
+from app.settings.config_control import *
+
 
 HOME_DIR = split(dirname(abspath(__file__)))[0]
 SETTINGS_DIR = join(HOME_DIR, "settings")
 SETTINGS_FILE = "settings.ini"
 EXAMPLE_SETTINGS_FILE = f"example_{SETTINGS_FILE}"
+AUTO_PYDANTIC_MODELS = join("pydantic_models_db", "pydantic_models.py")
 
 SETTINGS_FILE = join(HOME_DIR, SETTINGS_DIR, SETTINGS_FILE)
 EXAMPLE_SETTINGS_FILE = join(HOME_DIR, SETTINGS_DIR, EXAMPLE_SETTINGS_FILE)
@@ -19,7 +22,7 @@ DB_PATH = join(HOME_DIR, "db", cfg.get('db', "name"))
 MIGRATIONS_DIR = join(HOME_DIR, "db", 'migrations')
 TEST_DB = join(HOME_DIR, "db", "tests", "test_" + cfg.get('db', "name"))
 DB_BACKUPS = join(HOME_DIR, "db", "backups")
-
+AUTO_PYDANTIC_MODELS = join(HOME_DIR, "db", AUTO_PYDANTIC_MODELS)
 weekdays_num = {1: "Понидельник",
                 2: "Вторник",
                 3: "Среда",
