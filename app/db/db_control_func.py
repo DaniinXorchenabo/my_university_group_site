@@ -162,6 +162,40 @@ def old_connect_with_db(db_path=DB_PATH, deep=0, db_l=db):
                 exit()
 
 
+def create_pydantic_models(create_file='db/pydantic_models_db/pydantic_models.py'):
+    from inspect import getsource
+    from typing import Optional
+    from pydantic import UUID4, BaseModel, EmailStr, Field, validator
+
+    class CreatePdModels(BaseModel):
+        name: str
+        type_db_param: str
+        type_param: str
+        default: Optional[str]
+        # unique: Optional[str]
+        # reverse: Optional[str]
+
+    func = lambda: "" if string.type_db_param in ["Required", "PrimaryKey"] else ("Optional" if string.type_db_param == "Optional" else "Set") + '['
+    code_mopule = """# -*- coding: utf-8 -*-\n\n\"\"\"Этот код генерируется автоматически,
+ни одно изменение не сохранится в этом файле.
+Тут объявляются pydantic-модели, в которых присутствуют все сущности БД и все атрибуты сущностей\"\"\"\n\n
+from datetime import date, datetime, time\nfrom pony.orm import *\nfrom typing import Optional
+\nfrom pydantic import BaseModel\nfrom app.db.models import *\n\n"""
+
+    for entity in db.entities:
+        code = getsource(User).split('\n')
+        count_tabs = code[0].split('def')[0].count(' ') + 3
+        code = [CreatePdModels(**{j[0]: j[1] for j in i}) for i in (list({key: val for key, val in zip(['name', 'type_db_param', 'type_param'], i[:3])}.items()) + list({j[0]: j[1] for j in (j1.split('=') for j1 in i[3:])}.items()) for i in ([i[0].strip()] + [j1.strip() for j in '='.join(i[1:]).strip().replace('(', '#').replace(')', '#').replace('"', "").replace("'", "").split('#') if bool(j) for j1 in j.split(',')] for i in (j.split('=') for j in (''.join(list(i.split('#')[0])[count_tabs:]) for i in code[1:]) if bool(j) and '=' in j)))]
+        class_code = f'class {entity}(BaseModel):\n'
+        for string in code:
+            class_code += f'\t{string.name}: {func()}{string.type_param}{"]" + " = " + str(string.default) if bool(func()) else ""}\n'
+        class_code += "\n\n"
+        code_mopule += class_code
+    code_mopule += "if __name__ == '__main__':\n\tfrom os import chdir\n\n\tchdir(HOME_DIR)"
+    with open(join(HOME_DIR, create_file), "w", encoding='utf-8') as f:
+        print(code_mopule, file=f)
+
+
 if __name__ == '__main__':
     from os import chdir
 

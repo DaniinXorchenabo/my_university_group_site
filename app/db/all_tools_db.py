@@ -26,7 +26,15 @@ if __name__ == '__main__':
     chdir(HOME_DIR)
     is_DB_created()
     create_test_db_1()
-    # show_all()
+    show_all()
+    print(User.user_has_queues.__class__)  # entity args default
+    create_pydantic_models()
+    print(HOME_DIR)
+    # core.Set
+    # pony.orm.core.Optional
+    # pony.orm.core.PrimaryKey
+    # pony.orm.core.Required
+    # pony.orm.core.Set
 
     # with db_session:
     #     print(Group['20ВП1'].users)
