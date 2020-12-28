@@ -162,7 +162,7 @@ def old_connect_with_db(db_path=DB_PATH, deep=0, db_l=db):
                 exit()
 
 
-def create_pydantic_models(create_file='db/pydantic_models_db/pydantic_models.py'):
+def create_pydantic_models(create_file=AUTO_PYDANTIC_MODELS):
     from inspect import getsource
     from typing import Optional
     from pydantic import UUID4, BaseModel, EmailStr, Field, validator
@@ -175,25 +175,72 @@ def create_pydantic_models(create_file='db/pydantic_models_db/pydantic_models.py
         # unique: Optional[str]
         # reverse: Optional[str]
 
-    func = lambda: "" if string.type_db_param in ["Required", "PrimaryKey"] else ("Optional" if string.type_db_param == "Optional" else "Set") + '['
-    code_mopule = """# -*- coding: utf-8 -*-\n\n\"\"\"Этот код генерируется автоматически,
-ни одно изменение не сохранится в этом файле.
-Тут объявляются pydantic-модели, в которых присутствуют все сущности БД и все атрибуты сущностей\"\"\"\n\n
-from datetime import date, datetime, time\nfrom pony.orm import *\nfrom typing import Optional
-\nfrom pydantic import BaseModel\nfrom app.db.models import *\n\n"""
+    rules = {
+        lambda i: i.name in ["date", "time"]: lambda i: setattr(i, 'name',  'u_' + i.name) and print(i.name),
+        lambda i: i.type_db_param == "PrimaryKey": lambda i: setattr(i, 'type_db_param', "Required"),
+        lambda i: i.type_db_param == "Optional": lambda i: setattr(i, 'type_db_param', "PdOptional"),
+        lambda i: i.type_db_param == "Set": lambda i: setattr(i, 'type_db_param', "PdSet"),
+        lambda i: i.type_param.count("'") > 0 or i.type_param.count('"') > 0:
+            lambda i: setattr(i, 'type_param', i.type_param.replace('"', "").replace("'", "")),
+        lambda i: i.type_param in db.entities: lambda i: setattr(i, 'default', '...'),
+        lambda i: i.type_param in db.entities: lambda i: setattr(i, 'type_param', "Pd" + i.type_param),
+        lambda i: i.type_param == "Json": lambda i: setattr(i, 'type_param', "PdJson"),
+        lambda i: i.type_param == "time" and i.default and all((i.isdigit() for i in i.default.replace('"', "").replace("'", "").split(':'))):
+            lambda i: setattr(i, 'default', f'''lambda: time({", ".join(i.default.replace('"', "").replace("'", "").split(":"))})'''),
+    }
+
+    rules_create = {
+        "Required": lambda i: f'{i.type_param}{" = " + str(i.default) if i.default else ""}',
+        "PdOptional": lambda i: f'{i.type_db_param}[{i.type_param}] = {i.default}',
+        "PdSet": lambda i: f'PdOptional[{i.type_db_param}[{i.type_param}]] = {i.default}',
+    }
+
+    code_module = """# -*- coding: utf-8 -*-\n\n\"\"\"Этот код генерируется автоматически,"""
+    code_module += """ни одно изменение не сохранится в этом файле."""
+    code_module += """Тут объявляются pydantic-модели, в которых присутствуют все сущности БД"""
+    code_module += """и все атрибуты сущностей\"\"\"\n\n"""
+    code_module += """from typing import Set as PdSet\n\nfrom datetime import date, datetime, time"""
+    code_module += """\nfrom pony.orm import *\nfrom typing import Optional as PdOptional"""
+    code_module += """\nfrom pydantic import BaseModel, Json as PdJson\nfrom app.db.models import *\n\n\n"""
 
     for entity in db.entities:
-        code = getsource(User).split('\n')
+        code_module += f'class Pd{entity}(BaseModel):pass\n\n\n'
+
+    for entity_nane, entity in db.entities.items():
+        code = getsource(entity).split('\n')
         count_tabs = code[0].split('def')[0].count(' ') + 3
-        code = [CreatePdModels(**{j[0]: j[1] for j in i}) for i in (list({key: val for key, val in zip(['name', 'type_db_param', 'type_param'], i[:3])}.items()) + list({j[0]: j[1] for j in (j1.split('=') for j1 in i[3:])}.items()) for i in ([i[0].strip()] + [j1.strip() for j in '='.join(i[1:]).strip().replace('(', '#').replace(')', '#').replace('"', "").replace("'", "").split('#') if bool(j) for j1 in j.split(',')] for i in (j.split('=') for j in (''.join(list(i.split('#')[0])[count_tabs:]) for i in code[1:]) if bool(j) and '=' in j)))]
-        class_code = f'class {entity}(BaseModel):\n'
-        for string in code:
-            class_code += f'\t{string.name}: {func()}{string.type_param}{"]" + " = " + str(string.default) if bool(func()) else ""}\n'
+        code = (''.join(list(i.split('#')[0])[count_tabs:]) for i in code[1:])
+        code = (j.split('=') for j in code if bool(j) and '=' in j)
+        code = (([i[0].strip()] +
+                 list((j1.strip() for j in '='.join(i[1:]).strip().replace('(', '#').replace(')', '#').split('#')
+                       if bool(j) for j1 in j.split(',')))) for i in code)
+        code = (({key: val for key, val in zip(['name', 'type_db_param', 'type_param'], i[:3])},
+                 {j[0].strip(): j[1].strip() for j in (j1.split('=') for j1 in i[3:])}) for i in code)
+        code = [CreatePdModels(**i[0], **i[1]) for i in code]
+        [[val(i) for key, val in rules.items() if key(i)] for i in code]
+        code = [f'\t{i.name}: {rules_create[i.type_db_param](i)}' for i in code]
+
+        print(*code)
+
+        # code = [CreatePdModels(**{j[0]: ("Pd" + j[1] if j[1] in db.entities else change_params.get(j[1], j[1])) for j in i}) for i in (list(
+        #     {key: val.replace('"', "'").replace("'", "") for key, val in zip(['name', 'type_db_param', 'type_param'], i[:3])}.items()) + list(
+        #     {j[0]: j[1] for j in (j1.split('=') for j1 in i[3:])}.items()) for i in (
+        #     [i[0].strip()] + [j1.strip() for j in
+        #                       '='.join(i[1:]).strip().replace('(', '#').replace(')', '#').split('#') if bool(j) for j1 in j.split(',')] for i in (j.split(
+        #     '=') for j in
+        #     (''.join(list(i.split('#')[0])[count_tabs:]) for i in code[1:]) if bool(j) and '=' in j)
+        # ))]
+
+    #     for string in code:
+    #         class_code += f'\t{string.name}: '
+    #         class_code += f'{func()}{string.type_param}{"]" if bool(func()) else ""}{" = " + ("..." if string.type_param[2:] in db.entities or print(string.type_param[2:]) else (f"{string.type_param}({string.default})" if string.default else str(string.default))) if bool(func()) or string.default or string.type_param[2:] in db.entities  else ""}\n'  # (string.default and " = " + string.default) or
+        class_code = f'class Pd{entity_nane}(BaseModel):\n'
+        class_code += '\n'.join(code)
         class_code += "\n\n"
-        code_mopule += class_code
-    code_mopule += "if __name__ == '__main__':\n\tfrom os import chdir\n\n\tchdir(HOME_DIR)"
-    with open(join(HOME_DIR, create_file), "w", encoding='utf-8') as f:
-        print(code_mopule, file=f)
+        code_module += class_code
+    code_module += "if __name__ == '__main__':\n\tfrom os import chdir\n\n\tchdir(HOME_DIR)"
+    with open(create_file, "w", encoding='utf-8') as f:
+        print(code_module, file=f)
 
 
 if __name__ == '__main__':
