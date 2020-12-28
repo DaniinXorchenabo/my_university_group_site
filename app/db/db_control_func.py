@@ -144,7 +144,7 @@ def old_connect_with_db(db_path=DB_PATH, deep=0, db_l=db):
             print('при создании бд произошла какая-то ошибка (видимо, структура БД была изменена)\n', e)
             print('попытка исправить.....')
             try:
-                db.bind(provider=cfg.get("db", "type"), filename=db_path, create_tables=True,)
+                db.bind(provider=cfg.get("db", "type"), filename=db_path, create_tables=True, )
                 db.generate_mapping()
                 print('получилось')
             except Exception as e:
@@ -176,7 +176,7 @@ def create_pydantic_models(create_file=AUTO_PYDANTIC_MODELS):
         # reverse: Optional[str]
 
     rules = {
-        lambda i: i.name in ["date", "time"]: lambda i: setattr(i, 'name',  'u_' + i.name) and print(i.name),
+        lambda i: i.name in ["date", "time"]: lambda i: setattr(i, 'name', 'u_' + i.name),
         lambda i: i.type_db_param == "PrimaryKey": lambda i: setattr(i, 'type_db_param', "Required"),
         lambda i: i.type_db_param == "Optional": lambda i: setattr(i, 'type_db_param', "PdOptional"),
         lambda i: i.type_db_param == "Set": lambda i: setattr(i, 'type_db_param', "PdSet"),
@@ -185,8 +185,15 @@ def create_pydantic_models(create_file=AUTO_PYDANTIC_MODELS):
         lambda i: i.type_param in db.entities: lambda i: setattr(i, 'default', '...'),
         lambda i: i.type_param in db.entities: lambda i: setattr(i, 'type_param', "Pd" + i.type_param),
         lambda i: i.type_param == "Json": lambda i: setattr(i, 'type_param', "PdJson"),
-        lambda i: i.type_param == "time" and i.default and all((i.isdigit() for i in i.default.replace('"', "").replace("'", "").split(':'))):
-            lambda i: setattr(i, 'default', f'''lambda: time({", ".join(i.default.replace('"', "").replace("'", "").split(":"))})'''),
+
+        lambda i: i.type_param == "int" and i.default and i.default.replace(
+            '"', "").replace("'", "").replace("-", "").isdigit():
+            lambda i: setattr(i, 'default', i.default.replace('"', "").replace("'", "")),
+
+        lambda i: i.type_param == "time" and i.default and all(
+            (i.isdigit() for i in i.default.replace('"', "").replace("'", "").split(':'))):
+            lambda i: setattr(i, 'default',
+                              f'''lambda: time({", ".join(i.default.replace('"', "").replace("'", "").split(":"))})'''),
     }
 
     rules_create = {
@@ -204,7 +211,7 @@ def create_pydantic_models(create_file=AUTO_PYDANTIC_MODELS):
     code_module += """\nfrom pydantic import BaseModel, Json as PdJson\nfrom app.db.models import *\n\n\n"""
 
     for entity in db.entities:
-        code_module += f'class Pd{entity}(BaseModel):pass\n\n\n'
+        code_module += f'class Pd{entity}(BaseModel): pass\n\n\n'
 
     for entity_nane, entity in db.entities.items():
         code = getsource(entity).split('\n')
@@ -222,25 +229,15 @@ def create_pydantic_models(create_file=AUTO_PYDANTIC_MODELS):
 
         print(*code)
 
-        # code = [CreatePdModels(**{j[0]: ("Pd" + j[1] if j[1] in db.entities else change_params.get(j[1], j[1])) for j in i}) for i in (list(
-        #     {key: val.replace('"', "'").replace("'", "") for key, val in zip(['name', 'type_db_param', 'type_param'], i[:3])}.items()) + list(
-        #     {j[0]: j[1] for j in (j1.split('=') for j1 in i[3:])}.items()) for i in (
-        #     [i[0].strip()] + [j1.strip() for j in
-        #                       '='.join(i[1:]).strip().replace('(', '#').replace(')', '#').split('#') if bool(j) for j1 in j.split(',')] for i in (j.split(
-        #     '=') for j in
-        #     (''.join(list(i.split('#')[0])[count_tabs:]) for i in code[1:]) if bool(j) and '=' in j)
-        # ))]
-
-    #     for string in code:
-    #         class_code += f'\t{string.name}: '
-    #         class_code += f'{func()}{string.type_param}{"]" if bool(func()) else ""}{" = " + ("..." if string.type_param[2:] in db.entities or print(string.type_param[2:]) else (f"{string.type_param}({string.default})" if string.default else str(string.default))) if bool(func()) or string.default or string.type_param[2:] in db.entities  else ""}\n'  # (string.default and " = " + string.default) or
         class_code = f'class Pd{entity_nane}(BaseModel):\n'
         class_code += '\n'.join(code)
-        class_code += "\n\n"
+        class_code += "\n\n\n"
         code_module += class_code
     code_module += "if __name__ == '__main__':\n\tfrom os import chdir\n\n\tchdir(HOME_DIR)"
     with open(create_file, "w", encoding='utf-8') as f:
         print(code_module, file=f)
+
+    print('-1'.replace('"', "").replace("'", "").replace("-", "").isdigit())
 
 
 if __name__ == '__main__':
