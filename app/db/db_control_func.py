@@ -237,7 +237,6 @@ def create_pydantic_models(create_file=AUTO_PYDANTIC_MODELS):
     with open(create_file, "w", encoding='utf-8') as f:
         print(code_module, file=f)
 
-    print('-1'.replace('"', "").replace("'", "").replace("-", "").isdigit())
 
 
 if __name__ == '__main__':
