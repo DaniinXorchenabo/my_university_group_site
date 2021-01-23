@@ -1,7 +1,7 @@
 # Проект для удобства жизни студента
 ## installing:
     
-    git clone https://github.com/DaniinXorchenabo/Ilya_develop_front.git
+    git clone https://github.com/DaniinXorchenabo/my_university_group_site.git
     cd Ilya_develop_front
     pip install -r requirements.txt
     
