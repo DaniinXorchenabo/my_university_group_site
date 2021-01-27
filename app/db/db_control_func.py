@@ -177,15 +177,24 @@ def create_pydantic_models(create_file=AUTO_PYDANTIC_MODELS):
 
     rules = {
         lambda i: i.name in ["date", "time"]: lambda i: setattr(i, 'name', 'u_' + i.name),
-        lambda i: i.type_db_param == "PrimaryKey": lambda i: setattr(i, 'type_db_param', "Required"),
-        lambda i: i.type_db_param == "Optional": lambda i: setattr(i, 'type_db_param', "PdOptional"),
-        lambda i: i.type_db_param == "Set": lambda i: setattr(i, 'type_db_param', "PdSet"),
         lambda i: i.type_param.count("'") > 0 or i.type_param.count('"') > 0:
             lambda i: setattr(i, 'type_param', i.type_param.replace('"', "").replace("'", "")),
-        lambda i: i.type_param in db.entities: lambda i: setattr(i, 'default', '...'),
-        lambda i: i.type_param in db.entities: lambda i: setattr(i, 'type_param', "Pd" + i.type_param),
-        lambda i: i.type_param == "Json": lambda i: setattr(i, 'type_param', "PdJson"),
 
+        lambda i: i.type_param in db.entities: lambda i: setattr(
+            i, 'type_param', "Union[Pd" + i.type_param + ", str, List, Dict, PdSet]"),
+        lambda i: i.type_param == "Json": lambda i: setattr(i, 'type_param', "PdJson"),
+            }
+
+    rules_type = {
+        lambda i: i.type_db_param == "PrimaryKey": lambda i: setattr(i, 'type_db_param', "Required"),
+        lambda i: True: lambda i: setattr(i, 'type_db_param', str(i.type_db_param))
+        # lambda i: i.type_db_param == "Optional": lambda i: setattr(i, 'type_db_param', "PdOptional"),
+        # lambda i: i.type_db_param == "Set": lambda i: setattr(i, 'type_db_param', "PdSet"),
+    }
+    a = tuple
+
+    rules_default = {
+        # lambda i: i.type_param in db.entities: lambda i: setattr(i, 'default', None),
         lambda i: i.type_param == "int" and i.default and i.default.replace(
             '"', "").replace("'", "").replace("-", "").isdigit():
             lambda i: setattr(i, 'default', i.default.replace('"', "").replace("'", "")),
@@ -194,19 +203,35 @@ def create_pydantic_models(create_file=AUTO_PYDANTIC_MODELS):
             (i.isdigit() for i in i.default.replace('"', "").replace("'", "").split(':'))):
             lambda i: setattr(i, 'default',
                               f'''lambda: time({", ".join(i.default.replace('"', "").replace("'", "").split(":"))})'''),
+
     }
 
-    rules_create = {
-        "Required": lambda i: f'{i.type_param}{" = " + str(i.default) if i.default else ""}',
-        "PdOptional": lambda i: f'{i.type_db_param}[{i.type_param}] = {i.default}',
-        "PdSet": lambda i: f'PdOptional[{i.type_db_param}[{i.type_param}]] = {i.default}',
+    name_to_text = {
+        lambda i: True: lambda i: setattr(i, 'name', str(i.name) + ": ")
+    }
+
+    type_param_to_text = {
+        lambda i: i.type_db_param == "Required": lambda i: setattr(i, 'type_db_param', str(i.type_param)),
+        lambda i: i.type_db_param == "Optional": lambda i: setattr(i, 'type_db_param', f'PdOptional[{i.type_param}]'),
+        lambda i: i.type_db_param == "Set": lambda i: setattr(i, 'type_db_param', f'PdOptional[PdSet[{i.type_param}]]'),
+        # lambda i: i.type_db_param == "Required": lambda
+        #     i: f'{i.type_param}{" = " + str(i.default) if i.default else ""}',
+        # lambda i: i.type_db_param == "PdOptional": lambda i: f'{i.type_db_param}[{i.type_param}] = {i.default}',
+        # lambda i: i.type_db_param == "PdSet": lambda i: f'PdOptional[{i.type_db_param}[{i.type_param}]] = {i.default}',
+    }
+
+    default_to_text = {
+        lambda i: i.type_param in db.entities: lambda i: setattr(i, 'default', ''),
+        lambda i: i.default and bool(i.default): lambda i: setattr(i, 'default', ' = ' + str(i.default)),
+        lambda i: i.default is None: lambda i: setattr(i, 'default', ''),
     }
 
     code_module = """# -*- coding: utf-8 -*-\n\n\"\"\"Этот код генерируется автоматически,"""
     code_module += """ни одно изменение не сохранится в этом файле."""
     code_module += """Тут объявляются pydantic-модели, в которых присутствуют все сущности БД"""
     code_module += """и все атрибуты сущностей\"\"\"\n\n"""
-    code_module += """from typing import Set as PdSet\n\nfrom datetime import date, datetime, time"""
+    code_module += """from typing import Set as PdSet, Union, List, Dict, Tuple\n\n"""
+    code_module += """from datetime import date, datetime, time"""
     code_module += """\nfrom pony.orm import *\nfrom typing import Optional as PdOptional"""
     code_module += """\nfrom pydantic import BaseModel, Json as PdJson\nfrom app.db.models import *\n\n\n"""
 
@@ -224,19 +249,26 @@ def create_pydantic_models(create_file=AUTO_PYDANTIC_MODELS):
         code = (({key: val for key, val in zip(['name', 'type_db_param', 'type_param'], i[:3])},
                  {j[0].strip(): j[1].strip() for j in (j1.split('=') for j1 in i[3:])}) for i in code)
         code = [CreatePdModels(**i[0], **i[1]) for i in code]
+
         [[val(i) for key, val in rules.items() if key(i)] for i in code]
-        code = [f'\t{i.name}: {rules_create[i.type_db_param](i)}' for i in code]
+        [[val(i) for key, val in rules_default.items() if key(i)] for i in code]
+        [[val(i) for key, val in rules_type.items() if key(i)] for i in code]
+
+        [[val(i) for key, val in name_to_text.items() if key(i)] for i in code]
+        [[val(i) for key, val in type_param_to_text.items() if key(i)] for i in code]
+        [[val(i) for key, val in default_to_text.items() if key(i)] for i in code]
+        code = [f'\t' + i.name + i.type_db_param + i.default for i in code]
 
         print(*code)
 
         class_code = f'class Pd{entity_nane}(BaseModel):\n'
         class_code += '\n'.join(code)
-        class_code += "\n\n\n"
+        class_code += "\n\n"
         code_module += class_code
+        code_module += """\tclass Config:\n\t\torm_mode = True\n\n\n"""
     code_module += "if __name__ == '__main__':\n\tfrom os import chdir\n\n\tchdir(HOME_DIR)"
     with open(create_file, "w", encoding='utf-8') as f:
         print(code_module, file=f)
-
 
 
 if __name__ == '__main__':
