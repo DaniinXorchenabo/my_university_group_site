@@ -175,7 +175,8 @@ def create_pydantic_models(create_file=AUTO_PYDANTIC_MODELS):
         # unique: Optional[str]
         # reverse: Optional[str]
 
-    rules = {
+    # Правила обработки типа параметра из модели Pony
+    rules_type_param = {
         lambda i: i.name in ["date", "time"]: lambda i: setattr(i, 'name', 'u_' + i.name),
         lambda i: i.type_param.count("'") > 0 or i.type_param.count('"') > 0:
             lambda i: setattr(i, 'type_param', i.type_param.replace('"', "").replace("'", "")),
@@ -185,14 +186,15 @@ def create_pydantic_models(create_file=AUTO_PYDANTIC_MODELS):
         lambda i: i.type_param == "Json": lambda i: setattr(i, 'type_param', "PdJson"),
             }
 
+    # Правила обработки обязательности или не обязательнояти параметра из модели Pony
     rules_type = {
         lambda i: i.type_db_param == "PrimaryKey": lambda i: setattr(i, 'type_db_param', "Required"),
         lambda i: True: lambda i: setattr(i, 'type_db_param', str(i.type_db_param))
         # lambda i: i.type_db_param == "Optional": lambda i: setattr(i, 'type_db_param', "PdOptional"),
         # lambda i: i.type_db_param == "Set": lambda i: setattr(i, 'type_db_param', "PdSet"),
     }
-    a = tuple
 
+    # Правила обработки значения по умолчанию из модели Pony
     rules_default = {
         # lambda i: i.type_param in db.entities: lambda i: setattr(i, 'default', None),
         lambda i: i.type_param == "int" and i.default and i.default.replace(
@@ -206,10 +208,12 @@ def create_pydantic_models(create_file=AUTO_PYDANTIC_MODELS):
 
     }
 
+    # Правила превращения в код имени параметра
     name_to_text = {
         lambda i: True: lambda i: setattr(i, 'name', str(i.name) + ": ")
     }
 
+    # Правила превращения в код имени обязательности параметра
     type_param_to_text = {
         lambda i: i.type_db_param == "Required": lambda i: setattr(i, 'type_db_param', str(i.type_param)),
         lambda i: i.type_db_param == "Optional": lambda i: setattr(i, 'type_db_param', f'PdOptional[{i.type_param}]'),
@@ -220,6 +224,7 @@ def create_pydantic_models(create_file=AUTO_PYDANTIC_MODELS):
         # lambda i: i.type_db_param == "PdSet": lambda i: f'PdOptional[{i.type_db_param}[{i.type_param}]] = {i.default}',
     }
 
+    # Правила превращения в код значения по умолчанию
     default_to_text = {
         lambda i: i.type_param in db.entities: lambda i: setattr(i, 'default', ''),
         lambda i: i.default and bool(i.default): lambda i: setattr(i, 'default', ' = ' + str(i.default)),
@@ -250,7 +255,7 @@ def create_pydantic_models(create_file=AUTO_PYDANTIC_MODELS):
                  {j[0].strip(): j[1].strip() for j in (j1.split('=') for j1 in i[3:])}) for i in code)
         code = [CreatePdModels(**i[0], **i[1]) for i in code]
 
-        [[val(i) for key, val in rules.items() if key(i)] for i in code]
+        [[val(i) for key, val in rules_type_param.items() if key(i)] for i in code]
         [[val(i) for key, val in rules_default.items() if key(i)] for i in code]
         [[val(i) for key, val in rules_type.items() if key(i)] for i in code]
 
