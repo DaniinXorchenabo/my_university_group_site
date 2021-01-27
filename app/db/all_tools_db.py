@@ -10,40 +10,63 @@ from pony.orm import *
 
 from app.settings.config import *
 from app.db.models import *
-from app.db.db_addition.user_addition import *
-from app.db.db_addition.Group_addition import *
-
-from app.db.db_addition.NoneVerification_additions import *
-from app.db.db_addition.Admin_additions import *
-from app.db.db_addition.SeniorInTheGroup_additions import *
+# from app.db.db_addition.user_addition import *
+# from app.db.db_addition.Group_addition import *
+#
+# from app.db.db_addition.NoneVerification_additions import *
+# from app.db.db_addition.Admin_additions import *
+# from app.db.db_addition.SeniorInTheGroup_additions import *
+# from app.db.db_addition.SeniorVerification_additions import *
 from app.db.tests.create_test_db import *
 from app.db.db_control_func import *
 
 if __name__ == '__main__':
     from os import chdir
 
+    create_pydantic_models()
+
+    from app.db.pydantic_models_db.pydantic_models import *
+
     chdir(HOME_DIR)
     is_DB_created()
     create_test_db_1()
     show_all()
 
+    with db_session:
+        # print(User[100].__dict__)
+        gr = PdGroup(name='20ВП1')
+        print(type(gr))
+        u = PdUser(name='Петя', id=100, password="123", login='Петя1', groups=["20ВП1"])  #
+        print(u)
+        # import pydantic
+        # pydantic.main.BaseModel.__init__
+    # print(User.user_has_queues.__class__)  # entity args default
+    # create_pydantic_models()
+    # print(HOME_DIR)
+    # core.Set
+    # pony.orm.core.Optional
+    # pony.orm.core.PrimaryKey
+    # pony.orm.core.Required
+    # pony.orm.core.Set
+
     # with db_session:
+    #     print(Group['20ВП1'].users)
     #     print(User[100].check_password('1234653'))
     #     print(len(User[100]._password), User[100]._password)
     #     print(len(User[100]._get_password), User[100]._get_password)
     #     print(len(User[100]._get_salt_password + User[100]._get_key_password), User[100]._get_salt_password + User[100]._get_key_password)
     #     print(len(User[100]._get_salt_password), User[100]._get_salt_password)
     #     print(len(User[100]._get_key_password), User[100]._get_key_password)
-        # print(User[100].password)
+    # print(User[100].password)
     #     print(Group['20ВП1'].users)
     #     Group['20ВП1'].users |= {User[101], User[100]}
     #     print(Group['20ВП1'].users)
     #     print(Group['20ВП1'].no_verificated_users)
     #     commit()
 
-    import hashlib
-    import os
-    import binascii
+    # import hashlib
+    # import os
+    # import binascii
 
     # Пример генерации
     # salt = os.urandom(32)
@@ -75,3 +98,5 @@ if __name__ == '__main__':
     #     print('Пароль правильный')
     # else:
     #     print('Пароль неправильный')
+
+from app.db.pydantic_models_db.pydantic_models import *

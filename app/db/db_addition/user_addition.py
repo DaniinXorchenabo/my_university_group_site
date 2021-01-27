@@ -62,7 +62,7 @@ def _is_verificated(self, value: bool):
     True - пользователь верифицирован
     False - пользователь не верифицирован"""
     print('&&6')
-    if value:
+    if value:  # если мы делаем пользователя верифицированным
         self.my_verification = set()
         self.i_verificate_thei = set()
         commit()
@@ -70,6 +70,13 @@ def _is_verificated(self, value: bool):
          (dict(it_is_i=u, he_verificate_me=self) for u in
           self._groups._users.select(lambda u: not u._is_verificated and u != self))
          if not NoneVerification.exists(**params)]
+        if self._groups and type(self._groups.senior_in_the_group) == SeniorInTheGroup and\
+                not self._groups.senior_in_the_group.is_verification:
+            # если в группе пользователя есть неверифицированный староста,
+            # то добавляем пользователя в верифиувторы старосты
+            senior = self._groups.senior_in_the_group
+            if not SeniorVerification.exists(user=self, senior_in_the_group=senior):
+                SeniorVerification(user=self, senior_in_the_group=senior)
         commit()
     else:
         self.my_verification = set()
@@ -85,6 +92,13 @@ def _is_verificated(self, value: bool):
              (dict(it_is_i=self, he_verificate_me=u) for u in self._groups._users.select(
                  lambda u: u._is_verificated and u != self)) if not NoneVerification.exists(**params)]
             commit()
+            if type(self._groups.senior_in_the_group) == SeniorInTheGroup and \
+                not self._groups.senior_in_the_group.is_verification:
+                # если в группе пользователя есть неверифицированный староста,
+                # то убираем пользователя из верификаторов старосты
+                senior = self._groups.senior_in_the_group
+                if SeniorVerification.exists(user=self, senior_in_the_group=senior):
+                    SeniorVerification.get(user=self, senior_in_the_group=senior).delite()
 
 
 @User.only_setter
@@ -268,8 +282,47 @@ def protect_password(attr_name='groups'):
     return decorator
 
 
+def protect_senior(attr_name='senior_in_the_group'):
+    new_attr_name = '_' + attr_name
+
+    def decorator(cls):
+        print('!!!!!!!!!!')
+
+        @property
+        def attr(self):
+            senior = getattr(self, new_attr_name)
+            return senior if senior is None else 'Вы не староста'
+
+        @attr.setter
+        def attr(self, val):
+            if val is None or not val:
+                senior = getattr(self, new_attr_name)
+                if senior:  # если пользователь был старостой, но теперь больше не староста
+                    senior.is_verification = False
+                    senior.delite()
+                    commit()
+            elif val == True:  # если человека назначили старостой
+                if self.is_verificated and not SeniorInTheGroup.exists(user=self, group=self._groups):
+                    # и он им не был, то создаем неверифицированного старосту
+                    SeniorInTheGroup(user=self, group=self._groups)
+                    commit()
+            elif type(val) == SeniorInTheGroup and self.is_verificated and val.group == self.groups:
+                setattr(self, new_attr_name, val)
+            else:
+                return False
+            return True
+
+        last_attr = getattr(cls, attr_name)
+        setattr(cls, new_attr_name, last_attr)
+        setattr(cls, attr_name, attr)
+        return cls
+
+    return decorator
+
+
 User = protect_attr(attr_name='groups')(User)
 User = protect_password(attr_name='password')(User)
+User = protect_senior(attr_name='senior_in_the_group')(User)
 
 
 @User.func_and_classmethod
@@ -291,20 +344,31 @@ def check_password(self, password: str = ""):
 def __init__(self, *args, **kwargs):
     """при инициализации пользователя делаем его неверифицированным, если не указано иное"""
     init_kw = kwargs.copy()
-
-    super(User, self).__init__(*args, **kwargs)
-
-    if 'password' in kwargs:
-        self.password = kwargs['password']
-    commit()
-    if "my_verification" not in init_kw and "i_verificate_thei" not in init_kw:
+    is_verificated_user = kwargs.pop('is_verificated', None)
+    verificate_bool = (is_verificated_user is None and
+                       ("my_verification" not in init_kw and "i_verificate_thei" not in init_kw)) \
+                      or is_verificated_user == False  # True, если пользователь неверифицирован
+    if verificate_bool:  # если пользователь не верифицирован
+        kwargs.pop('senior_in_the_group', None)  # то он не может быть старостой
+    super(User, self).__init__(*args, **kwargs)  # создание пользователя
+    if verificate_bool:  # если пользователь не верифицирован
         if User.exists(**init_kw):
             print('существует')
-            if init_kw.get("groups", None):
+            if init_kw.get("groups", None):  # и имеет группу
                 my_group_friends = set(select(i for i in self._groups._users if i._is_verificated)[:]) - {self}
                 print(my_group_friends)
                 [NoneVerification(it_is_i=self, he_verificate_me=u) for u in my_group_friends
                  if not NoneVerification.exists(it_is_i=self, he_verificate_me=u)]
-                commit()
+                commit()  # то дабовляем ему тех, кто будет верифицировать его
         else:
             print('не существует')
+    elif is_verificated_user:  # если при создании явно указано, что пользователь верифицирован
+        my_no_verificated_friends = set(select(i for i in self._groups._users if not i._is_verificated)[:]) - {self}
+        print(my_no_verificated_friends)
+        [NoneVerification(it_is_i=u, he_verificate_me=self) for u in my_no_verificated_friends
+         if not NoneVerification.exists(it_is_i=u, he_verificate_me=self)]
+        commit()  # то добавляем ему тех, кого он должен верифицировать
+
+    if 'password' in kwargs:  # хешируем пероль
+        self.password = kwargs['password']
+    commit()

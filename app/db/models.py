@@ -20,28 +20,31 @@ class Admin(db.Entity):
 
 class User(db.Entity):
     id = PrimaryKey(int)
-    senior_in_the_group = Optional('SeniorInTheGroup')
-    groups = Optional('Group')
     name = Optional(str)
+    login = Required(str, unique=True)
     password = Optional(str)
     email = Optional(str, unique=True)
+    user_has_queues = Set('UserHasQueue')
     session_key_for_app = Optional(str)
     getting_time_session_key = Optional(datetime)
     admin = Optional(Admin)
     login_EIES = Optional(str)
     password_EIES = Optional(str)
-    my_verification = Set('NoneVerification',
-                          reverse='it_is_i')  # если поле пустое - то я верифицирован, если нет - то у меня нет доступа к информации группы
+    my_verification = Set('NoneVerification', reverse='it_is_i')  # если поле пустое - то я верифицирован, если нет - то у меня нет доступа к информации группы
     i_verificate_thei = Set('NoneVerification', reverse='he_verificate_me')
     # те пользователи, которых я могу верифицировать
     # Это поле может быть не пустым только если я сам верифицирован
+    senior_in_the_group = Optional('SeniorInTheGroup')
     curse_count = Optional(int)  # Счетчик мата
+    senior_verification = Optional('SeniorVerification')
+    groups = Optional('Group')
 
 
 class DustbiningChat(db.Entity):
     """Флудилка, чат, где будут спрашивать домашку"""
     id = PrimaryKey(int)
     group = Optional('Group')
+    reminders = Set('Reminder')
 
 
 class ImportantChat(db.Entity):
@@ -67,6 +70,7 @@ class Group(db.Entity):
     events = Set('Event')
     timesheet_update = Required(datetime, default=lambda: datetime.now())
     news = Set('News')
+    queues = Set('Queue')
 
 
 class HomeTask(db.Entity):
@@ -82,9 +86,10 @@ class Subject(db.Entity):
     """Предмет для одной группы"""
     group = Required(Group)
     home_tasks = Set(HomeTask)
-    weekday_and_time_subjects = Set('WeekdayAndTimeSubject')
     name = Required(str)
+    queues = Set('Queue')
     teachers = Set('Teacher')
+    weekday_and_time_subjects = Set('WeekdayAndTimeSubject')
     PrimaryKey(group, name)
 
 
@@ -123,11 +128,15 @@ class Teacher(db.Entity):
     name = Required(str)
     email = Optional(str)
     phone_number = Optional(str)
+    vk_url = Optional(str)
 
 
 class SeniorInTheGroup(db.Entity):
+    """Это сущность старосты"""
     user = Required(User)
+    senior_verifications = Set('SeniorVerification')
     group = Required(Group)
+    is_verification = Optional(bool)
     PrimaryKey(user, group)
 
 
@@ -142,13 +151,47 @@ class News(db.Entity):
 class NoneVerification(db.Entity):
     """представляет из себя не отдельно взятого пользователя, а поле верификации одного полльзователя другим (уже верифицированным пользователем)"""
     it_is_i = Required(User, reverse='my_verification')
-    he_verificate_me = Required(User,
-                                reverse='i_verificate_thei')  # моя группа, которая должна подтвердить, что я с ними в одной группе
+    he_verificate_me = Required(User, reverse='i_verificate_thei')  # моя группа, которая должна подтвердить, что я с ними в одной группе
     confirmation = Optional(int, default=0)
     # 0 - пользователь ничего не ответил
     # -1 - ответил отрицательно
     # 1 - ответил положительно
     PrimaryKey(it_is_i, he_verificate_me)
+
+
+class Queue(db.Entity):
+    """Сущность очереди. Реализует механизм кто что и за кем занял"""
+    id = PrimaryKey(int, auto=True)
+    user_has_queues = Set('UserHasQueue')
+    group = Required(Group)
+    name = Optional(str)
+    subject = Optional(Subject)
+
+
+class UserHasQueue(db.Entity):
+    """Это вспомогательная сущность очереди,  олицетворяет какой пользователь в какой очереди занял какой место. По идее, не должна использоваться вне кода БД"""
+    user = Required(User)
+    queue = Required(Queue)
+    number = Required(int, default="-1")
+    id = PrimaryKey(int, auto=True)
+
+
+class Reminder(db.Entity):
+    id = PrimaryKey(int, auto=True)
+    title = Optional(str, default="Вы просили о чем-то напомнить")
+    text = Optional(str, default=" ")
+    reminder_time = Required(datetime)
+    dustbining_chat = Required(DustbiningChat)
+
+
+class SeniorVerification(db.Entity):
+    """Сущность, нужная для верификации старосты (для каждой пары староста- верифицированный пользователь группы)"""
+    senior_in_the_group = Required(SeniorInTheGroup)
+    user = PrimaryKey(User)
+    confirmation = Required(int, default=0)
+    # 0 - пользователь ничего не ответил
+    # -1 - ответил отрицательно
+    # 1 - ответил положительно
 
 
 for name, ent in db.entities.items():
