@@ -166,6 +166,38 @@ def settings_group_senior():
     """Получить настройки старосты"""
     return {"<какой-то параметр> : <какое-то значение>"}
 
+class TestClass2(BaseModel):
+    number1: int
+    name1: str
+
+class TestClass(BaseModel):
+    # senior_in_the_group: PdOptional[Union[PdSeniorInTheGroup, str, List, Dict, PdSet]]
+    # users: PdOptional[PdSet[Union[PdUser, str, List, Dict, PdSet]]]
+    # dustbining_chats: PdOptional[PdSet[Union[PdDustbiningChat, str, List, Dict, PdSet]]]
+    # important_chats: PdOptional[PdSet[Union[PdImportantChat, str, List, Dict, PdSet]]]
+    # subjects: PdOptional[PdSet[Union[PdSubject, str, List, Dict, PdSet]]]
+    name: Union[str, int, Dict]
+    name1: Union[int, List[int]] = [7, 9]
+    name2: PdOptional[Union[List[int]]]
+    events: PdOptional[List[Union[int, str, TestClass2, Dict, List]]] = None  # Union[PdEvent, str, List, Dict, PdSet]  , List, Dict, TestClass2
+    timesheet_update: datetime = lambda: datetime.now
+    # news: PdOptional[PdSet[Union[PdNews, str, List, Dict, PdSet]]]
+    # queues: PdOptional[PdSet[Union[PdQueue, str, List, Dict, PdSet]]]
+
+"""  
+"events": {
+    "number1": 0,
+    "name1": "string"
+  }
+"""
+
+@api_app.post("/test")
+@db_session
+def testing_pd_model(my_group: TestClass):
+    print(my_group)
+    return {'dfv': 'gooood'}
+
+
 
 if __name__ == "__main__":
     # is_DB_created()
