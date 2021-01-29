@@ -174,6 +174,7 @@ def create_pydantic_models(create_file=AUTO_PYDANTIC_MODELS):
         default: Optional[str]
         # unique: Optional[str]
         # reverse: Optional[str]
+        # events: PdOptional[List[Union[int, str, TestClass2, Dict, List]]] = None
 
     # Правила обработки типа параметра из модели Pony
     rules_type_param = {
@@ -182,7 +183,7 @@ def create_pydantic_models(create_file=AUTO_PYDANTIC_MODELS):
             lambda i: setattr(i, 'type_param', i.type_param.replace('"', "").replace("'", "")),
 
         lambda i: i.type_param in db.entities: lambda i: setattr(
-            i, 'type_param', "Union[Pd" + i.type_param + ", str, List, Dict, PdSet]"),
+            i, 'type_param', "Union[int, str, Pd" + i.type_param + ", Dict, List]"),
         lambda i: i.type_param == "Json": lambda i: setattr(i, 'type_param', "PdJson"),
             }
 
@@ -217,7 +218,7 @@ def create_pydantic_models(create_file=AUTO_PYDANTIC_MODELS):
     type_param_to_text = {
         lambda i: i.type_db_param == "Required": lambda i: setattr(i, 'type_db_param', str(i.type_param)),
         lambda i: i.type_db_param == "Optional": lambda i: setattr(i, 'type_db_param', f'PdOptional[{i.type_param}]'),
-        lambda i: i.type_db_param == "Set": lambda i: setattr(i, 'type_db_param', f'PdOptional[PdSet[{i.type_param}]]'),
+        lambda i: i.type_db_param == "Set": lambda i: setattr(i, 'type_db_param', f'PdOptional[List[{i.type_param}]]'),
         # lambda i: i.type_db_param == "Required": lambda
         #     i: f'{i.type_param}{" = " + str(i.default) if i.default else ""}',
         # lambda i: i.type_db_param == "PdOptional": lambda i: f'{i.type_db_param}[{i.type_param}] = {i.default}',
@@ -235,7 +236,7 @@ def create_pydantic_models(create_file=AUTO_PYDANTIC_MODELS):
     code_module += """ни одно изменение не сохранится в этом файле."""
     code_module += """Тут объявляются pydantic-модели, в которых присутствуют все сущности БД"""
     code_module += """и все атрибуты сущностей\"\"\"\n\n"""
-    code_module += """from typing import Set as PdSet, Union, List, Dict, Tuple\n\n"""
+    code_module += """from typing import Set as PdSet, Union, List, Dict\n\n"""
     code_module += """from datetime import date, datetime, time"""
     code_module += """\nfrom pony.orm import *\nfrom typing import Optional as PdOptional"""
     code_module += """\nfrom pydantic import BaseModel, Json as PdJson\nfrom app.db.models import *\n\n\n"""
