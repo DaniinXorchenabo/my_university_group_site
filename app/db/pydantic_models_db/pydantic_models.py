@@ -2,7 +2,7 @@
 
 """Этот код генерируется автоматически,ни одно изменение не сохранится в этом файле.Тут объявляются pydantic-модели, в которых присутствуют все сущности БДи все атрибуты сущностей"""
 
-from typing import Set as PdSet, Union, List, Dict, Tuple
+from typing import Set as PdSet, Union, List, Dict
 
 from datetime import date, datetime, time
 from pony.orm import *
@@ -69,7 +69,7 @@ class PdSeniorVerification(BaseModel): pass
 
 
 class PdAdmin(BaseModel):
-	user: Union[PdUser, str, List, Dict, PdSet]
+	user: Union[int, str, PdUser, Dict, List]
 
 	class Config:
 		orm_mode = True
@@ -81,18 +81,18 @@ class PdUser(BaseModel):
 	login: str
 	password: PdOptional[str]
 	email: PdOptional[str]
-	user_has_queues: PdOptional[PdSet[Union[PdUserHasQueue, str, List, Dict, PdSet]]]
+	user_has_queues: PdOptional[List[Union[int, str, PdUserHasQueue, Dict, List]]]
 	session_key_for_app: PdOptional[str]
 	getting_time_session_key: PdOptional[datetime]
-	admin: PdOptional[Union[PdAdmin, str, List, Dict, PdSet]]
+	admin: PdOptional[Union[int, str, PdAdmin, Dict, List]]
 	login_EIES: PdOptional[str]
 	password_EIES: PdOptional[str]
-	my_verification: PdOptional[PdSet[Union[PdNoneVerification, str, List, Dict, PdSet]]]
-	i_verificate_thei: PdOptional[PdSet[Union[PdNoneVerification, str, List, Dict, PdSet]]]
-	senior_in_the_group: PdOptional[Union[PdSeniorInTheGroup, str, List, Dict, PdSet]]
+	my_verification: PdOptional[List[Union[int, str, PdNoneVerification, Dict, List]]]
+	i_verificate_thei: PdOptional[List[Union[int, str, PdNoneVerification, Dict, List]]]
+	senior_in_the_group: PdOptional[Union[int, str, PdSeniorInTheGroup, Dict, List]]
 	curse_count: PdOptional[int]
-	senior_verification: PdOptional[Union[PdSeniorVerification, str, List, Dict, PdSet]]
-	groups: PdOptional[Union[PdGroup, str, List, Dict, PdSet]]
+	senior_verification: PdOptional[Union[int, str, PdSeniorVerification, Dict, List]]
+	groups: PdOptional[Union[int, str, PdGroup, Dict, List]]
 
 	class Config:
 		orm_mode = True
@@ -100,8 +100,8 @@ class PdUser(BaseModel):
 
 class PdDustbiningChat(BaseModel):
 	id: int
-	group: PdOptional[Union[PdGroup, str, List, Dict, PdSet]]
-	reminders: PdOptional[PdSet[Union[PdReminder, str, List, Dict, PdSet]]]
+	group: PdOptional[Union[int, str, PdGroup, Dict, List]]
+	reminders: PdOptional[List[Union[int, str, PdReminder, Dict, List]]]
 
 	class Config:
 		orm_mode = True
@@ -109,8 +109,8 @@ class PdDustbiningChat(BaseModel):
 
 class PdImportantChat(BaseModel):
 	id: int
-	important_messages: PdOptional[PdSet[Union[PdImportantMessage, str, List, Dict, PdSet]]]
-	group: PdOptional[PdSet[Union[PdGroup, str, List, Dict, PdSet]]]
+	important_messages: PdOptional[List[Union[int, str, PdImportantMessage, Dict, List]]]
+	group: PdOptional[List[Union[int, str, PdGroup, Dict, List]]]
 
 	class Config:
 		orm_mode = True
@@ -118,7 +118,7 @@ class PdImportantChat(BaseModel):
 
 class PdImportantMessage(BaseModel):
 	id: int
-	important_chat: PdOptional[Union[PdImportantChat, str, List, Dict, PdSet]]
+	important_chat: PdOptional[Union[int, str, PdImportantChat, Dict, List]]
 	text: PdOptional[str]
 
 	class Config:
@@ -126,16 +126,16 @@ class PdImportantMessage(BaseModel):
 
 
 class PdGroup(BaseModel):
-	senior_in_the_group: PdOptional[Union[PdSeniorInTheGroup, str, List, Dict, PdSet]]
-	users: PdOptional[PdSet[Union[PdUser, str, List, Dict, PdSet]]]
-	dustbining_chats: PdOptional[PdSet[Union[PdDustbiningChat, str, List, Dict, PdSet]]]
-	important_chats: PdOptional[PdSet[Union[PdImportantChat, str, List, Dict, PdSet]]]
-	subjects: PdOptional[PdSet[Union[PdSubject, str, List, Dict, PdSet]]]
+	senior_in_the_group: PdOptional[Union[int, str, PdSeniorInTheGroup, Dict, List]]
+	users: PdOptional[List[Union[int, str, PdUser, Dict, List]]]
+	dustbining_chats: PdOptional[List[Union[int, str, PdDustbiningChat, Dict, List]]]
+	important_chats: PdOptional[List[Union[int, str, PdImportantChat, Dict, List]]]
+	subjects: PdOptional[List[Union[int, str, PdSubject, Dict, List]]]
 	name: str
-	events: PdOptional[PdSet[Union[PdEvent, str, List, Dict, PdSet]]]
+	events: PdOptional[List[Union[int, str, PdEvent, Dict, List]]]
 	timesheet_update: datetime = lambda: datetime.now
-	news: PdOptional[PdSet[Union[PdNews, str, List, Dict, PdSet]]]
-	queues: PdOptional[PdSet[Union[PdQueue, str, List, Dict, PdSet]]]
+	news: PdOptional[List[Union[int, str, PdNews, Dict, List]]]
+	queues: PdOptional[List[Union[int, str, PdQueue, Dict, List]]]
 
 	class Config:
 		orm_mode = True
@@ -143,7 +143,7 @@ class PdGroup(BaseModel):
 
 class PdHomeTask(BaseModel):
 	id: int
-	subject: PdOptional[Union[PdSubject, str, List, Dict, PdSet]]
+	subject: PdOptional[Union[int, str, PdSubject, Dict, List]]
 	deadline_date: PdOptional[date]
 	deadline_time: PdOptional[time]
 	text: PdOptional[str]
@@ -154,24 +154,24 @@ class PdHomeTask(BaseModel):
 
 
 class PdSubject(BaseModel):
-	group: Union[PdGroup, str, List, Dict, PdSet]
-	home_tasks: PdOptional[PdSet[Union[PdHomeTask, str, List, Dict, PdSet]]]
+	group: Union[int, str, PdGroup, Dict, List]
+	home_tasks: PdOptional[List[Union[int, str, PdHomeTask, Dict, List]]]
 	name: str
-	queues: PdOptional[PdSet[Union[PdQueue, str, List, Dict, PdSet]]]
-	teachers: PdOptional[PdSet[Union[PdTeacher, str, List, Dict, PdSet]]]
-	weekday_and_time_subjects: PdOptional[PdSet[Union[PdWeekdayAndTimeSubject, str, List, Dict, PdSet]]]
+	queues: PdOptional[List[Union[int, str, PdQueue, Dict, List]]]
+	teachers: PdOptional[List[Union[int, str, PdTeacher, Dict, List]]]
+	weekday_and_time_subjects: PdOptional[List[Union[int, str, PdWeekdayAndTimeSubject, Dict, List]]]
 
 	class Config:
 		orm_mode = True
 
 
 class PdWeekdayAndTimeSubject(BaseModel):
-	subject: PdOptional[Union[PdSubject, str, List, Dict, PdSet]]
+	subject: PdOptional[Union[int, str, PdSubject, Dict, List]]
 	number_week: int
 	weekday: int
 	u_time: PdOptional[time] = lambda: time(00, 00)
 	classroom_number: PdOptional[str]
-	e_learning_url: PdOptional[Union[PdELearningUrl, str, List, Dict, PdSet]]
+	e_learning_url: PdOptional[Union[int, str, PdELearningUrl, Dict, List]]
 	update_time: datetime = lambda: datetime.now
 	type: PdOptional[str]
 
@@ -181,7 +181,7 @@ class PdWeekdayAndTimeSubject(BaseModel):
 
 class PdELearningUrl(BaseModel):
 	id: int
-	weekday_and_time_subject: PdOptional[Union[PdWeekdayAndTimeSubject, str, List, Dict, PdSet]]
+	weekday_and_time_subject: PdOptional[Union[int, str, PdWeekdayAndTimeSubject, Dict, List]]
 	url: PdOptional[str]
 	login: PdOptional[str]
 	password: PdOptional[str]
@@ -193,7 +193,7 @@ class PdELearningUrl(BaseModel):
 
 class PdEvent(BaseModel):
 	id: int
-	groups: PdOptional[PdSet[Union[PdGroup, str, List, Dict, PdSet]]]
+	groups: PdOptional[List[Union[int, str, PdGroup, Dict, List]]]
 	name: PdOptional[str]
 	u_date: PdOptional[date]
 	u_time: PdOptional[time]
@@ -204,7 +204,7 @@ class PdEvent(BaseModel):
 
 class PdTeacher(BaseModel):
 	id: int
-	subjects: PdOptional[PdSet[Union[PdSubject, str, List, Dict, PdSet]]]
+	subjects: PdOptional[List[Union[int, str, PdSubject, Dict, List]]]
 	name: str
 	email: PdOptional[str]
 	phone_number: PdOptional[str]
@@ -215,9 +215,9 @@ class PdTeacher(BaseModel):
 
 
 class PdSeniorInTheGroup(BaseModel):
-	user: Union[PdUser, str, List, Dict, PdSet]
-	senior_verifications: PdOptional[PdSet[Union[PdSeniorVerification, str, List, Dict, PdSet]]]
-	group: Union[PdGroup, str, List, Dict, PdSet]
+	user: Union[int, str, PdUser, Dict, List]
+	senior_verifications: PdOptional[List[Union[int, str, PdSeniorVerification, Dict, List]]]
+	group: Union[int, str, PdGroup, Dict, List]
 	is_verification: PdOptional[bool]
 
 	class Config:
@@ -226,7 +226,7 @@ class PdSeniorInTheGroup(BaseModel):
 
 class PdNews(BaseModel):
 	id: int
-	group: PdOptional[Union[PdGroup, str, List, Dict, PdSet]]
+	group: PdOptional[Union[int, str, PdGroup, Dict, List]]
 	title: PdOptional[str]
 	text: PdOptional[str]
 	files: PdOptional[PdJson]
@@ -236,8 +236,8 @@ class PdNews(BaseModel):
 
 
 class PdNoneVerification(BaseModel):
-	it_is_i: Union[PdUser, str, List, Dict, PdSet]
-	he_verificate_me: Union[PdUser, str, List, Dict, PdSet]
+	it_is_i: Union[int, str, PdUser, Dict, List]
+	he_verificate_me: Union[int, str, PdUser, Dict, List]
 	confirmation: PdOptional[int] = 0
 
 	class Config:
@@ -246,18 +246,18 @@ class PdNoneVerification(BaseModel):
 
 class PdQueue(BaseModel):
 	id: int
-	user_has_queues: PdOptional[PdSet[Union[PdUserHasQueue, str, List, Dict, PdSet]]]
-	group: Union[PdGroup, str, List, Dict, PdSet]
+	user_has_queues: PdOptional[List[Union[int, str, PdUserHasQueue, Dict, List]]]
+	group: Union[int, str, PdGroup, Dict, List]
 	name: PdOptional[str]
-	subject: PdOptional[Union[PdSubject, str, List, Dict, PdSet]]
+	subject: PdOptional[Union[int, str, PdSubject, Dict, List]]
 
 	class Config:
 		orm_mode = True
 
 
 class PdUserHasQueue(BaseModel):
-	user: Union[PdUser, str, List, Dict, PdSet]
-	queue: Union[PdQueue, str, List, Dict, PdSet]
+	user: Union[int, str, PdUser, Dict, List]
+	queue: Union[int, str, PdQueue, Dict, List]
 	number: int = -1
 	id: int
 
@@ -270,15 +270,15 @@ class PdReminder(BaseModel):
 	title: PdOptional[str] = "Вы просили о чем-то напомнить"
 	text: PdOptional[str] = " "
 	reminder_time: datetime
-	dustbining_chat: Union[PdDustbiningChat, str, List, Dict, PdSet]
+	dustbining_chat: Union[int, str, PdDustbiningChat, Dict, List]
 
 	class Config:
 		orm_mode = True
 
 
 class PdSeniorVerification(BaseModel):
-	senior_in_the_group: Union[PdSeniorInTheGroup, str, List, Dict, PdSet]
-	user: Union[PdUser, str, List, Dict, PdSet]
+	senior_in_the_group: Union[int, str, PdSeniorInTheGroup, Dict, List]
+	user: Union[int, str, PdUser, Dict, List]
 	confirmation: int = 0
 
 	class Config:
