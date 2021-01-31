@@ -166,23 +166,37 @@ def settings_group_senior():
     """Получить настройки старосты"""
     return {"<какой-то параметр> : <какое-то значение>"}
 
-class TestClass2(BaseModel):
-    number1: int
-    name1: str
 
 class TestClass(BaseModel):
-    # senior_in_the_group: PdOptional[Union[PdSeniorInTheGroup, str, List, Dict, PdSet]]
-    # users: PdOptional[PdSet[Union[PdUser, str, List, Dict, PdSet]]]
-    # dustbining_chats: PdOptional[PdSet[Union[PdDustbiningChat, str, List, Dict, PdSet]]]
-    # important_chats: PdOptional[PdSet[Union[PdImportantChat, str, List, Dict, PdSet]]]
-    # subjects: PdOptional[PdSet[Union[PdSubject, str, List, Dict, PdSet]]]
-    name: Union[str, int, Dict]
-    name1: Union[int, List[int]] = [7, 9]
-    name2: PdOptional[Union[List[int]]]
-    events: PdOptional[List[Union[int, str, TestClass2, Dict, List]]] = None  # Union[PdEvent, str, List, Dict, PdSet]  , List, Dict, TestClass2
+    name: str
+
+
+class TestClass2(BaseModel):
+    id: int
+    group: PdOptional[Union[int, str, TestClass, Dict, List]] = []
+    title: PdOptional[str]
+    text: PdOptional[str]
+    files: PdOptional[PdJson]
+
+    class Config:
+        orm_mode = True
+
+
+class TestClass(BaseModel):
+    # senior_in_the_group: PdOptional[Union[int, str, PdSeniorInTheGroup, Dict, List]]
+    # users: PdOptional[List[Union[int, str, PdUser, Dict, List]]]
+    # dustbining_chats: PdOptional[List[Union[int, str, PdDustbiningChat, Dict, List]]]
+    # important_chats: PdOptional[List[Union[int, str, PdImportantChat, Dict, List]]]
+    # subjects: PdOptional[List[Union[int, str, PdSubject, Dict, List]]]
+    name: str
+    # events: PdOptional[List[Union[int, str, PdEvent, Dict, List]]]
     timesheet_update: datetime = lambda: datetime.now
-    # news: PdOptional[PdSet[Union[PdNews, str, List, Dict, PdSet]]]
-    # queues: PdOptional[PdSet[Union[PdQueue, str, List, Dict, PdSet]]]
+    # news: PdOptional[List[Union[int, str, TestClass2, Dict, List]]]
+    queues: PdOptional[List[Union[int, str, Dict, List]]]
+
+    class Config:
+        arbitrary_types_allowed = True
+        orm_mode = True
 
 """  
 "events": {
