@@ -245,16 +245,19 @@ def create_pydantic_models(create_file=AUTO_PYDANTIC_MODELS):
         code_module += f'class Pd{entity}(BaseModel): pass\n\n\n'
 
     for entity_nane, entity in db.entities.items():
+        pr_key_str = []  # тут будут строки с PrimaryKey
         code = getsource(entity).split('\n')
         count_tabs = code[0].split('def')[0].count(' ') + 3
         code = (''.join(list(i.split('#')[0])[count_tabs:]) for i in code[1:])
-        code = (j.split('=') for j in code if bool(j) and '=' in j)
+        code = (j.split('=') for j in code if bool(j) and (('PrimaryKey' in j and pr_key_str.append(j)) or '=' in j))
+
         code = (([i[0].strip()] +
                  list((j1.strip() for j in '='.join(i[1:]).strip().replace('(', '#').replace(')', '#').split('#')
                        if bool(j) for j1 in j.split(',')))) for i in code)
         code = (({key: val for key, val in zip(['name', 'type_db_param', 'type_param'], i[:3])},
                  {j[0].strip(): j[1].strip() for j in (j1.split('=') for j1 in i[3:])}) for i in code)
         code = [CreatePdModels(**i[0], **i[1]) for i in code]
+        print(pr_key_str, entity_nane)
 
         [[val(i) for key, val in rules_type_param.items() if key(i)] for i in code]
         [[val(i) for key, val in rules_default.items() if key(i)] for i in code]
@@ -265,7 +268,7 @@ def create_pydantic_models(create_file=AUTO_PYDANTIC_MODELS):
         [[val(i) for key, val in default_to_text.items() if key(i)] for i in code]
         code = [f'\t' + i.name + i.type_db_param + i.default for i in code]
 
-        print(*code)
+        # print(*code)
 
         class_code = f'class Pd{entity_nane}(BaseModel):\n'
         class_code += '\n'.join(code)
