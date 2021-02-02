@@ -248,7 +248,6 @@ def create_pydantic_models(create_file=AUTO_PYDANTIC_MODELS):
         # lambda i: i.type_db_param == "Required": lambda
         #     i: f'{i.type_param}{" = " + str(i.default) if i.default else ""}',
         # lambda i: i.type_db_param == "PdOptional": lambda i: f'{i.type_db_param}[{i.type_param}] = {i.default}',
-        # lambda i: i.type_db_param == "PdSet": lambda i: f'PdOptional[{i.type_db_param}[{i.type_param}]] = {i.default}',
     }
 
     # Правила превращения в код значения по умолчанию
@@ -374,8 +373,6 @@ def create_pydantic_models(create_file=AUTO_PYDANTIC_MODELS):
         [[val(i) for key, val in name_to_text.items() if key(i)] for i in code]
         [[val(i) for key, val in type_param_to_text.items() if key(i)] for i in code]
         [[val(i) for key, val in default_to_text.items() if key(i)] for i in code]
-
-
 
         pr_key_str = [[val(i) for key, val in p_k_to_text.items() if key(i)][0] for i in pr_key_str]
         [[val(i) for key, val in type_param_to_text.items() if key(i)] for i in pr_key_str]
