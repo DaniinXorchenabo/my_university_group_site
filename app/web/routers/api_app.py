@@ -167,50 +167,11 @@ def settings_group_senior():
     return {"<какой-то параметр> : <какое-то значение>"}
 
 
-class TestClass(BaseModel):
-    name: str
-
-
-class TestClass2(BaseModel):
-    id: int
-    group: PdOptional[Union[int, str, TestClass, Dict, List]] = []
-    title: PdOptional[str]
-    text: PdOptional[str]
-    files: PdOptional[PdJson]
-
-    class Config:
-        orm_mode = True
-
-
-class TestClass(BaseModel):
-    # senior_in_the_group: PdOptional[Union[int, str, PdSeniorInTheGroup, Dict, List]]
-    # users: PdOptional[List[Union[int, str, PdUser, Dict, List]]]
-    # dustbining_chats: PdOptional[List[Union[int, str, PdDustbiningChat, Dict, List]]]
-    # important_chats: PdOptional[List[Union[int, str, PdImportantChat, Dict, List]]]
-    # subjects: PdOptional[List[Union[int, str, PdSubject, Dict, List]]]
-    name: str
-    # events: PdOptional[List[Union[int, str, PdEvent, Dict, List]]]
-    timesheet_update: datetime = lambda: datetime.now
-    # news: PdOptional[List[Union[int, str, TestClass2, Dict, List]]]
-    queues: PdOptional[List[Union[int, str, Dict, List]]]
-
-    class Config:
-        arbitrary_types_allowed = True
-        orm_mode = True
-
-"""  
-"events": {
-    "number1": 0,
-    "name1": "string"
-  }
-"""
-
 @api_app.post("/test")
 @db_session
-def testing_pd_model(my_group: TestClass):
-    print(my_group)
+def testing_pd_model():
+    # print(my_group)
     return {'dfv': 'gooood'}
-
 
 
 if __name__ == "__main__":
