@@ -199,10 +199,32 @@ class TestClass(BaseModel):
         orm_mode = True
 
 
+from typing import ForwardRef
+from pydantic import BaseModel
+
+
+Foo = ForwardRef('Foo')
+Bar = ForwardRef('Bar')
+
+
+class Foo(BaseModel):
+    a: int = 7
+    b: List[Bar] = None
+
+
+class Bar(BaseModel):
+    c: str = "__fgb"
+    d: List[Union[Foo]] = None
+
+
+Foo.update_forward_refs()
+Bar.update_forward_refs()
+
+
 @api_app.post("/test")
 @db_session
-def testing_pd_model():
-    # print(my_group)
+def testing_pd_model(one: Bar):
+    print(Foo)
     return {'dfv': 'gooood'}
 
 
