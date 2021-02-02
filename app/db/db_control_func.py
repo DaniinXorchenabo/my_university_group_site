@@ -226,7 +226,7 @@ def create_pydantic_models(create_file=AUTO_PYDANTIC_MODELS):
 
     # Правила превращения в код имени параметра
     name_to_text = {
-        lambda i: True:lambda i: setattr(i, 'raw_name', str(i.name)),
+        lambda i: True: lambda i: setattr(i, 'raw_name', str(i.name)),
         lambda i: True: lambda i: setattr(i, 'name', str(i.name) + ": ")
     }
 
@@ -234,7 +234,9 @@ def create_pydantic_models(create_file=AUTO_PYDANTIC_MODELS):
     type_param_to_text = {
         lambda i: True: lambda i: setattr(i, "raw_type_param", i.raw_type_param or i.type_param),
         lambda i: i.type_param in db.entities: lambda i: (
-            setattr(i, 'entity_name', "Pd" + i.type_param), setattr(i, 'type_param', "Union[*, Dict]")),
+            setattr(i, 'entity_name', "Pd" + i.type_param), setattr(
+                i, 'type_param',
+                f"Union[*, Pd{i.type_param}, Dict{', None' if i.type_db_param == 'Set' else ''}]")),
         lambda i: i.type_param == "Json": lambda i: setattr(i, 'type_param', "PdJson"),
     }
 
@@ -246,7 +248,6 @@ def create_pydantic_models(create_file=AUTO_PYDANTIC_MODELS):
         # lambda i: i.type_db_param == "Required": lambda
         #     i: f'{i.type_param}{" = " + str(i.default) if i.default else ""}',
         # lambda i: i.type_db_param == "PdOptional": lambda i: f'{i.type_db_param}[{i.type_param}] = {i.default}',
-        # lambda i: i.type_db_param == "PdSet": lambda i: f'PdOptional[{i.type_db_param}[{i.type_param}]] = {i.default}',
     }
 
     # Правила превращения в код значения по умолчанию
@@ -334,13 +335,14 @@ def create_pydantic_models(create_file=AUTO_PYDANTIC_MODELS):
     code_module += """ни одно изменение не сохранится в этом файле."""
     code_module += """Тут объявляются pydantic-модели, в которых присутствуют все сущности БД"""
     code_module += """и все атрибуты сущностей\"\"\"\n\n"""
-    code_module += """from typing import Set as PdSet, Union, List, Dict, Tuple\n\n"""
+    code_module += """from typing import Set as PdSet, Union, List, Dict, Tuple, ForwardRef\n\n"""
     code_module += """from datetime import date, datetime, time"""
     code_module += """\nfrom pony.orm import *\nfrom typing import Optional as PdOptional"""
     code_module += """\nfrom pydantic import BaseModel, Json as PdJson\nfrom app.db.models import *\n\n\n"""
 
     for entity in db.entities:
-        code_module += f'class Pd{entity}(BaseModel): pass\n\n\n'
+        code_module += f'Pd{entity} = ForwardRef("Pd{entity}")\n'
+    code_module += '\n\n'
 
     for entity_nane, entity in db.entities.items():
         pr_key_str = []  # тут будут строки с PrimaryKey
@@ -372,8 +374,6 @@ def create_pydantic_models(create_file=AUTO_PYDANTIC_MODELS):
         [[val(i) for key, val in type_param_to_text.items() if key(i)] for i in code]
         [[val(i) for key, val in default_to_text.items() if key(i)] for i in code]
 
-
-
         pr_key_str = [[val(i) for key, val in p_k_to_text.items() if key(i)][0] for i in pr_key_str]
         [[val(i) for key, val in type_param_to_text.items() if key(i)] for i in pr_key_str]
         # print(pr_key_str)
@@ -403,7 +403,9 @@ def create_pydantic_models(create_file=AUTO_PYDANTIC_MODELS):
         code_class += body_class.postfix
         code_module += code_class
 
-    code_module += "if __name__ == '__main__':\n\tfrom os import chdir\n\n\tchdir(HOME_DIR)"
+    for entity in db.entities:
+        code_module += f'Pd{entity}.update_forward_refs()\n'
+    code_module += "\n\nif __name__ == '__main__':\n\tfrom os import chdir\n\n\tchdir(HOME_DIR)"
 
     with open(create_file, "w", encoding='utf-8') as f:
         print(code_module, file=f)
