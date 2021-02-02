@@ -24,12 +24,16 @@ def create_test_db_1():
         return
 
     gr = Group['20ВП1']
-    User(name='Петя', id=100, password="123", groups=gr)
-    User(name='Вася', id=101, password="123", groups=gr)
-    User(name='Ваня', id=102, password="123", groups=gr)
-    User(name='Вася Админ', id=103, password="123", groups=gr)
-    User(name='Вася Староста', id=104, password="123", groups=gr)
+    User(name='Петя', id=100, password="123", groups=gr, login='Петя1')
+    User(name='Вася', id=101, password="123", groups=gr, login='Вася1')
+    User(name='Ваня', id=102, password="123", groups=gr, login='Ваня')
+    User(name='Вася Админ', id=103, password="123", groups=gr, login='Вася2')
+    User(name='Вася Староста', id=104, password="123", groups=gr, login='Вася3')
+    User(name='Настя', id=105, password="123", groups=gr, login='Настя1')
+    User(name='Наташа', id=106, password="123", groups=gr, login='Наташа1')
+    User(name='Алиса', id=107, password="123", groups=gr, login='Алиса1')
     commit()
+
     admin = User[103]
     Admin(user=admin)
 
@@ -45,9 +49,11 @@ def create_test_db_1():
     # [NoneVerification(it_is_i=non_verif_user, he_verificate_me=verificates_user) for non_verif_user in non_verivicared
     #  for verificates_user in verivicared]
     commit()
+    User[104].is_verificated = True
     gr = Group['20ВП1']
     DustbiningChat(id=30000001, group=gr)
     DustbiningChat(id=30000002, group=gr)
+
     ImportantChat(id=30000001, group=gr)
     Subject(name="ППО", group=gr)
     Subject(name="СИТ", group=gr)
@@ -56,6 +62,9 @@ def create_test_db_1():
     News(group=gr, title='неужели без дурки?',
          text="на совещании представителей группы было высказано предложение о запрете мемов про дурку")
     commit()
+    Reminder(dustbining_chat=DustbiningChat[30000001], title="С днем рождения, дорогая А.",
+             text='Желаем тебе от всей души всего-всего-всего!, твоя группа!', reminder_time="2020-11-15 00:00:00")
+
     SeniorInTheGroup(group=gr, user=User[104])
     chat = ImportantChat[30000001]
     ImportantMessage(important_chat=chat, text='всем срочно пройти опрос!')
@@ -63,6 +72,7 @@ def create_test_db_1():
     PPO = Subject[gr, "ППО"]
     SIT = Subject[gr, "СИТ"]
     PROGA = Subject[gr, "Прога"]
+    Queue(group=gr, name='очередь на 11 лабу по ППО', subject=PPO)
     Teacher(name="Самуйлов", subjects={PPO, PROGA})
     Teacher(name="Такташкин", subjects={SIT})
     Teacher(name="Второй препод по СИТу", subjects={SIT})
@@ -83,6 +93,11 @@ def create_test_db_1():
     a2 = [WeekdayAndTimeSubject(subject=PPO, number_week=i, weekday=4, type="консультация", time="15:35") for i
           in range(1, 3)]
     commit()
+    ppo_queue = Queue.get(group=gr, name='очередь на 11 лабу по ППО', subject=PPO)
+    UserHasQueue(queue=ppo_queue, user=User[104], number=1)
+    UserHasQueue(queue=ppo_queue, user=User[103], number=2)
+    UserHasQueue(queue=ppo_queue, user=User[102], number=3)
+
     print(a1.update_time)
     ELearningUrl(url="https://us05web.zoom.us/j/86213813841?pwd=eXVPZjhoajNsUW9HemlkWER2ZG16Zz09#success",
                  login='86 213 813 841', password='0wFSjb', weekday_and_time_subject=a)

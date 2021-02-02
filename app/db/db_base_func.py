@@ -11,8 +11,8 @@ from app.settings.config import *
 
 
 class AddArrtInDbClass(object):
-    _white_list = {'_white_list'}
-    _expanded_white_list = _white_list
+    # _white_list = {'_white_list'}
+    # _expanded_white_list = _white_list
 
     # @classmethod
     # def get_into_white_list(cls, name):
