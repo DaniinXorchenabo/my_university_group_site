@@ -1,13 +1,17 @@
 # -*- coding: utf-8 -*-
 
-"""Этот код генерируется автоматически,ни одно изменение не сохранится в этом файле.Тут объявляются pydantic-модели, в которых присутствуют все сущности БДи все атрибуты сущностей"""
+""" Этот код генерируется автоматически,
+ни одно изменение не сохранится в этом файле.
+Тут объявляются pydantic-модели, в которых присутствуют все сущности БД
+и все атрибуты сущностей"""
 
 from typing import Set as PdSet, Union, List, Dict, Tuple, ForwardRef
-
-from datetime import date, datetime, time
-from pony.orm import *
 from typing import Optional as PdOptional
+from datetime import date, datetime, time
+
+from pony.orm import *
 from pydantic import BaseModel, Json as PdJson
+
 from app.db.models import *
 
 
@@ -32,15 +36,11 @@ PdReminder = ForwardRef("PdReminder")
 PdSeniorVerification = ForwardRef("PdSeniorVerification")
 
 
-
-
 class PdAdmin(BaseModel):
 	user: Union[Dict, int, PdUser, Dict]
 
 	class Config:
 		orm_mode = True
-
-
 
 
 class PdUser(BaseModel):
@@ -66,8 +66,6 @@ class PdUser(BaseModel):
 		orm_mode = True
 
 
-
-
 class PdDustbiningChat(BaseModel):
 	id: int
 	group: PdOptional[Union[Dict, str, PdGroup, Dict]]
@@ -75,8 +73,6 @@ class PdDustbiningChat(BaseModel):
 
 	class Config:
 		orm_mode = True
-
-
 
 
 class PdImportantChat(BaseModel):
@@ -88,8 +84,6 @@ class PdImportantChat(BaseModel):
 		orm_mode = True
 
 
-
-
 class PdImportantMessage(BaseModel):
 	id: int
 	important_chat: PdOptional[Union[Dict, int, PdImportantChat, Dict]]
@@ -99,15 +93,8 @@ class PdImportantMessage(BaseModel):
 		orm_mode = True
 
 
-
-
 class PdGroup(BaseModel):
-	senior_in_the_group: PdOptional[Union[
-		Dict,
-		Tuple[Union[Dict, int, PdUser, Dict], Union[Dict, str, PdGroup, Dict]],
-		PdSeniorInTheGroup,
-		Dict
-	]]
+	senior_in_the_group: PdOptional[Union[Dict, Tuple[Union[Dict, int, PdUser, Dict], Union[Dict, str, PdGroup, Dict]], PdSeniorInTheGroup, Dict]]
 	users: PdOptional[List[Union[Dict, int, PdUser, Dict, None]]] = [None]
 	dustbining_chats: PdOptional[List[Union[Dict, int, PdDustbiningChat, Dict, None]]] = [None]
 	important_chats: PdOptional[List[Union[Dict, int, PdImportantChat, Dict, None]]] = [None]
@@ -122,8 +109,6 @@ class PdGroup(BaseModel):
 		orm_mode = True
 
 
-
-
 class PdHomeTask(BaseModel):
 	id: int
 	subject: PdOptional[Union[Dict, Tuple[Union[Dict, str, PdGroup, Dict], str], PdSubject, Dict]]
@@ -136,8 +121,6 @@ class PdHomeTask(BaseModel):
 		orm_mode = True
 
 
-
-
 class PdSubject(BaseModel):
 	group: Union[Dict, str, PdGroup, Dict]
 	home_tasks: PdOptional[List[Union[Dict, int, PdHomeTask, Dict, None]]] = [None]
@@ -148,8 +131,6 @@ class PdSubject(BaseModel):
 
 	class Config:
 		orm_mode = True
-
-
 
 
 class PdWeekdayAndTimeSubject(BaseModel):
@@ -167,8 +148,6 @@ class PdWeekdayAndTimeSubject(BaseModel):
 		orm_mode = True
 
 
-
-
 class PdELearningUrl(BaseModel):
 	id: int
 	weekday_and_time_subject: PdOptional[Union[Dict, int, PdWeekdayAndTimeSubject, Dict]]
@@ -181,8 +160,6 @@ class PdELearningUrl(BaseModel):
 		orm_mode = True
 
 
-
-
 class PdEvent(BaseModel):
 	id: int
 	groups: PdOptional[List[Union[Dict, str, PdGroup, Dict, None]]] = [None]
@@ -192,8 +169,6 @@ class PdEvent(BaseModel):
 
 	class Config:
 		orm_mode = True
-
-
 
 
 class PdTeacher(BaseModel):
@@ -208,8 +183,6 @@ class PdTeacher(BaseModel):
 		orm_mode = True
 
 
-
-
 class PdSeniorInTheGroup(BaseModel):
 	user: Union[Dict, int, PdUser, Dict]
 	senior_verifications: PdOptional[List[Union[Dict, Union[Dict, int, PdUser, Dict], PdSeniorVerification, Dict, None]]] = [None]
@@ -218,8 +191,6 @@ class PdSeniorInTheGroup(BaseModel):
 
 	class Config:
 		orm_mode = True
-
-
 
 
 class PdNews(BaseModel):
@@ -233,8 +204,6 @@ class PdNews(BaseModel):
 		orm_mode = True
 
 
-
-
 class PdNoneVerification(BaseModel):
 	it_is_i: Union[Dict, int, PdUser, Dict]
 	he_verificate_me: Union[Dict, int, PdUser, Dict]
@@ -242,8 +211,6 @@ class PdNoneVerification(BaseModel):
 
 	class Config:
 		orm_mode = True
-
-
 
 
 class PdQueue(BaseModel):
@@ -257,8 +224,6 @@ class PdQueue(BaseModel):
 		orm_mode = True
 
 
-
-
 class PdUserHasQueue(BaseModel):
 	user: Union[Dict, int, PdUser, Dict]
 	queue: Union[Dict, int, PdQueue, Dict]
@@ -267,8 +232,6 @@ class PdUserHasQueue(BaseModel):
 
 	class Config:
 		orm_mode = True
-
-
 
 
 class PdReminder(BaseModel):
@@ -280,8 +243,6 @@ class PdReminder(BaseModel):
 
 	class Config:
 		orm_mode = True
-
-
 
 
 class PdSeniorVerification(BaseModel):
