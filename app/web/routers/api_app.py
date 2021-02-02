@@ -177,5 +177,3 @@ def testing_pd_model(my_group: PdGroup):
 if __name__ == "__main__":
     # is_DB_created()
     show_all()
-
-    # uvicorn.run("api_app:app", host="127.0.0.1", port=8000, reload=True)
