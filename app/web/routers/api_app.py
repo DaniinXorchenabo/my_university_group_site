@@ -223,8 +223,8 @@ Bar.update_forward_refs()
 
 @api_app.post("/test")
 @db_session
-def testing_pd_model(one: Bar):
-    print(one)
+def testing_pd_model(my_group: PdGroup):
+    print(my_group)
     return {'dfv': 'gooood'}
 
 
