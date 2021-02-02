@@ -95,6 +95,7 @@ class Subject(db.Entity):
 
 class WeekdayAndTimeSubject(db.Entity):
     """Так как предметы могут повторятся за две недели, то для каждого предмета введена вспомогательная таблица, в которой указываются день, номер недели и время предмета"""
+    id = PrimaryKey(int, auto=True)
     subject = Optional(Subject)
     number_week = Required(int)
     weekday = Required(int)  # Номер дня недели, начиная с 1
