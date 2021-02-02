@@ -138,22 +138,11 @@ class PdImportantMessage(BaseModel):
 
 
 class PdGroup(BaseModel):
-	senior_in_the_group: PdOptional[Union[
-		Tuple[
-			Union[int, Dict],
-			Union[str, Dict]
-		],
-		Dict
-	]]
+	senior_in_the_group: PdOptional[Union[Tuple[Union[int, Dict], Union[str, Dict]], Dict]]
 	users: PdOptional[List[Union[int, Dict]]]
 	dustbining_chats: PdOptional[List[Union[int, Dict]]]
 	important_chats: PdOptional[List[Union[int, Dict]]]
-	subjects: PdOptional[List[Union[
-		Tuple[
-			Union[str, Dict],
-			str],
-		Dict
-	]]]
+	subjects: PdOptional[List[Union[Tuple[Union[str, Dict], str], Dict]]]
 	name: str
 	events: PdOptional[List[Union[int, Dict]]]
 	timesheet_update: datetime = lambda: datetime.now
