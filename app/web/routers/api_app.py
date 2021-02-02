@@ -199,7 +199,7 @@ class TestClass(BaseModel):
         orm_mode = True
 
 
-from typing import ForwardRef
+from typing import ForwardRef, Tuple
 from pydantic import BaseModel
 
 
@@ -209,12 +209,14 @@ Bar = ForwardRef('Bar')
 
 class Foo(BaseModel):
     a: int = 7
-    b: List[Bar] = None
+    b: PdOptional[List[Union[int, str, Bar, Tuple[str, int], Dict, None]]] = None
+
+
 
 
 class Bar(BaseModel):
     c: str = "__fgb"
-    d: List[Union[Foo]] = None
+    d: PdOptional[List[Union[int, str, Foo, Tuple[int, str], Dict, None]]] = None
 
 
 Foo.update_forward_refs()
@@ -224,7 +226,7 @@ Bar.update_forward_refs()
 @api_app.post("/test")
 @db_session
 def testing_pd_model(one: Bar):
-    print(Foo)
+    print(one)
     return {'dfv': 'gooood'}
 
 
