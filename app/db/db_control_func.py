@@ -187,6 +187,27 @@ def create_pydantic_models(create_file=AUTO_PYDANTIC_MODELS):
         postfix: str = ''
         primary_key: Any = None
 
+    """
+    class PdGroup(BaseModel):
+	senior_in_the_group: PdOptional[Union[
+        Dict,
+        Tuple[Union[int, PdUser, Dict], Union[str, PdGroup, Dict]],
+        PdSeniorInTheGroup,
+        Dict]] = None
+	users: PdOptional[List[Union[int, PdUser, Dict, None]]] = [None]
+	dustbining_chats: PdOptional[List[Union[int, PdDustbiningChat, Dict, None]]]
+	important_chats: PdOptional[List[Union[int, PdImportantChat, Dict, None]]]
+	subjects: PdOptional[List[Union[Tuple[Union[str, PdGroup, Dict], str], PdSubject, Dict, None]]] = [None]
+	name: str
+	events: PdOptional[List[Union[int, PdEvent, Dict, None]]]
+	timesheet_update: datetime = lambda: datetime.now
+	news: PdOptional[List[Union[int, PdNews, Dict, None]]]
+	queues: PdOptional[List[Union[int, PdQueue, Dict, None]]] = [None]
+
+	class Config:
+		orm_mode = True"""
+
+
     CreatePdModels.update_forward_refs()
 
     all_module_code = {}  # Код всего создаваемого модуля
@@ -221,6 +242,8 @@ def create_pydantic_models(create_file=AUTO_PYDANTIC_MODELS):
             (i.isdigit() for i in i.default.replace('"', "").replace("'", "").split(':'))):
             lambda i: setattr(i, 'default',
                               f'''lambda: time({", ".join(i.default.replace('"', "").replace("'", "").split(":"))})'''),
+        lambda i: i.type_param in db.entities and i.type_db_param == 'Set': lambda i: setattr(i, 'default', '[None]')
+
 
     }
 
@@ -236,7 +259,8 @@ def create_pydantic_models(create_file=AUTO_PYDANTIC_MODELS):
         lambda i: i.type_param in db.entities: lambda i: (
             setattr(i, 'entity_name', "Pd" + i.type_param), setattr(
                 i, 'type_param',
-                f"Union[*, Pd{i.type_param}, Dict{', None' if i.type_db_param == 'Set' else ''}]")),
+                f"""Union[{'Dict, ' if i.type_param != 'Set' 
+                else ''}*, Pd{i.type_param}, Dict{', None' if i.type_db_param == 'Set' else ''}]""")),
         lambda i: i.type_param == "Json": lambda i: setattr(i, 'type_param', "PdJson"),
     }
 
