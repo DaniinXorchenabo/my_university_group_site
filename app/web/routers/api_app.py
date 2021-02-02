@@ -212,8 +212,6 @@ class Foo(BaseModel):
     b: PdOptional[List[Union[int, str, Bar, Tuple[str, int], Dict, None]]] = None
 
 
-
-
 class Bar(BaseModel):
     c: str = "__fgb"
     d: PdOptional[List[Union[int, str, Foo, Tuple[int, str], Dict, None]]] = None
