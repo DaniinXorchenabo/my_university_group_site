@@ -167,60 +167,6 @@ def settings_group_senior():
     return {"<какой-то параметр> : <какое-то значение>"}
 
 
-class TestClass(BaseModel):
-    name: str
-
-
-class TestClass2(BaseModel):
-    id: int
-    group: PdOptional[Union[int, str, TestClass, Dict, List]] = []
-    title: PdOptional[str]
-    text: PdOptional[str]
-    files: PdOptional[PdJson]
-
-    class Config:
-        orm_mode = True
-
-
-class TestClass(BaseModel):
-    # senior_in_the_group: PdOptional[Union[int, str, PdSeniorInTheGroup, Dict, List]]
-    # users: PdOptional[List[Union[int, str, PdUser, Dict, List]]]
-    # dustbining_chats: PdOptional[List[Union[int, str, PdDustbiningChat, Dict, List]]]
-    # important_chats: PdOptional[List[Union[int, str, PdImportantChat, Dict, List]]]
-    # subjects: PdOptional[List[Union[int, str, PdSubject, Dict, List]]]
-    name: str
-    # events: PdOptional[List[Union[int, str, PdEvent, Dict, List]]]
-    timesheet_update: datetime = lambda: datetime.now
-    # news: PdOptional[List[Union[int, str, TestClass2, Dict, List]]]
-    queues: PdOptional[List[Union[int, str, Dict, List]]]
-
-    class Config:
-        arbitrary_types_allowed = True
-        orm_mode = True
-
-
-from typing import ForwardRef, Tuple
-from pydantic import BaseModel
-
-
-Foo = ForwardRef('Foo')
-Bar = ForwardRef('Bar')
-
-
-class Foo(BaseModel):
-    a: int = 7
-    b: PdOptional[List[Union[int, str, Bar, Tuple[str, int], Dict, None]]] = None
-
-
-class Bar(BaseModel):
-    c: str = "__fgb"
-    d: PdOptional[List[Union[int, str, Foo, Tuple[int, str], Dict, None]]] = None
-
-
-Foo.update_forward_refs()
-Bar.update_forward_refs()
-
-
 @api_app.post("/test")
 @db_session
 def testing_pd_model(my_group: PdGroup):
