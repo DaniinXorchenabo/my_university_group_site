@@ -165,48 +165,30 @@ def old_connect_with_db(db_path=DB_PATH, deep=0, db_l=db):
 def create_pydantic_models(create_file=AUTO_PYDANTIC_MODELS):
     from inspect import getsource
     from typing import Optional, List, Dict, Union, Any, Tuple, ForwardRef
-    from pydantic import UUID4, BaseModel, EmailStr, Field, validator
+    from pydantic import BaseModel, validator
     from functools import reduce
 
     CreatePdModels = ForwardRef('CreatePdModels')
 
     class CreatePdModels(BaseModel):
-        name: Optional[str] = None
-        type_db_param: Optional[str] = None
-        type_param: Optional[str] = None
-        default: Optional[str] = None
-        code: Union[str, Dict[str, str], None] = ''
-        is_primary_key: Optional[bool] = None
+        """ Олицетворяет одну строку будущего кода"""
+        name: Optional[str] = None  # Название параметра
+        type_db_param: Optional[str] = None  # Тип параметра, который Optional, PrimaryKey, Required, Set
+        type_param: Optional[str] = None  # Настоящий тип параметра (int, str, User, ...)
+        default: Optional[str] = None  # Значение по умоолчанию
+        code: Union[str, Dict[str, str], None] = ''  # Сгенерированный код строки
+        is_primary_key: Optional[bool] = None  # Является ли данный параметр PrimaryKey
+        # Неотформатированный тип параметра (int, str, User, ...)
         raw_type_param: Union[str, list, CreatePdModels, None] = None
-        raw_name: Optional[str] = None
-        entity_name: Union[str, list, None] = None
+        raw_name: Optional[str] = None  # Неотформатированное имя параметра
+        entity_name: Union[str, list, None] = None  # Имя сущности из БД, тип которой имеет параметр (если имеет)
 
     class PydanticModel(BaseModel):
-        prefix: str = ''
-        body: List[Any] = []
-        postfix: str = ''
-        primary_key: Any = None
-
-    """
-    class PdGroup(BaseModel):
-	senior_in_the_group: PdOptional[Union[
-        Dict,
-        Tuple[Union[int, PdUser, Dict], Union[str, PdGroup, Dict]],
-        PdSeniorInTheGroup,
-        Dict]] = None
-	users: PdOptional[List[Union[int, PdUser, Dict, None]]] = [None]
-	dustbining_chats: PdOptional[List[Union[int, PdDustbiningChat, Dict, None]]]
-	important_chats: PdOptional[List[Union[int, PdImportantChat, Dict, None]]]
-	subjects: PdOptional[List[Union[Tuple[Union[str, PdGroup, Dict], str], PdSubject, Dict, None]]] = [None]
-	name: str
-	events: PdOptional[List[Union[int, PdEvent, Dict, None]]]
-	timesheet_update: datetime = lambda: datetime.now
-	news: PdOptional[List[Union[int, PdNews, Dict, None]]]
-	queues: PdOptional[List[Union[int, PdQueue, Dict, None]]] = [None]
-
-	class Config:
-		orm_mode = True"""
-
+        """ Олицетворяет один класс будущего кода"""
+        prefix: str = ''  # То, что перед телом класса (к примеру, его имя)
+        body: List[Any] = []  # Тело класса (то, что мы создаём)
+        postfix: str = ''  # То, что статично в классе и идет после тела (к примеру, класс конфагурации)
+        primary_key: Any = None  # Ключевые слова сущности из БД
 
     CreatePdModels.update_forward_refs()
 
@@ -355,20 +337,21 @@ def create_pydantic_models(create_file=AUTO_PYDANTIC_MODELS):
                                                all_module_code[i.entity_name].primary_key)) else '*')))
     }
 
-    code_module = """# -*- coding: utf-8 -*-\n\n\"\"\"Этот код генерируется автоматически,"""
-    code_module += """ни одно изменение не сохранится в этом файле."""
-    code_module += """Тут объявляются pydantic-модели, в которых присутствуют все сущности БД"""
+    code_module = """# -*- coding: utf-8 -*-\n\n\"\"\" Этот код генерируется автоматически,\n"""
+    code_module += """ни одно изменение не сохранится в этом файле.\n"""
+    code_module += """Тут объявляются pydantic-модели, в которых присутствуют все сущности БД\n"""
     code_module += """и все атрибуты сущностей\"\"\"\n\n"""
-    code_module += """from typing import Set as PdSet, Union, List, Dict, Tuple, ForwardRef\n\n"""
-    code_module += """from datetime import date, datetime, time"""
-    code_module += """\nfrom pony.orm import *\nfrom typing import Optional as PdOptional"""
-    code_module += """\nfrom pydantic import BaseModel, Json as PdJson\nfrom app.db.models import *\n\n\n"""
+    code_module += """from typing import Set as PdSet, Union, List, Dict, Tuple, ForwardRef\n"""
+    code_module += """from typing import Optional as PdOptional\n"""
+    code_module += """from datetime import date, datetime, time\n\n"""
+    code_module += """from pony.orm import *\n"""
+    code_module += """from pydantic import BaseModel, Json as PdJson\n\nfrom app.db.models import *\n\n\n"""
 
     for entity in db.entities:
         code_module += f'Pd{entity} = ForwardRef("Pd{entity}")\n'
-    code_module += '\n\n'
 
     for entity_nane, entity in db.entities.items():
+        # =======! Парсинг кода из моделей Pony ORM !=======
         pr_key_str = []  # тут будут строки с PrimaryKey
         code = getsource(entity).split('\n')
 
@@ -384,6 +367,7 @@ def create_pydantic_models(create_file=AUTO_PYDANTIC_MODELS):
         code = [CreatePdModels(**i[0], **i[1]) for i in code]
         # print(pr_key_str, entity_nane)
 
+        # =======! Обработка кода (к примеру, удаление пробелов) !=======
         [[val(i) for key, val in rules_type_param.items() if key(i)] for i in code]
         [[val(i) for key, val in rules_default.items() if key(i)] for i in code]
         [[val(i) for key, val in rules_type.items() if key(i)] for i in code]
@@ -394,6 +378,7 @@ def create_pydantic_models(create_file=AUTO_PYDANTIC_MODELS):
 
         [[val(i) for key, val in rules_p_k.items() if key(i)] for i in pr_key_str]
 
+        # =======! Превращение кода в текст !=======
         [[val(i) for key, val in name_to_text.items() if key(i)] for i in code]
         [[val(i) for key, val in type_param_to_text.items() if key(i)] for i in code]
         [[val(i) for key, val in default_to_text.items() if key(i)] for i in code]
@@ -405,10 +390,11 @@ def create_pydantic_models(create_file=AUTO_PYDANTIC_MODELS):
         all_module_code['Pd' + entity_nane] = PydanticModel(
             prefix=f'\n\nclass Pd{entity_nane}(BaseModel):\n',
             body=code,
-            postfix="""\n\n\tclass Config:\n\t\torm_mode = True\n\n\n""",
+            postfix="""\n\n\tclass Config:\n\t\torm_mode = True\n""",
             primary_key=pr_key_str
         )
 
+    # =======! Обработка сложных типов (к примеру, User) !=======
     for _ in range(10):
         for name_class, body_class in all_module_code.items():
             code = body_class.body
@@ -416,6 +402,7 @@ def create_pydantic_models(create_file=AUTO_PYDANTIC_MODELS):
             [[val(i) for key, val in postcreated_rules.items() if key(i)] for i in code]
             [[val(i) for key, val in update_p_k.items() if key(i)] for i in pr_key_str]
 
+    # =======! Сборка всего кода в единую строку !=======
     for name_class, body_class in all_module_code.items():
         code = body_class.body
         pr_key_str = body_class.primary_key
@@ -427,10 +414,12 @@ def create_pydantic_models(create_file=AUTO_PYDANTIC_MODELS):
         code_class += body_class.postfix
         code_module += code_class
 
+    code_module += '\n\n'
     for entity in db.entities:
         code_module += f'Pd{entity}.update_forward_refs()\n'
     code_module += "\n\nif __name__ == '__main__':\n\tfrom os import chdir\n\n\tchdir(HOME_DIR)"
 
+    # =======! Запись кода в файл !=======
     with open(create_file, "w", encoding='utf-8') as f:
         print(code_module, file=f)
 
