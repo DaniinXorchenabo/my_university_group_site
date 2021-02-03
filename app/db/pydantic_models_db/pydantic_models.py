@@ -14,6 +14,8 @@ from pydantic import BaseModel, Json as PdJson
 
 from app.db.models import *
 
+from app.db.pydantic_models_db.pony_orm_to_pydantic_utils import *
+
 
 PdAdmin = ForwardRef("PdAdmin")
 PdUser = ForwardRef("PdUser")
@@ -36,11 +38,149 @@ PdReminder = ForwardRef("PdReminder")
 PdSeniorVerification = ForwardRef("PdSeniorVerification")
 
 
+class MyGetterDictAdmin(MyGetterDict):
+    modif_type_rules = {
+        
+}
+
+
+class MyGetterDictUser(MyGetterDict):
+    modif_type_rules = {
+    "user_has_queues": lambda i: [None],  # i.select()[:]
+    "my_verification": lambda i: [None],  # i.select()[:]
+    "i_verificate_thei": lambda i: [None],  # i.select()[:]
+    
+}
+
+
+class MyGetterDictDustbiningChat(MyGetterDict):
+    modif_type_rules = {
+    "reminders": lambda i: [None],  # i.select()[:]
+    
+}
+
+
+class MyGetterDictImportantChat(MyGetterDict):
+    modif_type_rules = {
+    "important_messages": lambda i: [None],  # i.select()[:]
+    "group": lambda i: [None],  # i.select()[:]
+    
+}
+
+
+class MyGetterDictImportantMessage(MyGetterDict):
+    modif_type_rules = {
+        
+}
+
+
+class MyGetterDictGroup(MyGetterDict):
+    modif_type_rules = {
+    "users": lambda i: [None],  # i.select()[:]
+    "dustbining_chats": lambda i: [None],  # i.select()[:]
+    "important_chats": lambda i: [None],  # i.select()[:]
+    "subjects": lambda i: [None],  # i.select()[:]
+    "events": lambda i: [None],  # i.select()[:]
+    "news": lambda i: [None],  # i.select()[:]
+    "queues": lambda i: [None],  # i.select()[:]
+    
+}
+
+
+class MyGetterDictHomeTask(MyGetterDict):
+    modif_type_rules = {
+        
+}
+
+
+class MyGetterDictSubject(MyGetterDict):
+    modif_type_rules = {
+    "home_tasks": lambda i: [None],  # i.select()[:]
+    "queues": lambda i: [None],  # i.select()[:]
+    "teachers": lambda i: [None],  # i.select()[:]
+    "weekday_and_time_subjects": lambda i: [None],  # i.select()[:]
+    
+}
+
+
+class MyGetterDictWeekdayAndTimeSubject(MyGetterDict):
+    modif_type_rules = {
+        
+}
+
+
+class MyGetterDictELearningUrl(MyGetterDict):
+    modif_type_rules = {
+        
+}
+
+
+class MyGetterDictEvent(MyGetterDict):
+    modif_type_rules = {
+    "groups": lambda i: [None],  # i.select()[:]
+    
+}
+
+
+class MyGetterDictTeacher(MyGetterDict):
+    modif_type_rules = {
+    "subjects": lambda i: [None],  # i.select()[:]
+    
+}
+
+
+class MyGetterDictSeniorInTheGroup(MyGetterDict):
+    modif_type_rules = {
+    "senior_verifications": lambda i: [None],  # i.select()[:]
+    
+}
+
+
+class MyGetterDictNews(MyGetterDict):
+    modif_type_rules = {
+        
+}
+
+
+class MyGetterDictNoneVerification(MyGetterDict):
+    modif_type_rules = {
+        
+}
+
+
+class MyGetterDictQueue(MyGetterDict):
+    modif_type_rules = {
+    "user_has_queues": lambda i: [None],  # i.select()[:]
+    
+}
+
+
+class MyGetterDictUserHasQueue(MyGetterDict):
+    modif_type_rules = {
+        
+}
+
+
+class MyGetterDictReminder(MyGetterDict):
+    modif_type_rules = {
+        
+}
+
+
+class MyGetterDictSeniorVerification(MyGetterDict):
+    modif_type_rules = {
+        
+}
+
+
+
+
 class PdAdmin(BaseModel):
 	user: Union[Dict, int, PdUser, Dict]
 
 	class Config:
 		orm_mode = True
+		getter_dict = MyGetterDictAdmin
 
 
 class PdUser(BaseModel):
@@ -64,6 +204,7 @@ class PdUser(BaseModel):
 
 	class Config:
 		orm_mode = True
+		getter_dict = MyGetterDictUser
 
 
 class PdDustbiningChat(BaseModel):
@@ -73,6 +214,7 @@ class PdDustbiningChat(BaseModel):
 
 	class Config:
 		orm_mode = True
+		getter_dict = MyGetterDictDustbiningChat
 
 
 class PdImportantChat(BaseModel):
@@ -82,6 +224,7 @@ class PdImportantChat(BaseModel):
 
 	class Config:
 		orm_mode = True
+		getter_dict = MyGetterDictImportantChat
 
 
 class PdImportantMessage(BaseModel):
@@ -91,6 +234,7 @@ class PdImportantMessage(BaseModel):
 
 	class Config:
 		orm_mode = True
+		getter_dict = MyGetterDictImportantMessage
 
 
 class PdGroup(BaseModel):
@@ -107,6 +251,7 @@ class PdGroup(BaseModel):
 
 	class Config:
 		orm_mode = True
+		getter_dict = MyGetterDictGroup
 
 
 class PdHomeTask(BaseModel):
@@ -119,6 +264,7 @@ class PdHomeTask(BaseModel):
 
 	class Config:
 		orm_mode = True
+		getter_dict = MyGetterDictHomeTask
 
 
 class PdSubject(BaseModel):
@@ -131,6 +277,7 @@ class PdSubject(BaseModel):
 
 	class Config:
 		orm_mode = True
+		getter_dict = MyGetterDictSubject
 
 
 class PdWeekdayAndTimeSubject(BaseModel):
@@ -146,6 +293,7 @@ class PdWeekdayAndTimeSubject(BaseModel):
 
 	class Config:
 		orm_mode = True
+		getter_dict = MyGetterDictWeekdayAndTimeSubject
 
 
 class PdELearningUrl(BaseModel):
@@ -158,6 +306,7 @@ class PdELearningUrl(BaseModel):
 
 	class Config:
 		orm_mode = True
+		getter_dict = MyGetterDictELearningUrl
 
 
 class PdEvent(BaseModel):
@@ -169,6 +318,7 @@ class PdEvent(BaseModel):
 
 	class Config:
 		orm_mode = True
+		getter_dict = MyGetterDictEvent
 
 
 class PdTeacher(BaseModel):
@@ -181,6 +331,7 @@ class PdTeacher(BaseModel):
 
 	class Config:
 		orm_mode = True
+		getter_dict = MyGetterDictTeacher
 
 
 class PdSeniorInTheGroup(BaseModel):
@@ -191,6 +342,7 @@ class PdSeniorInTheGroup(BaseModel):
 
 	class Config:
 		orm_mode = True
+		getter_dict = MyGetterDictSeniorInTheGroup
 
 
 class PdNews(BaseModel):
@@ -202,6 +354,7 @@ class PdNews(BaseModel):
 
 	class Config:
 		orm_mode = True
+		getter_dict = MyGetterDictNews
 
 
 class PdNoneVerification(BaseModel):
@@ -211,6 +364,7 @@ class PdNoneVerification(BaseModel):
 
 	class Config:
 		orm_mode = True
+		getter_dict = MyGetterDictNoneVerification
 
 
 class PdQueue(BaseModel):
@@ -222,6 +376,7 @@ class PdQueue(BaseModel):
 
 	class Config:
 		orm_mode = True
+		getter_dict = MyGetterDictQueue
 
 
 class PdUserHasQueue(BaseModel):
@@ -232,6 +387,7 @@ class PdUserHasQueue(BaseModel):
 
 	class Config:
 		orm_mode = True
+		getter_dict = MyGetterDictUserHasQueue
 
 
 class PdReminder(BaseModel):
@@ -243,6 +399,7 @@ class PdReminder(BaseModel):
 
 	class Config:
 		orm_mode = True
+		getter_dict = MyGetterDictReminder
 
 
 class PdSeniorVerification(BaseModel):
@@ -252,6 +409,7 @@ class PdSeniorVerification(BaseModel):
 
 	class Config:
 		orm_mode = True
+		getter_dict = MyGetterDictSeniorVerification
 
 
 PdAdmin.update_forward_refs()

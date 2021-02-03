@@ -5,6 +5,8 @@
 from datetime import date
 from datetime import datetime
 from datetime import time
+from typing import Any, List, Iterator, Tuple
+
 from pony.orm import *
 
 from app.settings.config import *

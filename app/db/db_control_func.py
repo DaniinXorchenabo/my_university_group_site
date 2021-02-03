@@ -190,6 +190,19 @@ def create_pydantic_models(create_file=AUTO_PYDANTIC_MODELS):
         postfix: str = ''  # То, что статично в классе и идет после тела (к примеру, класс конфагурации)
         primary_key: Any = None  # Ключевые слова сущности из БД
 
+
+    def get_aributs(entity, blanks):
+        from inspect import getsource
+
+        print([entity])
+        code = getsource(entity).split('\n')
+        count_tabs = code[0].split('def')[0].count(' ') + 3
+        code = (''.join(list(i.split('#')[0])[count_tabs:]) for i in code[1:])
+        code = {i.split('=')[0].strip(): i for i in code if '=' in i}
+        to_list = [f'"{i}": lambda i: [None],  # i.select()[:]\n' for i, c in code.items() if 'Set' in c]
+        to_list = blanks + 'modif_type_rules = {\n' + ' ' * 4 + blanks.join(to_list) + blanks + '\n}'
+        return to_list
+
     CreatePdModels.update_forward_refs()
 
     all_module_code = {}  # Код всего создаваемого модуля
@@ -345,10 +358,16 @@ def create_pydantic_models(create_file=AUTO_PYDANTIC_MODELS):
     code_module += """from typing import Optional as PdOptional\n"""
     code_module += """from datetime import date, datetime, time\n\n"""
     code_module += """from pony.orm import *\n"""
-    code_module += """from pydantic import BaseModel, Json as PdJson\n\nfrom app.db.models import *\n\n\n"""
+    code_module += """from pydantic import BaseModel, Json as PdJson\n\nfrom app.db.models import *\n\n"""
+    code_module += """from app.db.pydantic_models_db.pony_orm_to_pydantic_utils import *\n\n\n"""
 
     for entity in db.entities:
         code_module += f'Pd{entity} = ForwardRef("Pd{entity}")\n'
+
+    code_module += '\n\n'
+    for entity_name, entity in db.entities.items():
+        code_module += f"class MyGetterDict{entity_name}(MyGetterDict):\n"
+        code_module += get_aributs(entity, '    ') + '\n\n\n'
 
     for entity_nane, entity in db.entities.items():
         # =======! Парсинг кода из моделей Pony ORM !=======
@@ -390,7 +409,7 @@ def create_pydantic_models(create_file=AUTO_PYDANTIC_MODELS):
         all_module_code['Pd' + entity_nane] = PydanticModel(
             prefix=f'\n\nclass Pd{entity_nane}(BaseModel):\n',
             body=code,
-            postfix="""\n\n\tclass Config:\n\t\torm_mode = True\n""",
+            postfix=f"""\n\n\tclass Config:\n\t\torm_mode = True\n\t\tgetter_dict = MyGetterDict{entity_nane}\n""",
             primary_key=pr_key_str
         )
 

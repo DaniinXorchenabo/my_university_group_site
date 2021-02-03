@@ -40,6 +40,8 @@ class User(db.Entity):
     groups = Optional('Group')
 
 
+
+
 class DustbiningChat(db.Entity):
     """Флудилка, чат, где будут спрашивать домашку"""
     id = PrimaryKey(int)
