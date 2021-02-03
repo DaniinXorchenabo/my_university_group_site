@@ -29,23 +29,55 @@ class MyGetterDict(GetterDict):
         code = (''.join(list(i.split('#')[0])[count_tabs:]) for i in code[1:])
         code = {i.split('=')[0].strip(): i for i in code if '=' in i}
         code = {i: [getattr(entity, i), val] for i, val in code.items()}
-        to_list = ',\n'.join([f'"{i}": lambda i: i.select()[:]' for i, (t, c) in code.items() if 'Set' in c])
-        to_list = 'modif_type_rules = {\n' + to_list + '\n}'
-        # print(to_list, sep='\n')
         return code
 
+    @staticmethod
+    def bracket_parser(string):
+        print(string)
+        values = ['']  # xdf
+        flag = True
+        for h in string:
+            if h in '[,]':
+                if (h == '[') and flag:
+                    values[-1] = ''
+                    flag = True
+                elif (h == '[') and not flag:
+                    values[-1] = ''
+                    values.append('')
+                    flag = True
+                elif (h == ']') and flag:
+                    values.append('')
+                    flag = False
+                elif (h == ',') and not flag:
+                    values.append('')
+                    flag = True
+                elif (h == ']') and not flag:
+                    values[-1] = ''
+            else:
+                values[-1] += h
+        ans = tuple([i.replace('"', '').replace("'", '') for i in values[:-1] if bool(i)])
+        return ans if len(ans) > 1 else ans[0]
+
     def __init__(self, obj: Any):
+
         meta_obj = type('MetaObject' + str(MyGetterDict.counter_metaclass), (), dict())()
         MyGetterDict.counter_metaclass += 1
-        # self = MyGetterDictUser
         code = self.get_aributs(obj)
         [setattr(meta_obj, i, getattr(obj, i)) for i in code]
         [setattr(meta_obj, key, val(getattr(meta_obj, key))) for key, val in self.modif_type_rules.items()]
-        # [print(getattr(meta_obj, key)) for key, val in self.modif_type_rules.items()]
-        # [print(i, [getattr(meta_obj, i)]) for i in code]
+        db_obj_to_text_utils = {
+            lambda i: type(i) == list and any((type(j) in db.entities.values() for j in i)):
+                lambda i: [(self.bracket_parser(str(j)) if type(j) in db.entities.values() else j) for j in i],
+            lambda i: type(i) != list and type(i) in db.entities.values(): lambda i: self.bracket_parser(str(i))
+        }
+        db_obj_to_text_run = lambda i: [setattr(meta_obj, str(i), val(getattr(meta_obj, str(i)))) for key, val in db_obj_to_text_utils.items() if key(getattr(meta_obj, str(i)))]
+        [db_obj_to_text_run(i) for i in code]
+        [print([getattr(meta_obj, i)]) for i in code]
         self._obj = meta_obj
+        print('end init', obj)
 
     def get(self, key: Any, default: Any = None) -> Any:
+        print(key, getattr(self._obj, key, default))
         return getattr(self._obj, key, default)
 
 

@@ -46,8 +46,10 @@ if __name__ == '__main__':
     #     to_list = 'modif_type_rules = {\n' + to_list + '\n}'
     #     print(to_list, sep='\n')
     # print(User.__dict__)
+    print(MyGetterDict.bracket_parser("Subject[Group['20ВП1'],'СИТ']"))
     with db_session:
-        print(PdUser.from_orm(User[400]))
+        print(PdGroup.from_orm(Group['20ВП1']))
+        # print(PdUser.from_orm(User[100]))
         # PdUser(login='Петя1', password="123")
         # User(id=400, name='Петя тестовый', login='Петя тестовый1')
         # commit()

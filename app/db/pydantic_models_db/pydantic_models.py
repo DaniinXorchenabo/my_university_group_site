@@ -46,24 +46,24 @@ class MyGetterDictAdmin(MyGetterDict):
 
 class MyGetterDictUser(MyGetterDict):
     modif_type_rules = {
-    "user_has_queues": lambda i: [None],  # i.select()[:]
-    "my_verification": lambda i: [None],  # i.select()[:]
-    "i_verificate_thei": lambda i: [None],  # i.select()[:]
+    "user_has_queues": lambda i: list(i.select()[:]),
+    "my_verification": lambda i: list(i.select()[:]),
+    "i_verificate_thei": lambda i: list(i.select()[:]),
     
 }
 
 
 class MyGetterDictDustbiningChat(MyGetterDict):
     modif_type_rules = {
-    "reminders": lambda i: [None],  # i.select()[:]
+    "reminders": lambda i: list(i.select()[:]),
     
 }
 
 
 class MyGetterDictImportantChat(MyGetterDict):
     modif_type_rules = {
-    "important_messages": lambda i: [None],  # i.select()[:]
-    "group": lambda i: [None],  # i.select()[:]
+    "important_messages": lambda i: list(i.select()[:]),
+    "group": lambda i: list(i.select()[:]),
     
 }
 
@@ -76,13 +76,13 @@ class MyGetterDictImportantMessage(MyGetterDict):
 
 class MyGetterDictGroup(MyGetterDict):
     modif_type_rules = {
-    "users": lambda i: [None],  # i.select()[:]
-    "dustbining_chats": lambda i: [None],  # i.select()[:]
-    "important_chats": lambda i: [None],  # i.select()[:]
-    "subjects": lambda i: [None],  # i.select()[:]
-    "events": lambda i: [None],  # i.select()[:]
-    "news": lambda i: [None],  # i.select()[:]
-    "queues": lambda i: [None],  # i.select()[:]
+    "users": lambda i: list(i.select()[:]),
+    "dustbining_chats": lambda i: list(i.select()[:]),
+    "important_chats": lambda i: list(i.select()[:]),
+    "subjects": lambda i: list(i.select()[:]),
+    "events": lambda i: list(i.select()[:]),
+    "news": lambda i: list(i.select()[:]),
+    "queues": lambda i: list(i.select()[:]),
     
 }
 
@@ -95,10 +95,10 @@ class MyGetterDictHomeTask(MyGetterDict):
 
 class MyGetterDictSubject(MyGetterDict):
     modif_type_rules = {
-    "home_tasks": lambda i: [None],  # i.select()[:]
-    "queues": lambda i: [None],  # i.select()[:]
-    "teachers": lambda i: [None],  # i.select()[:]
-    "weekday_and_time_subjects": lambda i: [None],  # i.select()[:]
+    "home_tasks": lambda i: list(i.select()[:]),
+    "queues": lambda i: list(i.select()[:]),
+    "teachers": lambda i: list(i.select()[:]),
+    "weekday_and_time_subjects": lambda i: list(i.select()[:]),
     
 }
 
@@ -117,21 +117,21 @@ class MyGetterDictELearningUrl(MyGetterDict):
 
 class MyGetterDictEvent(MyGetterDict):
     modif_type_rules = {
-    "groups": lambda i: [None],  # i.select()[:]
+    "groups": lambda i: list(i.select()[:]),
     
 }
 
 
 class MyGetterDictTeacher(MyGetterDict):
     modif_type_rules = {
-    "subjects": lambda i: [None],  # i.select()[:]
+    "subjects": lambda i: list(i.select()[:]),
     
 }
 
 
 class MyGetterDictSeniorInTheGroup(MyGetterDict):
     modif_type_rules = {
-    "senior_verifications": lambda i: [None],  # i.select()[:]
+    "senior_verifications": lambda i: list(i.select()[:]),
     
 }
 
@@ -150,7 +150,7 @@ class MyGetterDictNoneVerification(MyGetterDict):
 
 class MyGetterDictQueue(MyGetterDict):
     modif_type_rules = {
-    "user_has_queues": lambda i: [None],  # i.select()[:]
+    "user_has_queues": lambda i: list(i.select()[:]),
     
 }
 

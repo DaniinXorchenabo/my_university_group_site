@@ -199,7 +199,7 @@ def create_pydantic_models(create_file=AUTO_PYDANTIC_MODELS):
         count_tabs = code[0].split('def')[0].count(' ') + 3
         code = (''.join(list(i.split('#')[0])[count_tabs:]) for i in code[1:])
         code = {i.split('=')[0].strip(): i for i in code if '=' in i}
-        to_list = [f'"{i}": lambda i: [None],  # i.select()[:]\n' for i, c in code.items() if 'Set' in c]
+        to_list = [f'"{i}": lambda i: list(i.select()[:]),\n' for i, c in code.items() if 'Set' in c]
         to_list = blanks + 'modif_type_rules = {\n' + ' ' * 4 + blanks.join(to_list) + blanks + '\n}'
         return to_list
 
