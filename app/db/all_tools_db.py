@@ -51,9 +51,13 @@ if __name__ == '__main__':
 
 
     with db_session:
-        print(Group['20ВП1'])
-        print(Group.exists(name='20ВП1'))
-        print(PdGroup(name='20ВП1', mode='find'))  #
+        # print(Group.exists(name='20ВП1', users=Group["20ВП1"].users.select()[:]))
+        print(Group["20ВП1"].senior_in_the_group)
+        print(SeniorInTheGroup[104, '20ВП1'])
+        print(SeniorInTheGroup[User[104], Group['20ВП1']])
+        print(PdGroup(name='20ВП1',
+                      senior_in_the_group=SeniorInTheGroup[User[104], Group['20ВП1']].get_pk(),
+                      mode='strict_find'))  #
         # print(Group['20ВП1'].subjects.select()[:][0].get_pk())
     #     print(PdGroup.from_orm(Group['20ВП1']))
         # print(PdUser.from_orm(User[100]))

@@ -140,6 +140,8 @@ def check_model(values: dict, ent, pk=[], unique=[]):
     mode_of_operation = values.pop('mode', None)
     upload_orm = values.pop('upload_orm', None)
     values = {key: ([] if val == [None] else val) for key, val in values.items()}
+    values = {key: val for key, val in values.items()}
+    print(values)
 
     if mode_of_operation == 'new':  # проверяет, можно ли создать такого пользователя
         data = [{param: values[param] for param in ([i] if type(i) != tuple else i)}
@@ -177,13 +179,20 @@ def check_model(values: dict, ent, pk=[], unique=[]):
 
     elif mode_of_operation == 'find':
         data = {key: val for key, val in values.items() if val is not None and val != [None] and val != []}
-        print(Group.exists(name='20ВП1'))
-        print(data,ent, ent.exists(**data))
+        #  ent.exists почему-то не работает с параметром типа Set
+        data = {key: val for key, val in data.items() if type(val) != list}
         assert ent.exists(**data), 'Данный человек отсутствует в БД'
 
     elif mode_of_operation == 'strict_find':
         values = {key: ([] if val == [None] else val) for key, val in values.items()}
-        assert ent.exists(**values), 'Данный человек отсутствует в БД'
+        # values = {key: (Set(val) if type(val) == list else val) for key, val for values.items()}
+        #  ent.exists почему-то не работает с параметром типа Set
+        data = {key: val for key, val in values.items() if type(val) != list}
+        # data = {}
+        print(data)
+        assert ent.exists(**{key: val for key, val in data.items()}), 'Данный человек отсутствует в БД'
+        print('sdvgf')
+        # values = {key: (list(val) if type(val) == list else val) for key, val in values.copy().items()}
 
     # if mode_of_operation == 'check':
     #     values = {key: ([] if val == [None] else val) for key, val in values.items()}
