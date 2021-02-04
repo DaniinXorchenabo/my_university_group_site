@@ -163,6 +163,8 @@ def old_connect_with_db(db_path=DB_PATH, deep=0, db_l=db):
 
 
 def create_pydantic_models(create_file=AUTO_PYDANTIC_MODELS):
+    """Генерирует модель pydantic на основе модели Pony ORM"""
+
     from inspect import getsource
     from typing import Optional, List, Dict, Union, Any, Tuple, ForwardRef
     from pydantic import BaseModel, validator
@@ -190,7 +192,6 @@ def create_pydantic_models(create_file=AUTO_PYDANTIC_MODELS):
         postfix: str = ''  # То, что статично в классе и идет после тела (к примеру, класс конфагурации)
         primary_key: Any = None  # Ключевые слова сущности из БД
 
-
     def get_aributs(entity, blanks):
         from inspect import getsource
 
@@ -199,15 +200,24 @@ def create_pydantic_models(create_file=AUTO_PYDANTIC_MODELS):
         count_tabs = code[0].split('def')[0].count(' ') + 3
         code = (''.join(list(i.split('#')[0])[count_tabs:]) for i in code[1:])
         code = {i.split('=')[0].strip(): i for i in code if '=' in i}
-        to_list = [f'"{i}": lambda i: list(i.select()[:]),\n' for i, c in code.items() if 'Set' in c]
-        to_list = blanks + 'modif_type_rules = {\n' + ' ' * 4 + blanks.join(to_list) + blanks + '\n}'
+        to_list = [f'"{i}": lambda i: list(i.select()[:]),' for i, c in code.items() if 'Set' in c]
+        to_list = blanks + 'modif_type_rules = {' + (('\n' + ('\n' + ' ' * 4 + blanks).join(to_list) + '\n' + blanks)
+                                                     if bool(to_list) else '') + '}'
         return to_list
+
+    def create_const_params(work_modes: list):
+        """Возвращает строку с параметрами, одинаковыми для каждой модели"""
+
+        string = '\n\tmode: PdOptional[Union[' + ', '.join(['Literal["' + i + '"]' for i in work_modes]) + ']] = None\n'
+        string += '\tupload_orm: PdOptional[bool] = None'
+        return string
 
     CreatePdModels.update_forward_refs()
 
     all_module_code = {}  # Код всего создаваемого модуля
     pr_key_str = []  # тут будут строки с PrimaryKey одного класса
     code = []  # Строки одного класса
+    work_modes = ['new', 'edit', 'find', "strict_find"]
 
     # Правила обработки типа параметра из модели Pony
     rules_type_param = {
@@ -239,7 +249,6 @@ def create_pydantic_models(create_file=AUTO_PYDANTIC_MODELS):
                               f'''lambda: time({", ".join(i.default.replace('"', "").replace("'", "").split(":"))})'''),
         lambda i: i.type_param in db.entities and i.type_db_param == 'Set': lambda i: setattr(i, 'default', '[None]')
 
-
     }
 
     # Правила превращения в код имени параметра
@@ -254,7 +263,7 @@ def create_pydantic_models(create_file=AUTO_PYDANTIC_MODELS):
         lambda i: i.type_param in db.entities: lambda i: (
             setattr(i, 'entity_name', "Pd" + i.type_param), setattr(
                 i, 'type_param',
-                f"""Union[{'Dict, ' if i.type_param != 'Set' 
+                f"""Union[{'Dict, ' if i.type_param != 'Set'
                 else ''}*, Pd{i.type_param}, Dict{', None' if i.type_db_param == 'Set' else ''}]""")),
         lambda i: i.type_param == "Json": lambda i: setattr(i, 'type_param', "PdJson"),
     }
@@ -311,12 +320,12 @@ def create_pydantic_models(create_file=AUTO_PYDANTIC_MODELS):
         lambda i: i.type_param.count('*') == 1: lambda i: (
             setattr(
                 i, 'type_param',
-                i.type_param.replace('*',  ', '.join(
+                i.type_param.replace('*', ', '.join(
                     [j.type_param for j in all_module_code['Pd' + i.raw_type_param].primary_key
                      if '*' not in j.type_param]) or '*')
             ),
             [setattr(j, 'type_param', i.type_param) for j in pr_key_str if j.raw_type_param == i.raw_type_param]
-        if i.is_primary_key else None),
+            if i.is_primary_key else None),
         lambda i: i.type_param.count('*') > 1: lambda i: print(i)
     }
 
@@ -329,12 +338,12 @@ def create_pydantic_models(create_file=AUTO_PYDANTIC_MODELS):
         lambda i: '*' in i.type_param and type(i.raw_type_param) == list:
             lambda i: (setattr(i, 'type_param', (
                 reduce(lambda param, edit: param.replace('*', edit, 1),
-                    [i.type_param] + [', '.join([j.type_param for j in (
-                        all_module_code[ent].primary_key
-                        if ent in all_module_code
-                        else [j1 for j1 in code if j1.raw_name == ent]
-                    ) if '*' not in j.type_param]) for ent in i.entity_name]
-                )
+                       [i.type_param] + [', '.join([j.type_param for j in (
+                           all_module_code[ent].primary_key
+                           if ent in all_module_code
+                           else [j1 for j1 in code if j1.raw_name == ent]
+                       ) if '*' not in j.type_param]) for ent in i.entity_name]
+                       )
                 if all((
                     '*' not in j.type_param for ent in i.entity_name for j in (
                     all_module_code[ent].primary_key
@@ -355,7 +364,7 @@ def create_pydantic_models(create_file=AUTO_PYDANTIC_MODELS):
     code_module += """Тут объявляются pydantic-модели, в которых присутствуют все сущности БД\n"""
     code_module += """и все атрибуты сущностей\"\"\"\n\n"""
     code_module += """from typing import Set as PdSet, Union, List, Dict, Tuple, ForwardRef\n"""
-    code_module += """from typing import Optional as PdOptional\n"""
+    code_module += """from typing import Optional as PdOptional, Literal\n"""
     code_module += """from datetime import date, datetime, time\n\n"""
     code_module += """from pony.orm import *\n"""
     code_module += """from pydantic import BaseModel, Json as PdJson\n\nfrom app.db.models import *\n\n"""
@@ -375,7 +384,8 @@ def create_pydantic_models(create_file=AUTO_PYDANTIC_MODELS):
         code = getsource(entity).split('\n')
 
         count_tabs = code[0].split('def')[0].count(' ') + 3
-        code = (''.join(list(i.split('#')[0])[count_tabs:]) for i in code[1:])
+        code = [''.join(list(i.split('#')[0])[count_tabs:]) for i in code[1:]]
+        unique_params = ["'" + i.split('=')[0].strip() + "'" for i in code if 'unique=True' in i]
         code = (j.split('=') for j in code if bool(j) and (('PrimaryKey' in j and pr_key_str.append(j)) or '=' in j))
 
         code = (([i[0].strip()] +
@@ -391,6 +401,10 @@ def create_pydantic_models(create_file=AUTO_PYDANTIC_MODELS):
         [[val(i) for key, val in rules_default.items() if key(i)] for i in code]
         [[val(i) for key, val in rules_type.items() if key(i)] for i in code]
 
+        names_p_k = [('"' + i.split('=')[0].strip() + '"' if '=' in i
+                      else ('(' + ', '.join(['"' + j.strip() + '"'
+                                             for j in i.split('(')[1].replace(')', '').split(',')]) + ')'))
+                     for i in pr_key_str]
         pr_key_str = (list(filter(lambda j: '=' not in j, i.replace(')', '').split('PrimaryKey(')[-1].split(',')))
                       for i in pr_key_str)
         pr_key_str = [[val(i) for key, val in create_p_k_obj.items() if key(i)][0] for i in pr_key_str]
@@ -406,10 +420,20 @@ def create_pydantic_models(create_file=AUTO_PYDANTIC_MODELS):
         [[val(i) for key, val in type_param_to_text.items() if key(i)] for i in pr_key_str]
         # print(pr_key_str)
 
+        postfix = '\n\n'
+        postfix += '\t@root_validator\n'
+        postfix += "\tdef check_orm_correcting_model(cls, values):\n"
+        postfix += f"\t\tprimary_keys = [{', '.join(names_p_k)}]\n"
+        postfix += f"\t\tunique_params = [{', '.join(unique_params)}]\n"
+        postfix += "\t\treturn check_model(values, User, pk=primary_keys, unique=unique_params)\n\n"
+        postfix += "\tclass Config:\n"
+        postfix += "\t\torm_mode = True\n"
+        postfix += f"\t\tgetter_dict = MyGetterDict{entity_nane}\n"
+
         all_module_code['Pd' + entity_nane] = PydanticModel(
             prefix=f'\n\nclass Pd{entity_nane}(BaseModel):\n',
             body=code,
-            postfix=f"""\n\n\tclass Config:\n\t\torm_mode = True\n\t\tgetter_dict = MyGetterDict{entity_nane}\n""",
+            postfix=postfix,
             primary_key=pr_key_str
         )
 
@@ -430,6 +454,7 @@ def create_pydantic_models(create_file=AUTO_PYDANTIC_MODELS):
 
         code_class = body_class.prefix
         code_class += '\n'.join([i.code for i in code])
+        code_class += create_const_params(work_modes)
         code_class += body_class.postfix
         code_module += code_class
 

@@ -20,12 +20,13 @@ from app.db.models import *
 from app.db.tests.create_test_db import *
 from app.db.db_control_func import *
 from app.db.pydantic_models_db.pydantic_models import *
+from app.db.pydantic_models_db.pydantic_utils import *
 
 
 if __name__ == '__main__':
     from os import chdir
 
-    create_pydantic_models()
+    # create_pydantic_models()
 
     chdir(HOME_DIR)
     is_DB_created()
@@ -46,9 +47,12 @@ if __name__ == '__main__':
     #     to_list = 'modif_type_rules = {\n' + to_list + '\n}'
     #     print(to_list, sep='\n')
     # print(User.__dict__)
-    print(MyGetterDict.bracket_parser("Subject[Group['20ВП1'],'СИТ']"))
-    with db_session:
-        print(PdGroup.from_orm(Group['20ВП1']))
+    # print(MyGetterDict.bracket_parser("Subject[Group['20ВП1'],'СИТ']"))
+
+
+    # with db_session:
+    #     print(Group['20ВП1'].subjects.select()[:][0].get_pk())
+    #     print(PdGroup.from_orm(Group['20ВП1']))
         # print(PdUser.from_orm(User[100]))
         # PdUser(login='Петя1', password="123")
         # User(id=400, name='Петя тестовый', login='Петя тестовый1')
