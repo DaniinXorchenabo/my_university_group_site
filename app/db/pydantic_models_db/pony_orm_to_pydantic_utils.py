@@ -64,26 +64,30 @@ class MyGetterDict(GetterDict):
         return ans if len(ans) > 1 else ans[0]
 
     def __init__(self, obj: Any):
-        meta_obj = type('MetaObject', (), dict())()
-        code = self.get_aributs(obj)
-        [setattr(meta_obj, i, getattr(obj, i)) for i in code]
-        [setattr(meta_obj, key, val(getattr(meta_obj, key))) for key, val in self.modif_type_rules.items()]
-
-        db_obj_to_text_utils = {
-            lambda i: type(i) == list and any((type(j) in db.entities.values() for j in i)):
-                lambda i: [(self.bracket_parser(str(j)) if type(j) in db.entities.values() else j) for j in i],
-            lambda i: type(i) != list and type(i) in db.entities.values(): lambda i: self.bracket_parser(str(i))
-        }
-
-        def db_obj_to_text_run(i):
-            return [setattr(meta_obj, str(i), val(getattr(meta_obj, str(i))))
-                    for key, val in db_obj_to_text_utils.items() if key(getattr(meta_obj, str(i)))]
-
-        [db_obj_to_text_run(i) for i in code]
-        self._obj = meta_obj
+        # meta_obj = type('MetaObject', (), dict())()
+        # code = self.get_aributs(obj)
+        # [setattr(meta_obj, i, getattr(obj, i)) for i in code]
+        # [setattr(meta_obj, key, val(getattr(meta_obj, key))) for key, val in self.modif_type_rules.items()]
+        #
+        # db_obj_to_text_utils = {
+        #     lambda i: type(i) == list and any((type(j) in db.entities.values() for j in i)):
+        #         lambda i: [(j.get_pk() if type(j) in db.entities.values() else j) for j in i],
+        #     lambda i: type(i) != list and type(i) in db.entities.values(): lambda i: self.bracket_parser(str(i))
+        # }
+        #
+        # def db_obj_to_text_run(i):
+        #     return [setattr(meta_obj, str(i), val(getattr(meta_obj, str(i))))
+        #             for key, val in db_obj_to_text_utils.items() if key(getattr(meta_obj, str(i)))]
+        #
+        # [db_obj_to_text_run(i) for i in code]
+        # self._obj = meta_obj
+        self._obj = obj.to_dict(with_collections=True)
+        print(self._obj)
 
     def get(self, key: Any, default: Any = None) -> Any:
-        # print(key, getattr(self._obj, key, default))
+        if type(self._obj) == dict:
+            # print(key, self._obj.get(key, default))
+            return self._obj.get(key, default)
         return getattr(self._obj, key, default)
 
 
@@ -96,6 +100,7 @@ def check_model(values: dict, ent, pk=[], unique=[]):
     :param unique:
     :return:
     """
+    # print(values)
 
     def test_p_k(errors=True, val_mode=False, pk=pk, values=values, ent=ent):
         """
@@ -141,7 +146,7 @@ def check_model(values: dict, ent, pk=[], unique=[]):
     upload_orm = values.pop('upload_orm', None)
     values = {key: ([] if val == [None] else val) for key, val in values.items()}
     values = {key: val for key, val in values.items()}
-    print(values)
+    # print(values)
 
     if mode_of_operation == 'new':  # проверяет, можно ли создать такого пользователя
         data = [{param: values[param] for param in ([i] if type(i) != tuple else i)}
@@ -189,9 +194,9 @@ def check_model(values: dict, ent, pk=[], unique=[]):
         #  ent.exists почему-то не работает с параметром типа Set
         data = {key: val for key, val in values.items() if type(val) != list}
         # data = {}
-        print(data)
+        # print(data)
         assert ent.exists(**{key: val for key, val in data.items()}), 'Данный человек отсутствует в БД'
-        print('sdvgf')
+        # print('sdvgf')
         # values = {key: (list(val) if type(val) == list else val) for key, val in values.copy().items()}
 
     # if mode_of_operation == 'check':
@@ -229,7 +234,8 @@ def check_model(values: dict, ent, pk=[], unique=[]):
     if upload_orm:
         assert ent.exists(**values), "Такого пользователя нет в БД"
         values = ent.get(**values)
-    print('456')
+    # print('456', values)
+
     return values
 
 

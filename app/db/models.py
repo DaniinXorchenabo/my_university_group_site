@@ -74,6 +74,12 @@ class Group(db.Entity):
     news = Set('News')
     queues = Set('Queue')
 
+    # def __dict__(self, *args, **kwargs):
+    #     return self.to_dict(with_collections=True)
+    #
+    # def __iter__(self):
+    #     return iter(self.__dict__().items())
+
 
 class HomeTask(db.Entity):
     id = PrimaryKey(int, auto=True)
@@ -197,10 +203,14 @@ class SeniorVerification(db.Entity):
     # 1 - ответил положительно
 
 
+
+def entity_dict(self):
+    return self.to_dict(with_collections=True)
+
 for name, ent in db.entities.items():
     ent.__bases__ = tuple(list(ent.__bases__) + [AddArrtInDbClass])\
         if AddArrtInDbClass not in list(ent.__bases__) else tuple(list(ent.__bases__))
-
+    # setattr(ent, '__dict__', entity_dict)
 
 # is_DB_created()
 
