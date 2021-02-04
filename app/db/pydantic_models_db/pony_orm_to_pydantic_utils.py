@@ -18,71 +18,8 @@ from app.db.models import *
 class MyGetterDict(GetterDict):
     """Родительский класс для превращения объектов Pony ORM в pydantic-модели"""
 
-    modif_type_rules = dict()
-
-    @staticmethod
-    def get_aributs(obj):
-        """ На основе класса сущности БД делает словарь вида
-        Dict[имя поля: нолноя строка этого поля]"""
-        from inspect import getsource
-
-        entity = obj.__class__
-        code = getsource(entity).split('\n')
-
-        count_tabs = code[0].split('def')[0].count(' ') + 3
-        code = (''.join(list(i.split('#')[0])[count_tabs:]) for i in code[1:])
-        code = {i.split('=')[0].strip(): i for i in code if '=' in i}
-        code = {i: [getattr(entity, i), val] for i, val in code.items()}
-        return code
-
-    @staticmethod
-    def bracket_parser(string):
-        """ Выделение из строки вида SeniorInTheGroup[User[104],Group['20ВП1']]
-        значений PrimaryKey"""
-        values = ['']  # xdf
-        flag = True
-        for h in string:
-            if h in '[,]':
-                if (h == '[') and flag:
-                    values[-1] = ''
-                    flag = True
-                elif (h == '[') and not flag:
-                    values[-1] = ''
-                    values.append('')
-                    flag = True
-                elif (h == ']') and flag:
-                    values.append('')
-                    flag = False
-                elif (h == ',') and not flag:
-                    values.append('')
-                    flag = True
-                elif (h == ']') and not flag:
-                    values[-1] = ''
-            else:
-                values[-1] += h
-        ans = tuple([i.replace('"', '').replace("'", '') for i in values[:-1] if bool(i)])
-        return ans if len(ans) > 1 else ans[0]
-
     def __init__(self, obj: Any):
-        # meta_obj = type('MetaObject', (), dict())()
-        # code = self.get_aributs(obj)
-        # [setattr(meta_obj, i, getattr(obj, i)) for i in code]
-        # [setattr(meta_obj, key, val(getattr(meta_obj, key))) for key, val in self.modif_type_rules.items()]
-        #
-        # db_obj_to_text_utils = {
-        #     lambda i: type(i) == list and any((type(j) in db.entities.values() for j in i)):
-        #         lambda i: [(j.get_pk() if type(j) in db.entities.values() else j) for j in i],
-        #     lambda i: type(i) != list and type(i) in db.entities.values(): lambda i: self.bracket_parser(str(i))
-        # }
-        #
-        # def db_obj_to_text_run(i):
-        #     return [setattr(meta_obj, str(i), val(getattr(meta_obj, str(i))))
-        #             for key, val in db_obj_to_text_utils.items() if key(getattr(meta_obj, str(i)))]
-        #
-        # [db_obj_to_text_run(i) for i in code]
-        # self._obj = meta_obj
         self._obj = obj.to_dict(with_collections=True)
-        print(self._obj)
 
     def get(self, key: Any, default: Any = None) -> Any:
         if type(self._obj) == dict:
@@ -100,7 +37,6 @@ def check_model(values: dict, ent, pk=[], unique=[]):
     :param unique:
     :return:
     """
-    # print(values)
 
     def test_p_k(errors=True, val_mode=False, pk=pk, values=values, ent=ent):
         """
@@ -146,7 +82,6 @@ def check_model(values: dict, ent, pk=[], unique=[]):
     upload_orm = values.pop('upload_orm', None)
     values = {key: ([] if val == [None] else val) for key, val in values.items()}
     values = {key: val for key, val in values.items()}
-    # print(values)
 
     if mode_of_operation == 'new':  # проверяет, можно ли создать такого пользователя
         data = [{param: values[param] for param in ([i] if type(i) != tuple else i)}
@@ -190,76 +125,13 @@ def check_model(values: dict, ent, pk=[], unique=[]):
 
     elif mode_of_operation == 'strict_find':
         values = {key: ([] if val == [None] else val) for key, val in values.items()}
-        # values = {key: (Set(val) if type(val) == list else val) for key, val for values.items()}
         #  ent.exists почему-то не работает с параметром типа Set
         data = {key: val for key, val in values.items() if type(val) != list}
-        # data = {}
-        # print(data)
         assert ent.exists(**{key: val for key, val in data.items()}), 'Данный человек отсутствует в БД'
-        # print('sdvgf')
-        # values = {key: (list(val) if type(val) == list else val) for key, val in values.copy().items()}
-
-    # if mode_of_operation == 'check':
-    #     values = {key: ([] if val == [None] else val) for key, val in values.items()}
-    #     assert ent.exists(**values), "Такого пользователя нет в БД"
-
-    # if mode_of_operation == 'pk':  # PrimaryKey
-    #     values = {param: values[param] for i in pk if all((p in values for p in ([i] if type(i) != tuple else i))) for param in ([i] if type(i) != tuple else i)}
-    #     assert bool(values) and ent.exists(**values), "Такого пользователя нет в БД"  # проверка только по primaryKey
-
-    # if mode_of_operation == 'unique':
-    #     # Проверка по всем уникальным параметрам, в том числе и по PrimaryKey, если они есть в наличии
-    #     values = {param: values[param] for i in pk + unique if all((p in values for p in ([i] if type(i) != tuple else i))) for
-    #               param in ([i] if type(i) != tuple else i)}
-    #     assert bool(values) and ent.exists(**values), "Такого пользователя нет в БД"
-
-    # if mode_of_operation == 'any':  # проверяет по всем параметрам, которые не None или [None]
-    #     values = {key: val for key, val in values.items() if val is not None and val != [None]}
-    #     assert ent.exists(**values), "Такого пользователя нет в БД"
-
-
-
-        # assert bool(values), 'Укажите опознавательные знаки'
-        # assert not ent.exists(**values), 'Уже существует в БД'
-        # assert all((not ent.exists({key: val}) for key, val in values.items())), "Такого пользователя нет в БД"
-
-    # if mode_of_operation == 'edit':
-    #     params = {param: values[param] for i in pk if all((p in values for p in ([i] if type(i) != tuple else i))) for
-    #               param in ([i] if type(i) != tuple else i)}
-    #     params = params if bool(params) else {param: values[param] for i in unique if all((p in values for p in ([i] if type(i) != tuple else i))) for
-    #               param in ([i] if type(i) != tuple else i)}
-    #     assert bool(params), 'Неудалось найти пользователя для редактирования'
-    #     assert all((not ent.exists({key: val}) for key, val in params.items())), "Такого пользователя нет в БД"
 
     if upload_orm:
         assert ent.exists(**values), "Такого пользователя нет в БД"
         values = ent.get(**values)
-    # print('456', values)
 
     return values
 
-
-"""
-    @root_validator
-    def check_orm_correcting_model(cls, values):
-        primary_keys = []
-        unique_params = []
-        return check_model(values, User, pk=primary_keys, unique=unique_params)
-"""
-
-
-"""
-    # @validator('id')
-    # def check_db_id(cls, param):
-    # 	assert User.exists(id=param), 'Пользователя с таким id нет в БД'
-    # 	return param
-    # 	raise ValueError('Пользователя с таким id нет в БД')
-
-    @root_validator
-    def check_model(cls, values: dict):
-        # print(values)
-        values = {key: val for key, val in values.items() if val is not None and val != [None]}
-        # print(values)
-        # assert User.exists(**values), "Такого пользователя нат в БД"
-        return values
-"""

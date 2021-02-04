@@ -74,12 +74,6 @@ class Group(db.Entity):
     news = Set('News')
     queues = Set('Queue')
 
-    # def __dict__(self, *args, **kwargs):
-    #     return self.to_dict(with_collections=True)
-    #
-    # def __iter__(self):
-    #     return iter(self.__dict__().items())
-
 
 class HomeTask(db.Entity):
     id = PrimaryKey(int, auto=True)
