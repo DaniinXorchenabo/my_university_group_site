@@ -425,7 +425,7 @@ def create_pydantic_models(create_file=AUTO_PYDANTIC_MODELS):
         postfix += "\tdef check_orm_correcting_model(cls, values):\n"
         postfix += f"\t\tprimary_keys = [{', '.join(names_p_k)}]\n"
         postfix += f"\t\tunique_params = [{', '.join(unique_params)}]\n"
-        postfix += "\t\treturn check_model(values, User, pk=primary_keys, unique=unique_params)\n\n"
+        postfix += f"\t\treturn check_model(values, {entity_nane}, pk=primary_keys, unique=unique_params)\n\n"
         postfix += "\tclass Config:\n"
         postfix += "\t\torm_mode = True\n"
         postfix += f"\t\tgetter_dict = MyGetterDict{entity_nane}\n"

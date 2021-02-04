@@ -176,7 +176,9 @@ def check_model(values: dict, ent, pk=[], unique=[]):
             assert ent.exists(**{key: val for i in data for key, val in i.items()}), 'Невозможно внести изменения'
 
     elif mode_of_operation == 'find':
-        data = {key: val for key, val in values.items() if val is not None and val != [None]}
+        data = {key: val for key, val in values.items() if val is not None and val != [None] and val != []}
+        print(Group.exists(name='20ВП1'))
+        print(data,ent, ent.exists(**data))
         assert ent.exists(**data), 'Данный человек отсутствует в БД'
 
     elif mode_of_operation == 'strict_find':
@@ -218,7 +220,7 @@ def check_model(values: dict, ent, pk=[], unique=[]):
     if upload_orm:
         assert ent.exists(**values), "Такого пользователя нет в БД"
         values = ent.get(**values)
-
+    print('456')
     return values
 
 

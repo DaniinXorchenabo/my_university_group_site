@@ -26,7 +26,7 @@ from app.db.pydantic_models_db.pydantic_utils import *
 if __name__ == '__main__':
     from os import chdir
 
-    # create_pydantic_models()
+    create_pydantic_models()
 
     chdir(HOME_DIR)
     is_DB_created()
@@ -50,8 +50,11 @@ if __name__ == '__main__':
     # print(MyGetterDict.bracket_parser("Subject[Group['20ВП1'],'СИТ']"))
 
 
-    # with db_session:
-    #     print(Group['20ВП1'].subjects.select()[:][0].get_pk())
+    with db_session:
+        print(Group['20ВП1'])
+        print(Group.exists(name='20ВП1'))
+        print(PdGroup(name='20ВП1', mode='find'))  #
+        # print(Group['20ВП1'].subjects.select()[:][0].get_pk())
     #     print(PdGroup.from_orm(Group['20ВП1']))
         # print(PdUser.from_orm(User[100]))
         # PdUser(login='Петя1', password="123")
