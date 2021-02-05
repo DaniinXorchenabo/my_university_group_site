@@ -84,7 +84,7 @@ def protect_verification(attr_name='is_verification'):
 
         @property
         def attr(self):
-            return self.check_verificated
+            return self._is_verification
 
         @attr.setter
         def attr(self, val):

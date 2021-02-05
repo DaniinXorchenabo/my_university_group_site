@@ -10,13 +10,13 @@ from pony.orm import *
 
 from app.settings.config import *
 from app.db.models import *
-# from app.db.db_addition.user_addition import *
-# from app.db.db_addition.Group_addition import *
-#
-# from app.db.db_addition.NoneVerification_additions import *
-# from app.db.db_addition.Admin_additions import *
-# from app.db.db_addition.SeniorInTheGroup_additions import *
-# from app.db.db_addition.SeniorVerification_additions import *
+from app.db.db_addition.user_addition import *
+from app.db.db_addition.Group_addition import *
+
+from app.db.db_addition.NoneVerification_additions import *
+from app.db.db_addition.Admin_additions import *
+from app.db.db_addition.SeniorInTheGroup_additions import *
+from app.db.db_addition.SeniorVerification_additions import *
 from app.db.tests.create_test_db import *
 from app.db.db_control_func import *
 from app.db.pydantic_models_db.pydantic_models import *
@@ -51,15 +51,18 @@ if __name__ == '__main__':
 
 
     with db_session:
+        print(from_orm(User[100]))
         # print(Group.exists(name='20ВП1', users=Group["20ВП1"].users.select()[:]))
         # print(dict(Group["20ВП1"]))
         # print(Group["20ВП1"].senior_in_the_group)
         # print(SeniorInTheGroup[104, '20ВП1'])
         # print(SeniorInTheGroup[User[104], Group['20ВП1']])
         # print(PdGroup(name='20ВП1',
-        #               senior_in_the_group=SeniorInTheGroup[User[104], Group['20ВП1']].get_pk(),
+        #               senior_in_the_group=SeniorInTheGroup[User[104], Group['20ВП1']],  # .get_pk(),
         #               mode='strict_find'))  #
-        print(PdGroup.from_orm(Group['20ВП1']))
+        a = [PdUser.from_orm(User[i]) for i in range(100, 105)]
+        print(*[i.MyPrimaryKey.primary_key___ for i in a])
+        # print(PdGroup.from_orm(Group['20ВП1']))
         # print(Group['20ВП1'].subjects.select()[:][0].get_pk())
     #     print(PdGroup.from_orm(Group['20ВП1']))
         # print(PdUser.from_orm(User[100]))
