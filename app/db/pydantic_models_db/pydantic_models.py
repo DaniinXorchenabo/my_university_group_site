@@ -6,13 +6,15 @@
 и все атрибуты сущностей"""
 
 from typing import Set as PdSet, Union, List, Dict, Tuple, ForwardRef
-from typing import Optional as PdOptional
+from typing import Optional as PdOptional, Literal, Any
 from datetime import date, datetime, time
 
 from pony.orm import *
 from pydantic import BaseModel, Json as PdJson
 
 from app.db.models import *
+
+from app.db.pydantic_models_db.pony_orm_to_pydantic_utils import *
 
 
 PdAdmin = ForwardRef("PdAdmin")
@@ -36,11 +38,130 @@ PdReminder = ForwardRef("PdReminder")
 PdSeniorVerification = ForwardRef("PdSeniorVerification")
 
 
+class MyGetterDictAdmin(MyGetterDict):
+    modif_type_rules = {}
+
+
+class MyGetterDictUser(MyGetterDict):
+    modif_type_rules = {
+"user_has_queues": lambda i: list(i.select()[:]),
+        "my_verification": lambda i: list(i.select()[:]),
+        "i_verificate_thei": lambda i: list(i.select()[:]),
+    }
+
+
+class MyGetterDictDustbiningChat(MyGetterDict):
+    modif_type_rules = {
+"reminders": lambda i: list(i.select()[:]),
+    }
+
+
+class MyGetterDictImportantChat(MyGetterDict):
+    modif_type_rules = {
+"important_messages": lambda i: list(i.select()[:]),
+        "group": lambda i: list(i.select()[:]),
+    }
+
+
+class MyGetterDictImportantMessage(MyGetterDict):
+    modif_type_rules = {}
+
+
+class MyGetterDictGroup(MyGetterDict):
+    modif_type_rules = {
+"users": lambda i: list(i.select()[:]),
+        "dustbining_chats": lambda i: list(i.select()[:]),
+        "important_chats": lambda i: list(i.select()[:]),
+        "subjects": lambda i: list(i.select()[:]),
+        "events": lambda i: list(i.select()[:]),
+        "news": lambda i: list(i.select()[:]),
+        "queues": lambda i: list(i.select()[:]),
+    }
+
+
+class MyGetterDictHomeTask(MyGetterDict):
+    modif_type_rules = {}
+
+
+class MyGetterDictSubject(MyGetterDict):
+    modif_type_rules = {
+"home_tasks": lambda i: list(i.select()[:]),
+        "queues": lambda i: list(i.select()[:]),
+        "teachers": lambda i: list(i.select()[:]),
+        "weekday_and_time_subjects": lambda i: list(i.select()[:]),
+    }
+
+
+class MyGetterDictWeekdayAndTimeSubject(MyGetterDict):
+    modif_type_rules = {}
+
+
+class MyGetterDictELearningUrl(MyGetterDict):
+    modif_type_rules = {}
+
+
+class MyGetterDictEvent(MyGetterDict):
+    modif_type_rules = {
+"groups": lambda i: list(i.select()[:]),
+    }
+
+
+class MyGetterDictTeacher(MyGetterDict):
+    modif_type_rules = {
+"subjects": lambda i: list(i.select()[:]),
+    }
+
+
+class MyGetterDictSeniorInTheGroup(MyGetterDict):
+    modif_type_rules = {
+"senior_verifications": lambda i: list(i.select()[:]),
+    }
+
+
+class MyGetterDictNews(MyGetterDict):
+    modif_type_rules = {}
+
+
+class MyGetterDictNoneVerification(MyGetterDict):
+    modif_type_rules = {}
+
+
+class MyGetterDictQueue(MyGetterDict):
+    modif_type_rules = {
+"user_has_queues": lambda i: list(i.select()[:]),
+    }
+
+
+class MyGetterDictUserHasQueue(MyGetterDict):
+    modif_type_rules = {}
+
+
+class MyGetterDictReminder(MyGetterDict):
+    modif_type_rules = {}
+
+
+class MyGetterDictSeniorVerification(MyGetterDict):
+    modif_type_rules = {}
+
+
+
+
 class PdAdmin(BaseModel):
 	user: Union[Dict, int, PdUser, Dict]
+	mode: PdOptional[Union[Literal["new"], Literal["edit"], Literal["find"], Literal["strict_find"]]] = None
+	upload_orm: PdOptional[bool] = None
+	primary_key: Any = None
+
+	@root_validator
+	def check_orm_correcting_model(cls, values):
+		primary_keys = ["user"]
+		unique_params = []
+		return check_model(cls, values, Admin, pk=primary_keys, unique=unique_params)
 
 	class Config:
 		orm_mode = True
+		getter_dict = MyGetterDictAdmin
+		my_primaty_key_field = ["user"]
 
 
 class PdUser(BaseModel):
@@ -61,36 +182,80 @@ class PdUser(BaseModel):
 	curse_count: PdOptional[int]
 	senior_verification: PdOptional[Union[Dict, Union[Dict, int, PdUser, Dict], PdSeniorVerification, Dict]]
 	groups: PdOptional[Union[Dict, str, PdGroup, Dict]]
+	mode: PdOptional[Union[Literal["new"], Literal["edit"], Literal["find"], Literal["strict_find"]]] = None
+	upload_orm: PdOptional[bool] = None
+	primary_key: Any = None
+
+	@root_validator
+	def check_orm_correcting_model(cls, values):
+		primary_keys = ["id"]
+		unique_params = ['login', 'email']
+		return check_model(cls, values, User, pk=primary_keys, unique=unique_params)
 
 	class Config:
 		orm_mode = True
+		getter_dict = MyGetterDictUser
+		my_primaty_key_field = ["id"]
 
 
 class PdDustbiningChat(BaseModel):
 	id: int
 	group: PdOptional[Union[Dict, str, PdGroup, Dict]]
 	reminders: PdOptional[List[Union[Dict, int, PdReminder, Dict, None]]] = [None]
+	mode: PdOptional[Union[Literal["new"], Literal["edit"], Literal["find"], Literal["strict_find"]]] = None
+	upload_orm: PdOptional[bool] = None
+	primary_key: Any = None
+
+	@root_validator
+	def check_orm_correcting_model(cls, values):
+		primary_keys = ["id"]
+		unique_params = []
+		return check_model(cls, values, DustbiningChat, pk=primary_keys, unique=unique_params)
 
 	class Config:
 		orm_mode = True
+		getter_dict = MyGetterDictDustbiningChat
+		my_primaty_key_field = ["id"]
 
 
 class PdImportantChat(BaseModel):
 	id: int
 	important_messages: PdOptional[List[Union[Dict, int, PdImportantMessage, Dict, None]]] = [None]
 	group: PdOptional[List[Union[Dict, str, PdGroup, Dict, None]]] = [None]
+	mode: PdOptional[Union[Literal["new"], Literal["edit"], Literal["find"], Literal["strict_find"]]] = None
+	upload_orm: PdOptional[bool] = None
+	primary_key: Any = None
+
+	@root_validator
+	def check_orm_correcting_model(cls, values):
+		primary_keys = ["id"]
+		unique_params = []
+		return check_model(cls, values, ImportantChat, pk=primary_keys, unique=unique_params)
 
 	class Config:
 		orm_mode = True
+		getter_dict = MyGetterDictImportantChat
+		my_primaty_key_field = ["id"]
 
 
 class PdImportantMessage(BaseModel):
 	id: int
 	important_chat: PdOptional[Union[Dict, int, PdImportantChat, Dict]]
 	text: PdOptional[str]
+	mode: PdOptional[Union[Literal["new"], Literal["edit"], Literal["find"], Literal["strict_find"]]] = None
+	upload_orm: PdOptional[bool] = None
+	primary_key: Any = None
+
+	@root_validator
+	def check_orm_correcting_model(cls, values):
+		primary_keys = ["id"]
+		unique_params = []
+		return check_model(cls, values, ImportantMessage, pk=primary_keys, unique=unique_params)
 
 	class Config:
 		orm_mode = True
+		getter_dict = MyGetterDictImportantMessage
+		my_primaty_key_field = ["id"]
 
 
 class PdGroup(BaseModel):
@@ -104,9 +269,20 @@ class PdGroup(BaseModel):
 	timesheet_update: datetime = lambda: datetime.now
 	news: PdOptional[List[Union[Dict, int, PdNews, Dict, None]]] = [None]
 	queues: PdOptional[List[Union[Dict, int, PdQueue, Dict, None]]] = [None]
+	mode: PdOptional[Union[Literal["new"], Literal["edit"], Literal["find"], Literal["strict_find"]]] = None
+	upload_orm: PdOptional[bool] = None
+	primary_key: Any = None
+
+	@root_validator
+	def check_orm_correcting_model(cls, values):
+		primary_keys = ["name"]
+		unique_params = []
+		return check_model(cls, values, Group, pk=primary_keys, unique=unique_params)
 
 	class Config:
 		orm_mode = True
+		getter_dict = MyGetterDictGroup
+		my_primaty_key_field = ["name"]
 
 
 class PdHomeTask(BaseModel):
@@ -116,9 +292,20 @@ class PdHomeTask(BaseModel):
 	deadline_time: PdOptional[time]
 	text: PdOptional[str]
 	files: PdOptional[PdJson]
+	mode: PdOptional[Union[Literal["new"], Literal["edit"], Literal["find"], Literal["strict_find"]]] = None
+	upload_orm: PdOptional[bool] = None
+	primary_key: Any = None
+
+	@root_validator
+	def check_orm_correcting_model(cls, values):
+		primary_keys = ["id"]
+		unique_params = []
+		return check_model(cls, values, HomeTask, pk=primary_keys, unique=unique_params)
 
 	class Config:
 		orm_mode = True
+		getter_dict = MyGetterDictHomeTask
+		my_primaty_key_field = ["id"]
 
 
 class PdSubject(BaseModel):
@@ -128,9 +315,20 @@ class PdSubject(BaseModel):
 	queues: PdOptional[List[Union[Dict, int, PdQueue, Dict, None]]] = [None]
 	teachers: PdOptional[List[Union[Dict, int, PdTeacher, Dict, None]]] = [None]
 	weekday_and_time_subjects: PdOptional[List[Union[Dict, int, PdWeekdayAndTimeSubject, Dict, None]]] = [None]
+	mode: PdOptional[Union[Literal["new"], Literal["edit"], Literal["find"], Literal["strict_find"]]] = None
+	upload_orm: PdOptional[bool] = None
+	primary_key: Any = None
+
+	@root_validator
+	def check_orm_correcting_model(cls, values):
+		primary_keys = [("group", "name")]
+		unique_params = []
+		return check_model(cls, values, Subject, pk=primary_keys, unique=unique_params)
 
 	class Config:
 		orm_mode = True
+		getter_dict = MyGetterDictSubject
+		my_primaty_key_field = [("group", "name")]
 
 
 class PdWeekdayAndTimeSubject(BaseModel):
@@ -143,9 +341,20 @@ class PdWeekdayAndTimeSubject(BaseModel):
 	e_learning_url: PdOptional[Union[Dict, int, PdELearningUrl, Dict]]
 	update_time: datetime = lambda: datetime.now
 	type: PdOptional[str]
+	mode: PdOptional[Union[Literal["new"], Literal["edit"], Literal["find"], Literal["strict_find"]]] = None
+	upload_orm: PdOptional[bool] = None
+	primary_key: Any = None
+
+	@root_validator
+	def check_orm_correcting_model(cls, values):
+		primary_keys = ["id"]
+		unique_params = []
+		return check_model(cls, values, WeekdayAndTimeSubject, pk=primary_keys, unique=unique_params)
 
 	class Config:
 		orm_mode = True
+		getter_dict = MyGetterDictWeekdayAndTimeSubject
+		my_primaty_key_field = ["id"]
 
 
 class PdELearningUrl(BaseModel):
@@ -155,9 +364,20 @@ class PdELearningUrl(BaseModel):
 	login: PdOptional[str]
 	password: PdOptional[str]
 	additional_info: PdOptional[str]
+	mode: PdOptional[Union[Literal["new"], Literal["edit"], Literal["find"], Literal["strict_find"]]] = None
+	upload_orm: PdOptional[bool] = None
+	primary_key: Any = None
+
+	@root_validator
+	def check_orm_correcting_model(cls, values):
+		primary_keys = ["id"]
+		unique_params = []
+		return check_model(cls, values, ELearningUrl, pk=primary_keys, unique=unique_params)
 
 	class Config:
 		orm_mode = True
+		getter_dict = MyGetterDictELearningUrl
+		my_primaty_key_field = ["id"]
 
 
 class PdEvent(BaseModel):
@@ -166,9 +386,20 @@ class PdEvent(BaseModel):
 	name: PdOptional[str]
 	u_date: PdOptional[date]
 	u_time: PdOptional[time]
+	mode: PdOptional[Union[Literal["new"], Literal["edit"], Literal["find"], Literal["strict_find"]]] = None
+	upload_orm: PdOptional[bool] = None
+	primary_key: Any = None
+
+	@root_validator
+	def check_orm_correcting_model(cls, values):
+		primary_keys = ["id"]
+		unique_params = []
+		return check_model(cls, values, Event, pk=primary_keys, unique=unique_params)
 
 	class Config:
 		orm_mode = True
+		getter_dict = MyGetterDictEvent
+		my_primaty_key_field = ["id"]
 
 
 class PdTeacher(BaseModel):
@@ -178,9 +409,20 @@ class PdTeacher(BaseModel):
 	email: PdOptional[str]
 	phone_number: PdOptional[str]
 	vk_url: PdOptional[str]
+	mode: PdOptional[Union[Literal["new"], Literal["edit"], Literal["find"], Literal["strict_find"]]] = None
+	upload_orm: PdOptional[bool] = None
+	primary_key: Any = None
+
+	@root_validator
+	def check_orm_correcting_model(cls, values):
+		primary_keys = ["id"]
+		unique_params = []
+		return check_model(cls, values, Teacher, pk=primary_keys, unique=unique_params)
 
 	class Config:
 		orm_mode = True
+		getter_dict = MyGetterDictTeacher
+		my_primaty_key_field = ["id"]
 
 
 class PdSeniorInTheGroup(BaseModel):
@@ -188,9 +430,20 @@ class PdSeniorInTheGroup(BaseModel):
 	senior_verifications: PdOptional[List[Union[Dict, Union[Dict, int, PdUser, Dict], PdSeniorVerification, Dict, None]]] = [None]
 	group: Union[Dict, str, PdGroup, Dict]
 	is_verification: PdOptional[bool]
+	mode: PdOptional[Union[Literal["new"], Literal["edit"], Literal["find"], Literal["strict_find"]]] = None
+	upload_orm: PdOptional[bool] = None
+	primary_key: Any = None
+
+	@root_validator
+	def check_orm_correcting_model(cls, values):
+		primary_keys = [("user", "group")]
+		unique_params = []
+		return check_model(cls, values, SeniorInTheGroup, pk=primary_keys, unique=unique_params)
 
 	class Config:
 		orm_mode = True
+		getter_dict = MyGetterDictSeniorInTheGroup
+		my_primaty_key_field = [("user", "group")]
 
 
 class PdNews(BaseModel):
@@ -199,18 +452,40 @@ class PdNews(BaseModel):
 	title: PdOptional[str]
 	text: PdOptional[str]
 	files: PdOptional[PdJson]
+	mode: PdOptional[Union[Literal["new"], Literal["edit"], Literal["find"], Literal["strict_find"]]] = None
+	upload_orm: PdOptional[bool] = None
+	primary_key: Any = None
+
+	@root_validator
+	def check_orm_correcting_model(cls, values):
+		primary_keys = ["id"]
+		unique_params = []
+		return check_model(cls, values, News, pk=primary_keys, unique=unique_params)
 
 	class Config:
 		orm_mode = True
+		getter_dict = MyGetterDictNews
+		my_primaty_key_field = ["id"]
 
 
 class PdNoneVerification(BaseModel):
 	it_is_i: Union[Dict, int, PdUser, Dict]
 	he_verificate_me: Union[Dict, int, PdUser, Dict]
 	confirmation: PdOptional[int] = 0
+	mode: PdOptional[Union[Literal["new"], Literal["edit"], Literal["find"], Literal["strict_find"]]] = None
+	upload_orm: PdOptional[bool] = None
+	primary_key: Any = None
+
+	@root_validator
+	def check_orm_correcting_model(cls, values):
+		primary_keys = [("it_is_i", "he_verificate_me")]
+		unique_params = []
+		return check_model(cls, values, NoneVerification, pk=primary_keys, unique=unique_params)
 
 	class Config:
 		orm_mode = True
+		getter_dict = MyGetterDictNoneVerification
+		my_primaty_key_field = [("it_is_i", "he_verificate_me")]
 
 
 class PdQueue(BaseModel):
@@ -219,9 +494,20 @@ class PdQueue(BaseModel):
 	group: Union[Dict, str, PdGroup, Dict]
 	name: PdOptional[str]
 	subject: PdOptional[Union[Dict, Tuple[Union[Dict, str, PdGroup, Dict], str], PdSubject, Dict]]
+	mode: PdOptional[Union[Literal["new"], Literal["edit"], Literal["find"], Literal["strict_find"]]] = None
+	upload_orm: PdOptional[bool] = None
+	primary_key: Any = None
+
+	@root_validator
+	def check_orm_correcting_model(cls, values):
+		primary_keys = ["id"]
+		unique_params = []
+		return check_model(cls, values, Queue, pk=primary_keys, unique=unique_params)
 
 	class Config:
 		orm_mode = True
+		getter_dict = MyGetterDictQueue
+		my_primaty_key_field = ["id"]
 
 
 class PdUserHasQueue(BaseModel):
@@ -229,9 +515,20 @@ class PdUserHasQueue(BaseModel):
 	queue: Union[Dict, int, PdQueue, Dict]
 	number: int = -1
 	id: int
+	mode: PdOptional[Union[Literal["new"], Literal["edit"], Literal["find"], Literal["strict_find"]]] = None
+	upload_orm: PdOptional[bool] = None
+	primary_key: Any = None
+
+	@root_validator
+	def check_orm_correcting_model(cls, values):
+		primary_keys = ["id"]
+		unique_params = []
+		return check_model(cls, values, UserHasQueue, pk=primary_keys, unique=unique_params)
 
 	class Config:
 		orm_mode = True
+		getter_dict = MyGetterDictUserHasQueue
+		my_primaty_key_field = ["id"]
 
 
 class PdReminder(BaseModel):
@@ -240,18 +537,40 @@ class PdReminder(BaseModel):
 	text: PdOptional[str] = " "
 	reminder_time: datetime
 	dustbining_chat: Union[Dict, int, PdDustbiningChat, Dict]
+	mode: PdOptional[Union[Literal["new"], Literal["edit"], Literal["find"], Literal["strict_find"]]] = None
+	upload_orm: PdOptional[bool] = None
+	primary_key: Any = None
+
+	@root_validator
+	def check_orm_correcting_model(cls, values):
+		primary_keys = ["id"]
+		unique_params = []
+		return check_model(cls, values, Reminder, pk=primary_keys, unique=unique_params)
 
 	class Config:
 		orm_mode = True
+		getter_dict = MyGetterDictReminder
+		my_primaty_key_field = ["id"]
 
 
 class PdSeniorVerification(BaseModel):
 	senior_in_the_group: Union[Dict, Tuple[Union[Dict, int, PdUser, Dict], Union[Dict, str, PdGroup, Dict]], PdSeniorInTheGroup, Dict]
 	user: Union[Dict, int, PdUser, Dict]
 	confirmation: int = 0
+	mode: PdOptional[Union[Literal["new"], Literal["edit"], Literal["find"], Literal["strict_find"]]] = None
+	upload_orm: PdOptional[bool] = None
+	primary_key: Any = None
+
+	@root_validator
+	def check_orm_correcting_model(cls, values):
+		primary_keys = ["user"]
+		unique_params = []
+		return check_model(cls, values, SeniorVerification, pk=primary_keys, unique=unique_params)
 
 	class Config:
 		orm_mode = True
+		getter_dict = MyGetterDictSeniorVerification
+		my_primaty_key_field = ["user"]
 
 
 PdAdmin.update_forward_refs()

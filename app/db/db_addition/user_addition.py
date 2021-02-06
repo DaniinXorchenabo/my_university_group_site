@@ -215,7 +215,7 @@ def protect_attr(attr_name='groups'):
     return decorator
 
 
-def protect_password(attr_name='groups'):
+def protect_password(attr_name='password'):
     from hashlib import pbkdf2_hmac
     from binascii import unhexlify, hexlify
     from os import urandom
@@ -343,6 +343,7 @@ def check_password(self, password: str = ""):
 @User.only_func
 def __init__(self, *args, **kwargs):
     """при инициализации пользователя делаем его неверифицированным, если не указано иное"""
+    print('^^^^^^^^^^^^^^--------')
     init_kw = kwargs.copy()
     is_verificated_user = kwargs.pop('is_verificated', None)
     verificate_bool = (is_verificated_user is None and

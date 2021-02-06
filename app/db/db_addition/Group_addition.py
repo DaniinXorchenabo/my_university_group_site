@@ -97,6 +97,7 @@ def get_teachers_data(self):
     # return [(j.name, j.email, j.phone_number, select(sub.name for sub in j.subjects)[:]) for j in select(t for i in self.subjects for t in i.teachers)[:]]
 
 
+
 def protect_attr(attr_name='users'):
     new_attr_name = '_' + attr_name
 
@@ -105,6 +106,7 @@ def protect_attr(attr_name='users'):
 
         @property
         def attr(self):
+            print('&^&&&&&&&&&&&&&&&&&&')
             return frozenset(filter(lambda i: i.is_verificated, getattr(self, new_attr_name).select()))
 
         @attr.setter
