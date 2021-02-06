@@ -29,8 +29,8 @@ class User(db.Entity):
     admin = Optional(Admin)
     login_EIES = Optional(str)
     password_EIES = Optional(str)
-    my_verification = Set('NoneVerification',
-                          reverse='it_is_i')  # если поле пустое - то я верифицирован, если нет - то у меня нет доступа к информации группы
+    my_verification = Set('NoneVerification', reverse='it_is_i')
+    # если поле пустое - то я верифицирован, если нет - то у меня нет доступа к информации группы
     i_verificate_thei = Set('NoneVerification', reverse='he_verificate_me')
     # те пользователи, которых я могу верифицировать
     # Это поле может быть не пустым только если я сам верифицирован
@@ -156,8 +156,8 @@ class News(db.Entity):
 class NoneVerification(db.Entity):
     """представляет из себя не отдельно взятого пользователя, а поле верификации одного полльзователя другим (уже верифицированным пользователем)"""
     it_is_i = Required(User, reverse='my_verification')
-    he_verificate_me = Required(User,
-                                reverse='i_verificate_thei')  # моя группа, которая должна подтвердить, что я с ними в одной группе
+    he_verificate_me = Required(User, reverse='i_verificate_thei')
+    # моя группа, которая должна подтвердить, что я с ними в одной группе
     confirmation = Optional(int, default=0)
     # 0 - пользователь ничего не ответил
     # -1 - ответил отрицательно
@@ -198,13 +198,6 @@ class SeniorVerification(db.Entity):
     # 0 - пользователь ничего не ответил
     # -1 - ответил отрицательно
     # 1 - ответил положительно
-
-
-
-
-for name, ent in db.entities.items():
-    ent.__bases__ = tuple(list(ent.__bases__) + [AddArrtInDbClass]) \
-        if AddArrtInDbClass not in list(ent.__bases__) else tuple(list(ent.__bases__))
 
 
 if __name__ == '__main__':
