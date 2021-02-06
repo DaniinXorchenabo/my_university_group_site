@@ -209,7 +209,8 @@ def create_pydantic_models(create_file=AUTO_PYDANTIC_MODELS):
         """Возвращает строку с параметрами, одинаковыми для каждой модели"""
 
         string = '\n\tmode: PdOptional[Union[' + ', '.join(['Literal["' + i + '"]' for i in work_modes]) + ']] = None\n'
-        string += '\tupload_orm: PdOptional[bool] = None'
+        string += '\tupload_orm: PdOptional[bool] = None\n'
+        string += '\tprimary_key: Any = None'
         return string
 
     CreatePdModels.update_forward_refs()
@@ -364,7 +365,7 @@ def create_pydantic_models(create_file=AUTO_PYDANTIC_MODELS):
     code_module += """Тут объявляются pydantic-модели, в которых присутствуют все сущности БД\n"""
     code_module += """и все атрибуты сущностей\"\"\"\n\n"""
     code_module += """from typing import Set as PdSet, Union, List, Dict, Tuple, ForwardRef\n"""
-    code_module += """from typing import Optional as PdOptional, Literal\n"""
+    code_module += """from typing import Optional as PdOptional, Literal, Any\n"""
     code_module += """from datetime import date, datetime, time\n\n"""
     code_module += """from pony.orm import *\n"""
     code_module += """from pydantic import BaseModel, Json as PdJson\n\nfrom app.db.models import *\n\n"""
@@ -393,7 +394,7 @@ def create_pydantic_models(create_file=AUTO_PYDANTIC_MODELS):
                        if bool(j) for j1 in j.split(',')))) for i in code)
         code = (({key: val for key, val in zip(['name', 'type_db_param', 'type_param'], i[:3])},
                  {j[0].strip(): j[1].strip() for j in (j1.split('=') for j1 in i[3:])}) for i in code)
-        code = [CreatePdModels(**i[0], **i[1]) for i in code]
+        code = [CreatePdModels(**i[0], **i[1]) for i in code if not print(i)]
         # print(pr_key_str, entity_nane)
 
         # =======! Обработка кода (к примеру, удаление пробелов) !=======
@@ -425,10 +426,11 @@ def create_pydantic_models(create_file=AUTO_PYDANTIC_MODELS):
         postfix += "\tdef check_orm_correcting_model(cls, values):\n"
         postfix += f"\t\tprimary_keys = [{', '.join(names_p_k)}]\n"
         postfix += f"\t\tunique_params = [{', '.join(unique_params)}]\n"
-        postfix += f"\t\treturn check_model(values, {entity_nane}, pk=primary_keys, unique=unique_params)\n\n"
+        postfix += f"\t\treturn check_model(cls, values, {entity_nane}, pk=primary_keys, unique=unique_params)\n\n"
         postfix += "\tclass Config:\n"
         postfix += "\t\torm_mode = True\n"
         postfix += f"\t\tgetter_dict = MyGetterDict{entity_nane}\n"
+        postfix += f"\t\tmy_primaty_key_field = [{', '.join(names_p_k)}]\n"
 
         all_module_code['Pd' + entity_nane] = PydanticModel(
             prefix=f'\n\nclass Pd{entity_nane}(BaseModel):\n',
