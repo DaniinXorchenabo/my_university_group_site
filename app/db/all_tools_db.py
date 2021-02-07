@@ -25,10 +25,10 @@ if __name__ == '__main__':
     show_all()
 
     with db_session:
-        m = User[100]
-        print(m)
-        print(m.check_verificated)
-        print(Group['20ВП1'].all_group)
+        # m = User[100]
+        # print(m)
+        # print(m.check_verificated)
+        # print(Group['20ВП1'].all_group)
         # print(type(m))
         # print(m.__class__)
         # print(m.__class__.__bases__)
@@ -38,10 +38,12 @@ if __name__ == '__main__':
 
 
         # print(User.get(PdUser(id=125, login='125')))
-        {1: 2}.update()
-        print(reduce(lambda i, j: (i.update(j), i)[1], [{1: 2}]))
-        print(User.cl_set(PdUser(login='Петя1', email='12------58@mail.ru')))
-        print(User[100].email)
+        # {1: 2}.update()
+        # print(reduce(lambda i, j: (i.update(j), i)[1], [{1: 2}]))
+        # print(User.cl_set(PdUser(login='Петя1', email='12------58@mail.ru')))
+        # print(User[100].email)
+        # print(from_orm(m))
+        # print(Group.exists(PdGroup(name='20П1', users=Group['20ВП1'].users)))
 
 
         # print(Subject(PdSubject(name='ППО_34', group='20ВП1')))

@@ -12,7 +12,7 @@ from app.db.pydantic_models_db.pydantic_models import *
 def primary_key_to_entity(ent, param_name: str, value, entities, entities_code):
     print(value)
     if type(value) == list:
-        return [i for i in (primary_key_to_entity(ent, param_name, i) for i in value) if i]
+        return [i for i in (primary_key_to_entity(ent, param_name, i, entities, entities_code) for i in value) if i]
     code, p_k = entities_code[ent]
     param_type = code[param_name].param_type
 
@@ -151,6 +151,7 @@ def data_from_pydantic_decorator5(base_init, entities, entities_code):
     def decorator(cls, *args, **kwargs):
         print('-----------$$$$$$$$$$$$$$$$$$$$$$$$$$$', args)
         args, kwargs = pydantic_obj_parser(cls, args, kwargs, entities, entities_code)
+        kwargs = {key: val for key, val in kwargs.items() if type(val) != list}
         print(*args, kwargs)
         print(base_init)
         return base_init(*args, **kwargs)
