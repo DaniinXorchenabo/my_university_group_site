@@ -73,7 +73,6 @@ def data_from_pydantic_decorator(base_init, entities, entities_code):
     """Позволяет создавать новую сущность БД из модели pydantic"""
 
     def decorator(self, *args, **kwargs):
-        print(self, '-----------$$$$$$$$$$$$$$$$$$$$$$$$$$$', args)
         args, kwargs = pydantic_obj_parser(self.__class__, args, kwargs, entities, entities_code)
 
         base_init(self, *args, **kwargs)
