@@ -23,7 +23,11 @@ from app.db.entities_modification_utils import *
 
 
 for name, ent in db.entities.items():
-    ent.__bases__[0].__init__ = init_decorator(ent.__bases__[0].__init__, db.entities, entities_code)
+    ent.__bases__[0].__init__ = data_from_pydantic_decorator(ent.__bases__[0].__init__, db.entities, entities_code)
+    ent.get = classmethod(data_from_pydantic_decorator2(ent.get, db.entities, entities_code))
+    ent.set = data_from_pydantic_decorator3(ent.set, db.entities, entities_code)
+    setattr(ent, 'cl_set', classmethod(data_from_pydantic_decorator4(ent.set, db.entities, entities_code)))
+
 
 
 from app.db.db_addition.user_addition import *

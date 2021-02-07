@@ -10,6 +10,7 @@ from pony.orm import *
 
 from app.settings.config import *
 from app.db.entities_modification import *
+
 from app.db.tests.create_test_db import *
 from app.db.db_control_func import *
 
@@ -40,17 +41,25 @@ if __name__ == '__main__':
     # print(MyGetterDict.bracket_parser("Subject[Group['20ВП1'],'СИТ']"))
 
     with db_session:
-        # m = from_orm(User[100])
-        # print(m)
+        m = User[100]
+        print(m)
+        print(m.check_verificated)
+        print(Group['20ВП1'].all_group)
         # print(type(m))
         # print(m.__class__)
         # print(m.__class__.__bases__)
-        users = [PdUser.from_orm(User.get(id=i, login=str(i))) for i in range(161, 165)]
-        print(Group(PdGroup(name='20ВП6', users=users)))
+        # users = [PdUser.from_orm(User.get(id=i, login=str(i))) for i in range(161, 165)]
+        # print(Group(PdGroup(name='20ВП6', users=users)))
         # print(*entities_code.items(), sep='\n\n\n')
 
 
-        # print(User(PdUser(id=125, login='125')))
+        # print(User.get(PdUser(id=125, login='125')))
+        {1: 2}.update()
+        print(reduce(lambda i, j: (i.update(j), i)[1], [{1: 2}]))
+        print(User.cl_set(PdUser(login='Петя1', email='12------58-55-@mail.ru')))
+        print(User[100].email)
+
+
         # print(Subject(PdSubject(name='ППО_34', group='20ВП1')))
         # print(Subject.get(name='ППО', group='20ВП1'))
         # User(login=130)
