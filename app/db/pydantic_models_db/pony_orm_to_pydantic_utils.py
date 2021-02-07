@@ -207,3 +207,21 @@ def check_model(cls, values: dict, ent, pk=[], unique=[]):
     print(upload_orm, mode_of_operation)
 
     return values
+
+
+def new_init_pydantic(base_init):
+    def decorator(self, *args, **kwargs):
+        print('BaseModel.__init__')
+        new_args = []
+        for i in args:
+            if hasattr(i, '__class__') and hasattr(i.__class__, '__name__') and i.__class__.__name__ in db.entities:
+                kwargs.update(dict(self.__class__.from_orm(i)))
+            else:
+                new_args.append(i)
+        args = new_args
+        base_init(self, *args, **kwargs)
+
+    return decorator
+
+
+BaseModel.__init__ = new_init_pydantic(BaseModel.__init__)

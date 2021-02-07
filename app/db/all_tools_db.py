@@ -25,7 +25,8 @@ if __name__ == '__main__':
     show_all()
 
     with db_session:
-        # m = User[100]
+        m = PdUser(User[100])
+        print(m)
         # print(m)
         # print(m.check_verificated)
         # print(Group['20ВП1'].all_group)
