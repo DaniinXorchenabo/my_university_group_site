@@ -186,12 +186,14 @@ def check_model(cls, values: dict, ent, pk=[], unique=[]):
             print(testing)
             # Не удалось найти пользователя, ибо его нет в БД
             assert len(testing) != 0, 'Пользователь не найден'
-            # Ошибка, если уникальные параметры принадлежат разным пользователям
-            assert len(testing) == 1, 'Пользователь не найден'
+            if not ent.exists(**reduce(lambda i, j: (i.update(j), i)[1], testing)):
+                # Ошибка, если уникальные параметры принадлежат разным пользователям
+                assert len(testing) == 1, 'Пользователь не найден'
             print('-8*****')
-            values = dict(cls.from_orm(ent.get(**testing[0])))
+            values = dict(cls.from_orm(ent.get(**reduce(lambda i, j: (i.update(j), i)[1], testing))))
             print('**&&&&&&&&&&&&&', values)
             return values
+
     if upload_orm:
         print('upload_orm')
         # Если хоть один параметр указан не верно - ошибка
@@ -201,6 +203,7 @@ def check_model(cls, values: dict, ent, pk=[], unique=[]):
         data = {key: get_p_k(val) for key, val in data.items() if type(val) != list}
         assert ent.exists(**data), "Такого пользователя нет в БД"
         values = dict(cls.from_orm(ent.get(**data)))
+
     print(upload_orm, mode_of_operation)
 
     return values

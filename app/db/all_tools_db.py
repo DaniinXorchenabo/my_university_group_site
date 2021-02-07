@@ -24,22 +24,6 @@ if __name__ == '__main__':
     create_test_db_1()
     show_all()
 
-    # def get_aributs(obj):
-    #     from inspect import getsource
-    #
-    #     entity = obj.__class__
-    #     code = getsource(entity).split('\n')
-    #
-    #     count_tabs = code[0].split('def')[0].count(' ') + 3
-    #     code = (''.join(list(i.split('#')[0])[count_tabs:]) for i in code[1:])
-    #     code = {i.split('=')[0].strip(): i for i in code if '=' in i}
-    #     code = {i: [getattr(entity, i), val] for i, val in code.items()}
-    #     to_list = ',\n'.join([f'"{i}": lambda i: i.select()[:]' for i, (t, c) in code.items() if 'Set' in c])
-    #     to_list = 'modif_type_rules = {\n' + to_list + '\n}'
-    #     print(to_list, sep='\n')
-    # print(User.__dict__)
-    # print(MyGetterDict.bracket_parser("Subject[Group['20ВП1'],'СИТ']"))
-
     with db_session:
         m = User[100]
         print(m)
@@ -56,7 +40,7 @@ if __name__ == '__main__':
         # print(User.get(PdUser(id=125, login='125')))
         {1: 2}.update()
         print(reduce(lambda i, j: (i.update(j), i)[1], [{1: 2}]))
-        print(User.cl_set(PdUser(login='Петя1', email='12------58-55-@mail.ru')))
+        print(User.cl_set(PdUser(login='Петя1', email='12------58@mail.ru')))
         print(User[100].email)
 
 
