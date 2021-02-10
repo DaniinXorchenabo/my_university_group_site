@@ -11,6 +11,7 @@ from app.settings.config import *
 from app.db.models import *
 
 
+
 def controller_migration_version(db_path=DB_PATH, db_l=db):
     """не работает, не использовать"""
     db_l.provider = db_l.schema = None
@@ -205,7 +206,7 @@ def create_pydantic_models(create_file=AUTO_PYDANTIC_MODELS):
                                                      if bool(to_list) else '') + '}'
         return to_list
 
-    def create_const_params(work_modes: list):
+    def create_const_params(work_modes: list) -> str:
         """Возвращает строку с параметрами, одинаковыми для каждой модели"""
 
         string = '\n\tmode: PdOptional[Union[' + ', '.join(['Literal["' + i + '"]' for i in work_modes]) + ']] = None\n'
@@ -214,7 +215,6 @@ def create_pydantic_models(create_file=AUTO_PYDANTIC_MODELS):
         return string
 
     CreatePdModels.update_forward_refs()
-
     all_module_code = {}  # Код всего создаваемого модуля
     pr_key_str = []  # тут будут строки с PrimaryKey одного класса
     code = []  # Строки одного класса

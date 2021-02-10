@@ -156,3 +156,48 @@ def data_from_pydantic_decorator5(base_init, entities, entities_code):
         return base_init(*args, **kwargs)
 
     return decorator
+
+
+def change_to_dict_method(base_metod):
+
+    """
+    .to_dict() выдает значения с учетом переопределения полей в БД
+
+    Делает так, чтобы метод сущностей .to_dict() возвращал
+    значения с учетом переопределения типов в файлех папки app/db/db_addition
+    К примеру, вместо хеша пароля будет возвращены "***"
+    """
+
+    def is_iter(i) -> bool:
+        return hasattr(i, '__iter__') and not type(i) == str
+
+    def decorator(self, *args, **kwargs):
+
+        _dict = base_metod(self, *args, **kwargs)
+        change_args = {}
+        for key, val in _dict.items():
+            db_val = getattr(self, key)
+            if db_val != val:
+                change_args[key] = val, db_val
+        for key, [d_val, db_val] in change_args.items():
+            ents = db.entities.values()
+            t_db, t_d = type(db_val), type(d_val)
+            if type(db_val) != list and type(db_val) not in db.entities.values() and type(d_val) not in db.entities.values():
+                _dict[key] = db_val
+
+            elif type(db_val) == list and all(
+                    (type(i) not in db.entities.values() for i in d_val + db_val)):
+                _dict[key] = db_val
+
+            elif type(db_val) != list and type(db_val) in db.entities.values() and type(d_val) not in db.entities.values():
+                _dict[key] = d_val
+
+            elif type(db_val) == list and all((type(i) in db.entities.values() for i in db_val)) and all((type(i) not in db.entities.values() for i in d_val)):
+                _dict[key] = d_val
+
+            if is_iter(_dict[key]) and any((i in ents for i in _dict[key])):
+                _dict[key] = [(i.get_pk() if i in ents else i) for i in _dict[key]]
+
+        return _dict
+
+    return decorator

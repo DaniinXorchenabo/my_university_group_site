@@ -14,6 +14,10 @@ from pydantic import BaseModel
 from app.settings.config import *
 from app.db.pydantic_models_db.pony_orm_to_pydantic_utils import get_p_k
 
+
+change_field = {}  # Список изменённых атрибутов
+
+
 class AddArrtInDbClass(object):
     # _white_list = {'_white_list'}
     # _expanded_white_list = _white_list
@@ -44,6 +48,7 @@ class AddArrtInDbClass(object):
             return None
 
         setattr(cls, 'cl_' + func.__name__, classmethod(w))
+        change_field[cls] = change_field.get(cls, []) + [func.__name__]
         # cls.get_into_white_list('cl_' + func.__name__)
 
     @classmethod
@@ -52,6 +57,7 @@ class AddArrtInDbClass(object):
         """Это означает, что можно так:
         Group['20ВП1'].func(ваши параметры, которые требует функция)"""
         setattr(cls, func.__name__, func)  # types.MethodType(func, cls)
+        change_field[cls] = change_field.get(cls, []) + [func.__name__]
         # cls.get_into_white_list(func.__name__)
 
     @classmethod
@@ -72,6 +78,7 @@ class AddArrtInDbClass(object):
             return None
 
         setattr(cls, 'cl_' + func.__name__, classmethod(w))
+        change_field[cls] = change_field.get(cls, []) + [func.__name__]
         # cls.get_into_white_list('cl_' + func.__name__)
 
     @classmethod
@@ -79,9 +86,8 @@ class AddArrtInDbClass(object):
         """добавляет к классу одноимянный сеттер"""
         """Это означает, что можно так:
         Group['20ВП1'].func = ваше значение"""
-        print(getattr(cls, func.__name__), func.__name__)
         setattr(cls, func.__name__, getattr(cls, func.__name__).setter(func))  # types.MethodType(func, cls)
-        print('-0-0-0-0-')
+        change_field[cls] = change_field.get(cls, []) + [func.__name__]
 
     @classmethod
     def only_getter(cls, func):
@@ -89,6 +95,7 @@ class AddArrtInDbClass(object):
         """"Это означает, что можно так:
         Group['20ВП1'].func"""
         setattr(cls, func.__name__, property(func))  # types.MethodType(func, cls)
+        change_field[cls] = change_field.get(cls, []) + [func.__name__]
 
     @classmethod
     def only_classmetod(cls, func):
@@ -97,6 +104,7 @@ class AddArrtInDbClass(object):
         Group.func()"""
         # cls.get_into_white_list(func.__name__)
         setattr(cls, func.__name__, classmethod(func))
+        change_field[cls] = change_field.get(cls, []) + [func.__name__]
 
     @classmethod
     def only_staticmethod(cls, func):
@@ -106,6 +114,7 @@ class AddArrtInDbClass(object):
         Group['20ВП1'].func(<параметры>)"""
         # cls.get_into_white_list(func.__name__)
         setattr(cls, func.__name__, staticmethod(func))
+        change_field[cls] = change_field.get(cls, []) + [func.__name__]
 
 
 def db_ent_to_dict(ent):

@@ -16,6 +16,8 @@ for name, ent in db.entities.items():
     entities_code[name] = entities_code[ent]
 
 
+
+
 from app.db.db_addition.user_addition import *
 from app.db.db_addition.Group_addition import *
 from app.db.db_addition.NoneVerification_additions import *
@@ -37,7 +39,18 @@ for name, ent in db.entities.items():
     ent.get = classmethod(data_from_pydantic_decorator2(ent.get, db.entities, entities_code))
     ent.exists = classmethod(data_from_pydantic_decorator5(ent.exists, db.entities, entities_code))
     ent.set = data_from_pydantic_decorator3(ent.set, db.entities, entities_code)
+    ent.to_dict = change_to_dict_method(ent.to_dict)
     setattr(ent, 'cl_set', classmethod(data_from_pydantic_decorator4(ent.set, db.entities, entities_code)))
 
 
-
+# class A:
+#     def draw(self):
+#         print(A.__name__)
+#
+# class B:
+#     def draw(self):
+#         print(B.__name__)
+#
+#
+# arr = [A(), B(), A()]
+# [i.draw() for i in arr]
