@@ -10,6 +10,10 @@ session_keyless_api = APIRouter(prefix="/api")  # Для роутов, не ис
 # =======! Роуты, не использующие session_key !=======
 
 
+class MyUserLogin(BaseModel):
+    login: str
+    password: str
+
 @session_keyless_api.get("/")
 def test1():
     return {"answer-------------- : False"}
@@ -172,6 +176,39 @@ def settings_group_senior():
 def testing_pd_model(my_group: PdGroup):
     print(my_group)
     return {'dfv': 'gooood'}
+
+
+@api_app.post("/test/new")
+@db_session
+def testing_pd_model(new_user_data: PdUser):
+    new_user = User(new_user_data)
+    commit()
+    return dict(PdUser(new_user))
+
+
+@api_app.post("/test/get")
+@db_session
+def testing_pd_model(upgrade_user_data: PdUser):
+    if User.exists(upgrade_user_data):
+        ent = User.get(upgrade_user_data)
+        data = PdUser(ent)
+    return dict(data)
+
+
+@api_app.post("/test/get")
+@db_session
+def testing_pd_model(user_data: PdUser):
+    edit_user = User.get(user_data)
+    commit()
+    return dict(PdUser(edit_user))
+
+
+@api_app.post('test/login')
+@db_session
+def testing_pd_model(user_data: MyUserLogin):
+    if User.exisst(user_data):
+        return dict(PdUser(User.get(user_data)))
+    return {'ans': 'не ok'}
 
 
 if __name__ == "__main__":
