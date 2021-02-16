@@ -145,3 +145,4 @@ def protect_user(attr_name='user'):
 
 SeniorInTheGroup = protect_verification(attr_name='is_verification')(SeniorInTheGroup)
 SeniorInTheGroup = protect_user(attr_name='user')(SeniorInTheGroup)
+change_field[SeniorInTheGroup] = change_field.get(User, []) + ['is_verification', 'user']

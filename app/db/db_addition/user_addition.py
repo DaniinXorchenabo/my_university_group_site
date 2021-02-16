@@ -7,6 +7,7 @@ import hashlib
 from datetime import date
 from datetime import datetime
 from datetime import time
+from app.db.db_base_func import *
 from pony.orm import *
 
 from app.settings.config import *
@@ -323,6 +324,7 @@ def protect_senior(attr_name='senior_in_the_group'):
 User = protect_attr(attr_name='groups')(User)
 User = protect_password(attr_name='password')(User)
 User = protect_senior(attr_name='senior_in_the_group')(User)
+change_field[User] = change_field.get(User, []) + ['groups', 'password', 'senior_in_the_group']
 
 
 @User.func_and_classmethod

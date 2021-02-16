@@ -168,7 +168,7 @@ def protect_senior(attr_name='senior_in_the_group'):
 
 Group = protect_attr(attr_name='users')(Group)
 Group = protect_senior(attr_name='senior_in_the_group')(Group)
-
+change_field[SeniorInTheGroup] = change_field.get(User, []) + ['users', 'senior_in_the_group']
 
 @Group.getter_and_classmethod
 def all_group(self):

@@ -10,6 +10,7 @@ from pony.orm import *
 
 from app.settings.config import *
 from app.db.entities_modification import *
+
 from app.db.tests.create_test_db import *
 from app.db.db_control_func import *
 
@@ -23,34 +24,40 @@ if __name__ == '__main__':
     create_test_db_1()
     show_all()
 
-    # def get_aributs(obj):
-    #     from inspect import getsource
-    #
-    #     entity = obj.__class__
-    #     code = getsource(entity).split('\n')
-    #
-    #     count_tabs = code[0].split('def')[0].count(' ') + 3
-    #     code = (''.join(list(i.split('#')[0])[count_tabs:]) for i in code[1:])
-    #     code = {i.split('=')[0].strip(): i for i in code if '=' in i}
-    #     code = {i: [getattr(entity, i), val] for i, val in code.items()}
-    #     to_list = ',\n'.join([f'"{i}": lambda i: i.select()[:]' for i, (t, c) in code.items() if 'Set' in c])
-    #     to_list = 'modif_type_rules = {\n' + to_list + '\n}'
-    #     print(to_list, sep='\n')
-    # print(User.__dict__)
-    # print(MyGetterDict.bracket_parser("Subject[Group['20ВП1'],'СИТ']"))
-
     with db_session:
-        # m = from_orm(User[100])
+        # print(hasattr(1, '__iter__'))
+        # print(hasattr(str('skdj'), '__iter__'))
+        # print(hasattr([1, 2], '__iter__'))
+        # print(hasattr({1, 2}, '__iter__'))
+        # print(hasattr({1:2, 2:1}, '__iter__'))
+        # print(hasattr(frozenset([1,2,3]), '__iter__'))
+        # print(hasattr(tuple((1,2,3)), '__iter__'))
+        # m = PdUser(User[100])
         # print(m)
+        # User(PdUser(id=201, login='201', password='32'))
+        # print(PdUser(User[201]))
+        # print(User[104].to_dict(with_collections=True))
+        print(Group['20ВП1'].to_dict(with_collections=True))
+        # print(db.Entity._get_attrs_(None, None, False, False))
+        # print(m.check_verificated)
+        # print(Group['20ВП1'].all_group)
         # print(type(m))
         # print(m.__class__)
         # print(m.__class__.__bases__)
-        users = [PdUser.from_orm(User.get(id=i, login=str(i))) for i in range(161, 165)]
-        print(Group(PdGroup(name='20ВП6', users=users)))
+        # users = [PdUser.from_orm(User.get(id=i, login=str(i))) for i in range(161, 165)]
+        # print(Group(PdGroup(name='20ВП6', users=users)))
         # print(*entities_code.items(), sep='\n\n\n')
 
 
-        # print(User(PdUser(id=125, login='125')))
+        # print(User.get(PdUser(id=125, login='125')))
+        # {1: 2}.update()
+        # print(reduce(lambda i, j: (i.update(j), i)[1], [{1: 2}]))
+        # print(User.cl_set(PdUser(login='Петя1', email='12------58@mail.ru')))
+        # print(User[100].email)
+        # print(from_orm(m))
+        # print(Group.exists(PdGroup(name='20П1', users=Group['20ВП1'].users)))
+
+
         # print(Subject(PdSubject(name='ППО_34', group='20ВП1')))
         # print(Subject.get(name='ППО', group='20ВП1'))
         # User(login=130)

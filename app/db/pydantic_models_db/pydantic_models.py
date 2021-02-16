@@ -147,9 +147,9 @@ class MyGetterDictSeniorVerification(MyGetterDict):
 
 
 class PdAdmin(BaseModel):
-	user: Union[Dict, int, PdUser, Dict]
+	user: PdOptional[Union[Dict, int, PdUser, Dict]]
 	mode: PdOptional[Union[Literal["new"], Literal["edit"], Literal["find"], Literal["strict_find"]]] = None
-	upload_orm: PdOptional[bool] = None
+	upload_orm: PdOptional[Union[bool, Literal["min"]]] = None
 	primary_key: Any = None
 
 	@root_validator
@@ -162,12 +162,13 @@ class PdAdmin(BaseModel):
 		orm_mode = True
 		getter_dict = MyGetterDictAdmin
 		my_primaty_key_field = ["user"]
+		my_required_fields = []
 
 
 class PdUser(BaseModel):
-	id: int
+	id: PdOptional[int]
 	name: PdOptional[str]
-	login: str
+	login: PdOptional[str]
 	password: PdOptional[str]
 	email: PdOptional[str]
 	user_has_queues: PdOptional[List[Union[Dict, int, PdUserHasQueue, Dict, None]]] = [None]
@@ -183,7 +184,7 @@ class PdUser(BaseModel):
 	senior_verification: PdOptional[Union[Dict, Union[Dict, int, PdUser, Dict], PdSeniorVerification, Dict]]
 	groups: PdOptional[Union[Dict, str, PdGroup, Dict]]
 	mode: PdOptional[Union[Literal["new"], Literal["edit"], Literal["find"], Literal["strict_find"]]] = None
-	upload_orm: PdOptional[bool] = None
+	upload_orm: PdOptional[Union[bool, Literal["min"]]] = None
 	primary_key: Any = None
 
 	@root_validator
@@ -196,14 +197,15 @@ class PdUser(BaseModel):
 		orm_mode = True
 		getter_dict = MyGetterDictUser
 		my_primaty_key_field = ["id"]
+		my_required_fields = []
 
 
 class PdDustbiningChat(BaseModel):
-	id: int
+	id: PdOptional[int]
 	group: PdOptional[Union[Dict, str, PdGroup, Dict]]
 	reminders: PdOptional[List[Union[Dict, int, PdReminder, Dict, None]]] = [None]
 	mode: PdOptional[Union[Literal["new"], Literal["edit"], Literal["find"], Literal["strict_find"]]] = None
-	upload_orm: PdOptional[bool] = None
+	upload_orm: PdOptional[Union[bool, Literal["min"]]] = None
 	primary_key: Any = None
 
 	@root_validator
@@ -216,14 +218,15 @@ class PdDustbiningChat(BaseModel):
 		orm_mode = True
 		getter_dict = MyGetterDictDustbiningChat
 		my_primaty_key_field = ["id"]
+		my_required_fields = []
 
 
 class PdImportantChat(BaseModel):
-	id: int
+	id: PdOptional[int]
 	important_messages: PdOptional[List[Union[Dict, int, PdImportantMessage, Dict, None]]] = [None]
 	group: PdOptional[List[Union[Dict, str, PdGroup, Dict, None]]] = [None]
 	mode: PdOptional[Union[Literal["new"], Literal["edit"], Literal["find"], Literal["strict_find"]]] = None
-	upload_orm: PdOptional[bool] = None
+	upload_orm: PdOptional[Union[bool, Literal["min"]]] = None
 	primary_key: Any = None
 
 	@root_validator
@@ -236,14 +239,15 @@ class PdImportantChat(BaseModel):
 		orm_mode = True
 		getter_dict = MyGetterDictImportantChat
 		my_primaty_key_field = ["id"]
+		my_required_fields = []
 
 
 class PdImportantMessage(BaseModel):
-	id: int
+	id: PdOptional[int]
 	important_chat: PdOptional[Union[Dict, int, PdImportantChat, Dict]]
 	text: PdOptional[str]
 	mode: PdOptional[Union[Literal["new"], Literal["edit"], Literal["find"], Literal["strict_find"]]] = None
-	upload_orm: PdOptional[bool] = None
+	upload_orm: PdOptional[Union[bool, Literal["min"]]] = None
 	primary_key: Any = None
 
 	@root_validator
@@ -256,6 +260,7 @@ class PdImportantMessage(BaseModel):
 		orm_mode = True
 		getter_dict = MyGetterDictImportantMessage
 		my_primaty_key_field = ["id"]
+		my_required_fields = []
 
 
 class PdGroup(BaseModel):
@@ -264,13 +269,13 @@ class PdGroup(BaseModel):
 	dustbining_chats: PdOptional[List[Union[Dict, int, PdDustbiningChat, Dict, None]]] = [None]
 	important_chats: PdOptional[List[Union[Dict, int, PdImportantChat, Dict, None]]] = [None]
 	subjects: PdOptional[List[Union[Dict, Tuple[Union[Dict, str, PdGroup, Dict], str], PdSubject, Dict, None]]] = [None]
-	name: str
+	name: PdOptional[str]
 	events: PdOptional[List[Union[Dict, int, PdEvent, Dict, None]]] = [None]
-	timesheet_update: datetime = lambda: datetime.now
+	timesheet_update: PdOptional[datetime] = lambda: datetime.now
 	news: PdOptional[List[Union[Dict, int, PdNews, Dict, None]]] = [None]
 	queues: PdOptional[List[Union[Dict, int, PdQueue, Dict, None]]] = [None]
 	mode: PdOptional[Union[Literal["new"], Literal["edit"], Literal["find"], Literal["strict_find"]]] = None
-	upload_orm: PdOptional[bool] = None
+	upload_orm: PdOptional[Union[bool, Literal["min"]]] = None
 	primary_key: Any = None
 
 	@root_validator
@@ -283,17 +288,18 @@ class PdGroup(BaseModel):
 		orm_mode = True
 		getter_dict = MyGetterDictGroup
 		my_primaty_key_field = ["name"]
+		my_required_fields = []
 
 
 class PdHomeTask(BaseModel):
-	id: int
+	id: PdOptional[int]
 	subject: PdOptional[Union[Dict, Tuple[Union[Dict, str, PdGroup, Dict], str], PdSubject, Dict]]
 	deadline_date: PdOptional[date]
 	deadline_time: PdOptional[time]
 	text: PdOptional[str]
 	files: PdOptional[PdJson]
 	mode: PdOptional[Union[Literal["new"], Literal["edit"], Literal["find"], Literal["strict_find"]]] = None
-	upload_orm: PdOptional[bool] = None
+	upload_orm: PdOptional[Union[bool, Literal["min"]]] = None
 	primary_key: Any = None
 
 	@root_validator
@@ -306,17 +312,18 @@ class PdHomeTask(BaseModel):
 		orm_mode = True
 		getter_dict = MyGetterDictHomeTask
 		my_primaty_key_field = ["id"]
+		my_required_fields = []
 
 
 class PdSubject(BaseModel):
-	group: Union[Dict, str, PdGroup, Dict]
+	group: PdOptional[Union[Dict, str, PdGroup, Dict]]
 	home_tasks: PdOptional[List[Union[Dict, int, PdHomeTask, Dict, None]]] = [None]
-	name: str
+	name: PdOptional[str]
 	queues: PdOptional[List[Union[Dict, int, PdQueue, Dict, None]]] = [None]
 	teachers: PdOptional[List[Union[Dict, int, PdTeacher, Dict, None]]] = [None]
 	weekday_and_time_subjects: PdOptional[List[Union[Dict, int, PdWeekdayAndTimeSubject, Dict, None]]] = [None]
 	mode: PdOptional[Union[Literal["new"], Literal["edit"], Literal["find"], Literal["strict_find"]]] = None
-	upload_orm: PdOptional[bool] = None
+	upload_orm: PdOptional[Union[bool, Literal["min"]]] = None
 	primary_key: Any = None
 
 	@root_validator
@@ -329,20 +336,21 @@ class PdSubject(BaseModel):
 		orm_mode = True
 		getter_dict = MyGetterDictSubject
 		my_primaty_key_field = [("group", "name")]
+		my_required_fields = []
 
 
 class PdWeekdayAndTimeSubject(BaseModel):
-	id: int
+	id: PdOptional[int]
 	subject: PdOptional[Union[Dict, Tuple[Union[Dict, str, PdGroup, Dict], str], PdSubject, Dict]]
-	number_week: int
-	weekday: int
+	number_week: PdOptional[int]
+	weekday: PdOptional[int]
 	u_time: PdOptional[time] = lambda: time(00, 00)
 	classroom_number: PdOptional[str]
 	e_learning_url: PdOptional[Union[Dict, int, PdELearningUrl, Dict]]
-	update_time: datetime = lambda: datetime.now
+	update_time: PdOptional[datetime] = lambda: datetime.now
 	type: PdOptional[str]
 	mode: PdOptional[Union[Literal["new"], Literal["edit"], Literal["find"], Literal["strict_find"]]] = None
-	upload_orm: PdOptional[bool] = None
+	upload_orm: PdOptional[Union[bool, Literal["min"]]] = None
 	primary_key: Any = None
 
 	@root_validator
@@ -355,17 +363,18 @@ class PdWeekdayAndTimeSubject(BaseModel):
 		orm_mode = True
 		getter_dict = MyGetterDictWeekdayAndTimeSubject
 		my_primaty_key_field = ["id"]
+		my_required_fields = []
 
 
 class PdELearningUrl(BaseModel):
-	id: int
+	id: PdOptional[int]
 	weekday_and_time_subject: PdOptional[Union[Dict, int, PdWeekdayAndTimeSubject, Dict]]
 	url: PdOptional[str]
 	login: PdOptional[str]
 	password: PdOptional[str]
 	additional_info: PdOptional[str]
 	mode: PdOptional[Union[Literal["new"], Literal["edit"], Literal["find"], Literal["strict_find"]]] = None
-	upload_orm: PdOptional[bool] = None
+	upload_orm: PdOptional[Union[bool, Literal["min"]]] = None
 	primary_key: Any = None
 
 	@root_validator
@@ -378,16 +387,17 @@ class PdELearningUrl(BaseModel):
 		orm_mode = True
 		getter_dict = MyGetterDictELearningUrl
 		my_primaty_key_field = ["id"]
+		my_required_fields = []
 
 
 class PdEvent(BaseModel):
-	id: int
+	id: PdOptional[int]
 	groups: PdOptional[List[Union[Dict, str, PdGroup, Dict, None]]] = [None]
 	name: PdOptional[str]
 	u_date: PdOptional[date]
 	u_time: PdOptional[time]
 	mode: PdOptional[Union[Literal["new"], Literal["edit"], Literal["find"], Literal["strict_find"]]] = None
-	upload_orm: PdOptional[bool] = None
+	upload_orm: PdOptional[Union[bool, Literal["min"]]] = None
 	primary_key: Any = None
 
 	@root_validator
@@ -400,17 +410,18 @@ class PdEvent(BaseModel):
 		orm_mode = True
 		getter_dict = MyGetterDictEvent
 		my_primaty_key_field = ["id"]
+		my_required_fields = []
 
 
 class PdTeacher(BaseModel):
-	id: int
+	id: PdOptional[int]
 	subjects: PdOptional[List[Union[Dict, Tuple[Union[Dict, str, PdGroup, Dict], str], PdSubject, Dict, None]]] = [None]
-	name: str
+	name: PdOptional[str]
 	email: PdOptional[str]
 	phone_number: PdOptional[str]
 	vk_url: PdOptional[str]
 	mode: PdOptional[Union[Literal["new"], Literal["edit"], Literal["find"], Literal["strict_find"]]] = None
-	upload_orm: PdOptional[bool] = None
+	upload_orm: PdOptional[Union[bool, Literal["min"]]] = None
 	primary_key: Any = None
 
 	@root_validator
@@ -423,15 +434,16 @@ class PdTeacher(BaseModel):
 		orm_mode = True
 		getter_dict = MyGetterDictTeacher
 		my_primaty_key_field = ["id"]
+		my_required_fields = []
 
 
 class PdSeniorInTheGroup(BaseModel):
-	user: Union[Dict, int, PdUser, Dict]
+	user: PdOptional[Union[Dict, int, PdUser, Dict]]
 	senior_verifications: PdOptional[List[Union[Dict, Union[Dict, int, PdUser, Dict], PdSeniorVerification, Dict, None]]] = [None]
-	group: Union[Dict, str, PdGroup, Dict]
+	group: PdOptional[Union[Dict, str, PdGroup, Dict]]
 	is_verification: PdOptional[bool]
 	mode: PdOptional[Union[Literal["new"], Literal["edit"], Literal["find"], Literal["strict_find"]]] = None
-	upload_orm: PdOptional[bool] = None
+	upload_orm: PdOptional[Union[bool, Literal["min"]]] = None
 	primary_key: Any = None
 
 	@root_validator
@@ -444,16 +456,17 @@ class PdSeniorInTheGroup(BaseModel):
 		orm_mode = True
 		getter_dict = MyGetterDictSeniorInTheGroup
 		my_primaty_key_field = [("user", "group")]
+		my_required_fields = []
 
 
 class PdNews(BaseModel):
-	id: int
+	id: PdOptional[int]
 	group: PdOptional[Union[Dict, str, PdGroup, Dict]]
 	title: PdOptional[str]
 	text: PdOptional[str]
 	files: PdOptional[PdJson]
 	mode: PdOptional[Union[Literal["new"], Literal["edit"], Literal["find"], Literal["strict_find"]]] = None
-	upload_orm: PdOptional[bool] = None
+	upload_orm: PdOptional[Union[bool, Literal["min"]]] = None
 	primary_key: Any = None
 
 	@root_validator
@@ -466,14 +479,15 @@ class PdNews(BaseModel):
 		orm_mode = True
 		getter_dict = MyGetterDictNews
 		my_primaty_key_field = ["id"]
+		my_required_fields = []
 
 
 class PdNoneVerification(BaseModel):
-	it_is_i: Union[Dict, int, PdUser, Dict]
-	he_verificate_me: Union[Dict, int, PdUser, Dict]
+	it_is_i: PdOptional[Union[Dict, int, PdUser, Dict]]
+	he_verificate_me: PdOptional[Union[Dict, int, PdUser, Dict]]
 	confirmation: PdOptional[int] = 0
 	mode: PdOptional[Union[Literal["new"], Literal["edit"], Literal["find"], Literal["strict_find"]]] = None
-	upload_orm: PdOptional[bool] = None
+	upload_orm: PdOptional[Union[bool, Literal["min"]]] = None
 	primary_key: Any = None
 
 	@root_validator
@@ -486,16 +500,17 @@ class PdNoneVerification(BaseModel):
 		orm_mode = True
 		getter_dict = MyGetterDictNoneVerification
 		my_primaty_key_field = [("it_is_i", "he_verificate_me")]
+		my_required_fields = []
 
 
 class PdQueue(BaseModel):
-	id: int
+	id: PdOptional[int]
 	user_has_queues: PdOptional[List[Union[Dict, int, PdUserHasQueue, Dict, None]]] = [None]
-	group: Union[Dict, str, PdGroup, Dict]
+	group: PdOptional[Union[Dict, str, PdGroup, Dict]]
 	name: PdOptional[str]
 	subject: PdOptional[Union[Dict, Tuple[Union[Dict, str, PdGroup, Dict], str], PdSubject, Dict]]
 	mode: PdOptional[Union[Literal["new"], Literal["edit"], Literal["find"], Literal["strict_find"]]] = None
-	upload_orm: PdOptional[bool] = None
+	upload_orm: PdOptional[Union[bool, Literal["min"]]] = None
 	primary_key: Any = None
 
 	@root_validator
@@ -508,15 +523,16 @@ class PdQueue(BaseModel):
 		orm_mode = True
 		getter_dict = MyGetterDictQueue
 		my_primaty_key_field = ["id"]
+		my_required_fields = []
 
 
 class PdUserHasQueue(BaseModel):
-	user: Union[Dict, int, PdUser, Dict]
-	queue: Union[Dict, int, PdQueue, Dict]
-	number: int = -1
-	id: int
+	user: PdOptional[Union[Dict, int, PdUser, Dict]]
+	queue: PdOptional[Union[Dict, int, PdQueue, Dict]]
+	number: PdOptional[int] = -1
+	id: PdOptional[int]
 	mode: PdOptional[Union[Literal["new"], Literal["edit"], Literal["find"], Literal["strict_find"]]] = None
-	upload_orm: PdOptional[bool] = None
+	upload_orm: PdOptional[Union[bool, Literal["min"]]] = None
 	primary_key: Any = None
 
 	@root_validator
@@ -529,16 +545,17 @@ class PdUserHasQueue(BaseModel):
 		orm_mode = True
 		getter_dict = MyGetterDictUserHasQueue
 		my_primaty_key_field = ["id"]
+		my_required_fields = []
 
 
 class PdReminder(BaseModel):
-	id: int
+	id: PdOptional[int]
 	title: PdOptional[str] = "Вы просили о чем-то напомнить"
 	text: PdOptional[str] = " "
-	reminder_time: datetime
-	dustbining_chat: Union[Dict, int, PdDustbiningChat, Dict]
+	reminder_time: PdOptional[datetime]
+	dustbining_chat: PdOptional[Union[Dict, int, PdDustbiningChat, Dict]]
 	mode: PdOptional[Union[Literal["new"], Literal["edit"], Literal["find"], Literal["strict_find"]]] = None
-	upload_orm: PdOptional[bool] = None
+	upload_orm: PdOptional[Union[bool, Literal["min"]]] = None
 	primary_key: Any = None
 
 	@root_validator
@@ -551,14 +568,15 @@ class PdReminder(BaseModel):
 		orm_mode = True
 		getter_dict = MyGetterDictReminder
 		my_primaty_key_field = ["id"]
+		my_required_fields = []
 
 
 class PdSeniorVerification(BaseModel):
-	senior_in_the_group: Union[Dict, Tuple[Union[Dict, int, PdUser, Dict], Union[Dict, str, PdGroup, Dict]], PdSeniorInTheGroup, Dict]
-	user: Union[Dict, int, PdUser, Dict]
-	confirmation: int = 0
+	senior_in_the_group: PdOptional[Union[Dict, Tuple[Union[Dict, int, PdUser, Dict], Union[Dict, str, PdGroup, Dict]], PdSeniorInTheGroup, Dict]]
+	user: PdOptional[Union[Dict, int, PdUser, Dict]]
+	confirmation: PdOptional[int] = 0
 	mode: PdOptional[Union[Literal["new"], Literal["edit"], Literal["find"], Literal["strict_find"]]] = None
-	upload_orm: PdOptional[bool] = None
+	upload_orm: PdOptional[Union[bool, Literal["min"]]] = None
 	primary_key: Any = None
 
 	@root_validator
@@ -571,6 +589,7 @@ class PdSeniorVerification(BaseModel):
 		orm_mode = True
 		getter_dict = MyGetterDictSeniorVerification
 		my_primaty_key_field = ["user"]
+		my_required_fields = []
 
 
 PdAdmin.update_forward_refs()
