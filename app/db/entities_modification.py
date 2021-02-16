@@ -41,16 +41,3 @@ for name, ent in db.entities.items():
     ent.set = data_from_pydantic_decorator3(ent.set, db.entities, entities_code)
     ent.to_dict = change_to_dict_method(ent.to_dict)
     setattr(ent, 'cl_set', classmethod(data_from_pydantic_decorator4(ent.set, db.entities, entities_code)))
-
-
-# class A:
-#     def draw(self):
-#         print(A.__name__)
-#
-# class B:
-#     def draw(self):
-#         print(B.__name__)
-#
-#
-# arr = [A(), B(), A()]
-# [i.draw() for i in arr]

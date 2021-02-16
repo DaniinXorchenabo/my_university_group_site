@@ -169,7 +169,10 @@ def change_to_dict_method(base_metod):
     """
 
     def is_iter(i) -> bool:
-        return hasattr(i, '__iter__') and not type(i) == str
+        return (hasattr(i, '__iter__') and not type(i) == str) or hasattr(i, 'select')
+
+    def is_ent(i) -> bool:
+        return hasattr(i, 'select') or type(i) in db.entities.values()
 
     def decorator(self, *args, **kwargs):
 
@@ -179,21 +182,40 @@ def change_to_dict_method(base_metod):
             db_val = getattr(self, key)
             if db_val != val:
                 change_args[key] = val, db_val
+
         for key, [d_val, db_val] in change_args.items():
             ents = db.entities.values()
             t_db, t_d = type(db_val), type(d_val)
-            if type(db_val) != list and type(db_val) not in db.entities.values() and type(d_val) not in db.entities.values():
+            if not is_iter(d_val) and not is_iter(db_val):
+                # Если и то и то не списки
+                if not is_ent(d_val) and is_ent(db_val):
+                    _dict[key] = d_val
+                elif not is_ent(d_val) and not is_ent(db_val):
+                    _dict[key] = db_val
+            elif is_iter(d_val) and is_iter(db_val):
+                # Если и то и то списки
+                db_val = [(i.get_pk() if is_ent(i) else i) for i in
+                          (db_val.select()[:] if hasattr(db_val, 'select') else db_val)]
                 _dict[key] = db_val
 
-            elif type(db_val) == list and all(
-                    (type(i) not in db.entities.values() for i in d_val + db_val)):
-                _dict[key] = db_val
+            elif not is_iter(d_val) and is_iter(db_val):
+                pass
+            elif is_iter(d_val) and not is_iter(db_val):
+                pass
 
-            elif type(db_val) != list and type(db_val) in db.entities.values() and type(d_val) not in db.entities.values():
-                _dict[key] = d_val
 
-            elif type(db_val) == list and all((type(i) in db.entities.values() for i in db_val)) and all((type(i) not in db.entities.values() for i in d_val)):
-                _dict[key] = d_val
+            # if type(db_val) != list and type(db_val) not in db.entities.values() and type(d_val) not in db.entities.values():
+            #     _dict[key] = db_val
+            #
+            # elif type(db_val) == list and all(
+            #         (type(i) not in db.entities.values() for i in d_val + db_val)):
+            #     _dict[key] = db_val
+            #
+            # elif type(db_val) != list and type(db_val) in db.entities.values() and type(d_val) not in db.entities.values():
+            #     _dict[key] = d_val
+            #
+            # elif type(db_val) == list and all((type(i) in db.entities.values() for i in db_val)) and all((type(i) not in db.entities.values() for i in d_val)):
+            #     _dict[key] = d_val
 
             if is_iter(_dict[key]) and any((i in ents for i in _dict[key])):
                 _dict[key] = [(i.get_pk() if i in ents else i) for i in _dict[key]]
