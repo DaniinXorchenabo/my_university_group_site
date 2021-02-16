@@ -13,6 +13,7 @@ from pony.orm import *
 from app.settings.config import *
 from app.db.models import *
 
+
 if __name__ == '__main__':
     from os import chdir
 

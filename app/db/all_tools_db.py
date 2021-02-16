@@ -25,6 +25,10 @@ if __name__ == '__main__':
     show_all()
 
     with db_session:
+        # User(id=432, name='Вася', login='dfvsdvsdvsd')
+        print(PdGroup(Group['20ВП1']))
+        print(User.get(PdUser(name='Вася')))
+
         # print(hasattr(1, '__iter__'))
         # print(hasattr(str('skdj'), '__iter__'))
         # print(hasattr([1, 2], '__iter__'))
@@ -37,7 +41,7 @@ if __name__ == '__main__':
         # User(PdUser(id=201, login='201', password='32'))
         # print(PdUser(User[201]))
         # print(User[104].to_dict(with_collections=True))
-        print(Group['20ВП1'].to_dict(with_collections=True))
+        # print(Group['20ВП1'].to_dict(with_collections=True))
         # print(db.Entity._get_attrs_(None, None, False, False))
         # print(m.check_verificated)
         # print(Group['20ВП1'].all_group)
