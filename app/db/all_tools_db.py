@@ -26,8 +26,10 @@ if __name__ == '__main__':
 
     with db_session:
         # User(id=432, name='Вася', login='dfvsdvsdvsd')
-        print(PdGroup(Group['20ВП1']))
-        print(User.get(PdUser(name='Вася')))
+        # print(PdGroup(Group['20ВП1']))
+        # print(User.get(PdUser(name='Вася')))
+        # print(User.exists(PdUser( name='Вася', login='dfvsdvsdvsd')))
+        print(Group.exists(PdGroup(user=[User[100], User[103]])))
 
         # print(hasattr(1, '__iter__'))
         # print(hasattr(str('skdj'), '__iter__'))

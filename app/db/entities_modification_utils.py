@@ -160,6 +160,7 @@ def data_from_pydantic_decorator5(base_init, entities, entities_code):
         args, kwargs = pydantic_obj_parser(cls, args, kwargs, entities, entities_code)
         kwargs = {key: val for key, val in kwargs.items() if type(val) != list}
         # print(*args, kwargs)
+        assert bool(kwargs), 'Ненайдено параметров, необходимых для  однозначной идентификации'
         # print(base_init)
         return base_init(*args, **kwargs)
 
