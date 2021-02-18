@@ -107,7 +107,7 @@ def data_from_pydantic_decorator3(base_init, entities, entities_code):
     """Позволяет создавать новую сущность БД из модели pydantic"""
 
     def decorator(self, *args, **kwargs):
-        # print('-----------$$$$$$$$$$$$$$$$$$$$$$$$$$$', args)
+        print('-----------$$$$$$$$$$$$$$$$$$$$$$$$$$$', args)
         args, kwargs = pydantic_obj_parser(self.__class__, args, kwargs, entities, entities_code)
         print('-88********----------', *args, kwargs)
         p_k = [j for i in entities_code[self.__class__][1] for j in ([i] if type(i) != tuple else i)]

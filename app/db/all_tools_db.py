@@ -25,13 +25,20 @@ if __name__ == '__main__':
     show_all()
 
     with db_session:
-        User[100].is_verificated = False
-        print(User[100].set(PdUser(id=104, name='П-етя1', login='П-етя--1', groups=Group['20ВП1'])))
+        # setattr(frozenset, 'select', lambda self, *a, **k: self)
+        gr = Group.get(name='20ВП7')
+        print(gr.set(PdGroup(users=[User[120], User[121], User[122]])))
         commit()
-        print('----^^^^^', Group['20ВП1'])
-        print(PdUser(User[100]))
-        print(User[100].groups)
-        print(User[100].is_verificated)
+        print(gr.users.select())
+        # User[100].is_verificated = False
+        # print(User[100].set(PdUser(id=104, name='П-етя1', login='П-етя--1', groups='20ВП2')))
+        # commit()
+        # print('----^^^^^', Group['20ВП2'])
+        # print(PdUser(User[100]))
+        # print(User[100].groups)
+        # print(User[100].is_verificated)
+        # print(User.select(lambda i: i.groups is None)[:])
+        # [User[120], User[121], User[122], User[123], User[124], User[125], User[160], User[200], User[201], User[432]]
 
 
         #-------------
@@ -43,6 +50,7 @@ if __name__ == '__main__':
         print(User[100].set(PdUser(id=104, name='П-етя1', login='П-етя--1')))
         print(User[100].set(PdUser(id=104, name='П-етя1', login='П-етя--1', group='20ВП1')))
         print(User[100].set(PdUser(id=104, name='П-етя1', login='П-етя--1', group='20ВП2')))
+        print(User[100].set(PdUser(id=104, name='П-етя1', login='П-етя--1', groups=Group['20ВП1'])))
         """
         #---------
         # User(id=432, name='Вася', login='dfvsdvsdvsd')
