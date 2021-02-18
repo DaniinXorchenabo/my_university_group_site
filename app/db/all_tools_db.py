@@ -27,9 +27,10 @@ if __name__ == '__main__':
     with db_session:
         # setattr(frozenset, 'select', lambda self, *a, **k: self)
         gr = Group.get(name='20ВП7')
-        print(gr.set(PdGroup(users=[User[120], User[121], User[122]])))
+        print(gr.set(PdGroup(users=[User[120], User[121], User[100], User[103]])))
         commit()
-        print(gr.users.select())
+        print(gr._users.select()[:])
+        print(Group['20ВП1']._users.select()[:])
         # User[100].is_verificated = False
         # print(User[100].set(PdUser(id=104, name='П-етя1', login='П-етя--1', groups='20ВП2')))
         # commit()
