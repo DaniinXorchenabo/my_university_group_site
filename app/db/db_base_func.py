@@ -15,6 +15,29 @@ from app.settings.config import *
 from app.db.pydantic_models_db.pony_orm_to_pydantic_utils import get_p_k
 
 
+class MyFrozenset(frozenset):
+    """Переопределяем класс frozenset для совместимости с полями Set Базы данных"""
+
+    def select(self, *a, **k):
+        return self
+
+    def __getitem__(self, key):
+        return list(self)[key]
+
+
+class MySet(set):
+    """Переопределяем класс set для совместимости с полями Set Базы данных"""
+
+    def select(self, *a, **k):
+        return self
+
+    def __getitem__(self, key):
+        return list(self)[key]
+
+
+frozenset = MyFrozenset
+set = MySet
+
 change_field = {}  # Список изменённых атрибутов
 
 
