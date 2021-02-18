@@ -25,12 +25,17 @@ if __name__ == '__main__':
     show_all()
 
     with db_session:
+        # print(User.cl_set(PdUser(login='dfhsdgx--dfg', email='12=-!**-58@mail.ru', groups=Group['20ВП5'])))
+        # commit()
+        # print(PdUser(User[100]))
+        # print(User[100].groups)
+        # print(User[100].is_verificated)
         # setattr(frozenset, 'select', lambda self, *a, **k: self)
-        gr = Group.get(name='20ВП7')
-        print(gr.set(PdGroup(users=[User[120], User[121], User[100], User[103]])))
+        print(Group.cl_set(PdGroup(name='20ВП7', users=[User[120], User[121], User[432], User[104]])))
         commit()
-        print(gr._users.select()[:])
-        print(Group['20ВП1']._users.select()[:])
+        print(Group['20ВП7']._users.select()[:])
+
+
         # User[100].is_verificated = False
         # print(User[100].set(PdUser(id=104, name='П-етя1', login='П-етя--1', groups='20ВП2')))
         # commit()
@@ -40,6 +45,7 @@ if __name__ == '__main__':
         # print(User[100].is_verificated)
         # print(User.select(lambda i: i.groups is None)[:])
         # [User[120], User[121], User[122], User[123], User[124], User[125], User[160], User[200], User[201], User[432]]
+        # print(gr.set(PdGroup(users=[User[120], User[121], User[100], User[103]])))
 
 
         #-------------

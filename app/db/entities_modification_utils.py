@@ -46,7 +46,11 @@ def primary_key_to_entity(ent, param_name: str, value, entities, entities_code):
         # print('4---*****------')
         value = [value] if type(value) != tuple else value
         keys = {i: value[ind] for ind, i in enumerate(entities_code[param_type][1])}
-        if entities[param_type].exists(**keys):
+        exists_keys = {key: val for key, val in keys.items() if val is not None}
+        print(param_type, keys)
+        if not bool(exists_keys):
+            return None
+        if entities[param_type].exists(**exists_keys):
             return entities[param_type].get(**keys)
         try:
             return entities[param_type](**keys)
@@ -123,9 +127,9 @@ def data_from_pydantic_decorator4(base_init, entities, entities_code):
     """Позволяет создавать новую сущность БД из модели pydantic"""
 
     def decorator(cls, *args, **kwargs):
-        # print('-----------$$$$$$$$$$$$$$$$$$$$$$$$$$$', args)
+        print('-----------$$$$$$$$$$$$$$$$$$$$$$$$$$$', args)
         new_args = []
-        # print(args)
+        print(args)
         for value in args:
             if hasattr(value, '__class__') and hasattr(  # Если значение является pydantic-объектом
                     value.__class__, '__bases__') and BaseModel in value.__class__.__bases__:
@@ -137,7 +141,8 @@ def data_from_pydantic_decorator4(base_init, entities, entities_code):
                 # print('----------------')
             new_args.append(value)
         args = tuple(new_args)
-        # print('--**&&&&&$$##@@', args)
+
+        print('--**&&&&&$$##@@', args)
 
         args, kwargs = pydantic_obj_parser(cls, args, kwargs, entities, entities_code)
         # print('-*&&&&&&&&&&&&&???????', args, kwargs)
