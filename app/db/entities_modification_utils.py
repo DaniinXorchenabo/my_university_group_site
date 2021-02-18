@@ -61,10 +61,12 @@ def pydantic_obj_parser(ent, args, kwargs, entities, entities_code):
         # print(args)
         for ind, i in enumerate(args):
             if hasattr(i, '__class__') and hasattr(i.__class__, '__bases__') and BaseModel in i.__class__.__bases__:
+                print(i)
                 pd_values = {key: val for key, val in dict(i).items() if val and bool(val) and val != [None]}
+                print('pd_values', pd_values)
                 pd_values = {key: primary_key_to_entity(ent, key, val, entities, entities_code)
                              for key, val in pd_values.items()}
-                # print(pd_values)
+                print('pd_values', pd_values)
                 kwargs.update(pd_values)
                 args = list(args)
                 del args[ind]
@@ -107,9 +109,10 @@ def data_from_pydantic_decorator3(base_init, entities, entities_code):
     def decorator(self, *args, **kwargs):
         # print('-----------$$$$$$$$$$$$$$$$$$$$$$$$$$$', args)
         args, kwargs = pydantic_obj_parser(self.__class__, args, kwargs, entities, entities_code)
+        print('-88********----------', *args, kwargs)
         p_k = [j for i in entities_code[self.__class__][1] for j in ([i] if type(i) != tuple else i)]
         kwargs = {key: val for key, val in kwargs.items() if key not in p_k}
-        # print(*args, kwargs)
+        print(*args, kwargs)
         # print(base_init)
         base_init(self, *args, **kwargs)
 

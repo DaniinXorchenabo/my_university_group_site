@@ -25,11 +25,31 @@ if __name__ == '__main__':
     show_all()
 
     with db_session:
+        User[100].is_verificated = False
+        print(User[100].set(PdUser(id=104, name='П-етя1', login='П-етя--1', groups=Group['20ВП1'])))
+        commit()
+        print('----^^^^^', Group['20ВП1'])
+        print(PdUser(User[100]))
+        print(User[100].groups)
+        print(User[100].is_verificated)
+
+
+        #-------------
+        """
+        print(User[100].set(PdUser(id=100)))
+        print(User[100].set(PdUser(id=100, name='Петя1')))
+        print(User[100].set(PdUser(id=100, name='Петя1', login='Петя--1')))
+        print(User[100].set(PdUser(id=100, name='П-етя1', login='П-етя--1')))
+        print(User[100].set(PdUser(id=104, name='П-етя1', login='П-етя--1')))
+        print(User[100].set(PdUser(id=104, name='П-етя1', login='П-етя--1', group='20ВП1')))
+        print(User[100].set(PdUser(id=104, name='П-етя1', login='П-етя--1', group='20ВП2')))
+        """
+        #---------
         # User(id=432, name='Вася', login='dfvsdvsdvsd')
         # print(PdGroup(Group['20ВП1']))
         # print(User.get(PdUser(name='Вася')))
         # print(User.exists(PdUser( name='Вася', login='dfvsdvsdvsd')))
-        print(Group.exists(PdGroup(user=[User[100], User[103]])))
+        # print(DustbiningChat.exists(PdDustbiningChat(group='20ВП1')))
 
         # print(hasattr(1, '__iter__'))
         # print(hasattr(str('skdj'), '__iter__'))
