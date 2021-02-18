@@ -20,7 +20,7 @@ if __name__ == '__main__':
 @NoneVerification.only_func
 def __init__(self, *args, **kwargs):
     if kwargs['it_is_i'] == kwargs['he_verificate_me']:
-        print('----------------------------------------------')
+        # print('----------------------------------------------')
         del self
         return
     super(NoneVerification, self).__init__(*args, **kwargs)

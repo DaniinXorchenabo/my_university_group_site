@@ -102,23 +102,23 @@ def protect_attr(attr_name='users'):
     new_attr_name = '_' + attr_name
 
     def decorator(cls):
-        print('!!!!!!!!!!')
+        # print('!!!!!!!!!!')
 
         @property
         def attr(self):
-            print('&^&&&&&&&&&&&&&&&&&&')
+            # print('&^&&&&&&&&&&&&&&&&&&')
             return frozenset(filter(lambda i: i.is_verificated, getattr(self, new_attr_name).select()))
 
         @attr.setter
         def attr(self, val):
             val = frozenset(val)
             old_val = frozenset(self._users.select()[:])
-            print('val', val)
-            print('old_val', old_val)
+            # print('val', val)
+            # print('old_val', old_val)
             self._users = val
             for u in ((val - old_val) | (old_val - val)):  # новые пользователи и удалённые пользователи
                 u._is_verificated = False
-                print('u', u)
+                # print('u', u)
             return True
 
         last_attr = getattr(cls, attr_name)
@@ -133,7 +133,7 @@ def protect_senior(attr_name='senior_in_the_group'):
     new_attr_name = '_' + attr_name
 
     def decorator(cls):
-        print('!!!!!!!!!!')
+        # print('!!!!!!!!!!')
 
         @property
         def attr(self):
@@ -168,7 +168,7 @@ def protect_senior(attr_name='senior_in_the_group'):
 
 Group = protect_attr(attr_name='users')(Group)
 Group = protect_senior(attr_name='senior_in_the_group')(Group)
-
+change_field[SeniorInTheGroup] = change_field.get(User, []) + ['users', 'senior_in_the_group']
 
 @Group.getter_and_classmethod
 def all_group(self):

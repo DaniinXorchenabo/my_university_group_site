@@ -14,6 +14,7 @@ from app.db.models import *
 @db_session
 def create_test_db_1():
     """создает тестовую БД для того, чтобы можно было поиграться с ней"""
+
     try:
         Group(name='20ВП1')
         commit()

@@ -11,6 +11,7 @@ from app.settings.config import *
 from app.db.models import *
 
 
+
 def controller_migration_version(db_path=DB_PATH, db_l=db):
     """не работает, не использовать"""
     db_l.provider = db_l.schema = None
@@ -163,7 +164,11 @@ def old_connect_with_db(db_path=DB_PATH, deep=0, db_l=db):
 
 
 def create_pydantic_models(create_file=AUTO_PYDANTIC_MODELS):
-    """Генерирует модель pydantic на основе модели Pony ORM"""
+    """
+    Генерирует модель pydantic на основе модели Pony ORM
+
+    Генерирует содержимое файла app/db/pydantic_models_db/pydantic_models.py
+    """
 
     from inspect import getsource
     from typing import Optional, List, Dict, Union, Any, Tuple, ForwardRef
@@ -195,7 +200,7 @@ def create_pydantic_models(create_file=AUTO_PYDANTIC_MODELS):
     def get_aributs(entity, blanks):
         from inspect import getsource
 
-        print([entity])
+        # print([entity])
         code = getsource(entity).split('\n')
         count_tabs = code[0].split('def')[0].count(' ') + 3
         code = (''.join(list(i.split('#')[0])[count_tabs:]) for i in code[1:])
@@ -205,20 +210,20 @@ def create_pydantic_models(create_file=AUTO_PYDANTIC_MODELS):
                                                      if bool(to_list) else '') + '}'
         return to_list
 
-    def create_const_params(work_modes: list):
+    def create_const_params(work_modes: list) -> str:
         """Возвращает строку с параметрами, одинаковыми для каждой модели"""
 
         string = '\n\tmode: PdOptional[Union[' + ', '.join(['Literal["' + i + '"]' for i in work_modes]) + ']] = None\n'
-        string += '\tupload_orm: PdOptional[bool] = None\n'
+        string += '\tupload_orm: PdOptional[Union[bool, Literal["min"]]] = None\n'
         string += '\tprimary_key: Any = None'
         return string
 
     CreatePdModels.update_forward_refs()
-
     all_module_code = {}  # Код всего создаваемого модуля
     pr_key_str = []  # тут будут строки с PrimaryKey одного класса
     code = []  # Строки одного класса
     work_modes = ['new', 'edit', 'find', "strict_find"]
+    required_fields = dict()
 
     # Правила обработки типа параметра из модели Pony
     rules_type_param = {
@@ -271,7 +276,8 @@ def create_pydantic_models(create_file=AUTO_PYDANTIC_MODELS):
 
     # Правила превращения в код имени обязательности параметра
     type_db_param_to_text = {
-        lambda i: i.type_db_param == "Required": lambda i: setattr(i, 'type_db_param', str(i.type_param)),
+        lambda i: i.type_db_param == "Required" and i.default is None: lambda i: required_fields.update({i.name: i}),
+        lambda i: i.type_db_param == "Required": lambda i: setattr(i, 'type_db_param', f'PdOptional[{i.type_param}]'),
         lambda i: i.type_db_param == "Optional": lambda i: setattr(i, 'type_db_param', f'PdOptional[{i.type_param}]'),
         lambda i: i.type_db_param == "Set": lambda i: setattr(i, 'type_db_param', f'PdOptional[List[{i.type_param}]]'),
         # lambda i: i.type_db_param == "Required": lambda
@@ -361,7 +367,8 @@ def create_pydantic_models(create_file=AUTO_PYDANTIC_MODELS):
     }
 
     code_module = """# -*- coding: utf-8 -*-\n\n\"\"\" Этот код генерируется автоматически,\n"""
-    code_module += """ни одно изменение не сохранится в этом файле.\n"""
+    code_module += """функцией create_pydantic_models файла app/db/bd_control_func.py\n"""
+    code_module += """Ни одно изменение не сохранится в этом файле.\n"""
     code_module += """Тут объявляются pydantic-модели, в которых присутствуют все сущности БД\n"""
     code_module += """и все атрибуты сущностей\"\"\"\n\n"""
     code_module += """from typing import Set as PdSet, Union, List, Dict, Tuple, ForwardRef\n"""
@@ -382,6 +389,8 @@ def create_pydantic_models(create_file=AUTO_PYDANTIC_MODELS):
     for entity_nane, entity in db.entities.items():
         # =======! Парсинг кода из моделей Pony ORM !=======
         pr_key_str = []  # тут будут строки с PrimaryKey
+        required_fields = dict()  # Тут будут обязвтельные поля
+
         code = getsource(entity).split('\n')
 
         count_tabs = code[0].split('def')[0].count(' ') + 3
@@ -394,7 +403,7 @@ def create_pydantic_models(create_file=AUTO_PYDANTIC_MODELS):
                        if bool(j) for j1 in j.split(',')))) for i in code)
         code = (({key: val for key, val in zip(['name', 'type_db_param', 'type_param'], i[:3])},
                  {j[0].strip(): j[1].strip() for j in (j1.split('=') for j1 in i[3:])}) for i in code)
-        code = [CreatePdModels(**i[0], **i[1]) for i in code if not print(i)]
+        code = [CreatePdModels(**i[0], **i[1]) for i in code]
         # print(pr_key_str, entity_nane)
 
         # =======! Обработка кода (к примеру, удаление пробелов) !=======
@@ -431,6 +440,7 @@ def create_pydantic_models(create_file=AUTO_PYDANTIC_MODELS):
         postfix += "\t\torm_mode = True\n"
         postfix += f"\t\tgetter_dict = MyGetterDict{entity_nane}\n"
         postfix += f"\t\tmy_primaty_key_field = [{', '.join(names_p_k)}]\n"
+        postfix += f"\t\tmy_required_fields = [{', '.join(list(required_fields.keys()))}]\n"
 
         all_module_code['Pd' + entity_nane] = PydanticModel(
             prefix=f'\n\nclass Pd{entity_nane}(BaseModel):\n',
