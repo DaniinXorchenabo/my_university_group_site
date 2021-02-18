@@ -63,7 +63,7 @@ def _is_verificated(self, value: bool):
     """устанавлмвает значение верификации
     True - пользователь верифицирован
     False - пользователь не верифицирован"""
-    print('&&6')
+    # print('&&6')
     if value:  # если мы делаем пользователя верифицированным
         self.my_verification = set()
         self.i_verificate_thei = set()
@@ -105,7 +105,7 @@ def _is_verificated(self, value: bool):
 
 @User.only_setter
 def is_verificated(self, value: bool):
-    print(self._is_verificated)
+    # print(self._is_verificated)
     if not (self._is_verificated == value == True):
         [u.check_verificated for u in self._groups._users.select()]
         # self.check_verificated
@@ -190,7 +190,7 @@ def protect_attr(attr_name='groups'):
     new_attr_name = '_' + attr_name
 
     def decorator(cls):
-        print('!!!!!!!!!!')
+        # print('!!!!!!!!!!')
 
         @property
         def attr(self):
@@ -228,7 +228,7 @@ def protect_password(attr_name='password'):
     get_key_password_name = '_get_key_' + attr_name
 
     def decorator(cls):
-        print('!!!!!!!!!!')
+        # print('!!!!!!!!!!')
 
         @property
         def attr(self):
@@ -288,7 +288,7 @@ def protect_senior(attr_name='senior_in_the_group'):
     new_attr_name = '_' + attr_name
 
     def decorator(cls):
-        print('!!!!!!!!!!')
+        # print('!!!!!!!!!!')
 
         @property
         def attr(self):
@@ -337,7 +337,7 @@ def check_password(self, password: str = ""):
     testing_password_hash = self.create_hash(password, salt)
     testing_password_hash = str(hexlify(testing_password_hash), encoding="utf-8")
     count = 0
-    print(testing_password_hash, self._get_key_password)
+    # print(testing_password_hash, self._get_key_password)
     for ch1, ch2 in zip(testing_password_hash, self._get_key_password):
         count += 1 if ch1 == ch2 else 2
     return count == len(self._get_key_password) and len(testing_password_hash) == len(self._get_key_password)
@@ -346,7 +346,7 @@ def check_password(self, password: str = ""):
 @User.only_func
 def __init__(self, *args, **kwargs):
     """при инициализации пользователя делаем его неверифицированным, если не указано иное"""
-    print('^^^^^^^^^^^^^^--------')
+    # print('^^^^^^^^^^^^^^--------')
     init_kw = kwargs.copy()
     is_verificated_user = kwargs.pop('is_verificated', None)
     verificate_bool = (is_verificated_user is None and
@@ -357,18 +357,19 @@ def __init__(self, *args, **kwargs):
     super(User, self).__init__(*args, **kwargs)  # создание пользователя
     if verificate_bool:  # если пользователь не верифицирован
         if User.exists(**init_kw):
-            print('существует')
+            # print('существует')
             if init_kw.get("groups", None):  # и имеет группу
                 my_group_friends = set(select(i for i in self._groups._users if i._is_verificated)[:]) - {self}
-                print(my_group_friends)
+                # print(my_group_friends)
                 [NoneVerification(it_is_i=self, he_verificate_me=u) for u in my_group_friends
                  if not NoneVerification.exists(it_is_i=self, he_verificate_me=u)]
                 commit()  # то дабовляем ему тех, кто будет верифицировать его
         else:
-            print('не существует')
+            pass
+            # print('не существует')
     elif is_verificated_user:  # если при создании явно указано, что пользователь верифицирован
         my_no_verificated_friends = set(select(i for i in self._groups._users if not i._is_verificated)[:]) - {self}
-        print(my_no_verificated_friends)
+        # print(my_no_verificated_friends)
         [NoneVerification(it_is_i=u, he_verificate_me=self) for u in my_no_verificated_friends
          if not NoneVerification.exists(it_is_i=u, he_verificate_me=self)]
         commit()  # то добавляем ему тех, кого он должен верифицировать

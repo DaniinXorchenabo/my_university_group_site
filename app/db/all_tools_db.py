@@ -33,7 +33,7 @@ if __name__ == '__main__':
         # setattr(frozenset, 'select', lambda self, *a, **k: self)
         print(Group.cl_set(PdGroup(name='20ВП7', users=[User[120], User[121], User[432], User[104]])))
         commit()
-        print(Group['20ВП7']._users.select()[:])
+        # print(Group['20ВП7']._users.select()[:])
 
 
         # User[100].is_verificated = False

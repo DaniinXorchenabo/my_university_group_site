@@ -164,7 +164,11 @@ def old_connect_with_db(db_path=DB_PATH, deep=0, db_l=db):
 
 
 def create_pydantic_models(create_file=AUTO_PYDANTIC_MODELS):
-    """Генерирует модель pydantic на основе модели Pony ORM"""
+    """
+    Генерирует модель pydantic на основе модели Pony ORM
+
+    Генерирует содержимое файла app/db/pydantic_models_db/pydantic_models.py
+    """
 
     from inspect import getsource
     from typing import Optional, List, Dict, Union, Any, Tuple, ForwardRef
@@ -196,7 +200,7 @@ def create_pydantic_models(create_file=AUTO_PYDANTIC_MODELS):
     def get_aributs(entity, blanks):
         from inspect import getsource
 
-        print([entity])
+        # print([entity])
         code = getsource(entity).split('\n')
         count_tabs = code[0].split('def')[0].count(' ') + 3
         code = (''.join(list(i.split('#')[0])[count_tabs:]) for i in code[1:])
@@ -363,7 +367,8 @@ def create_pydantic_models(create_file=AUTO_PYDANTIC_MODELS):
     }
 
     code_module = """# -*- coding: utf-8 -*-\n\n\"\"\" Этот код генерируется автоматически,\n"""
-    code_module += """ни одно изменение не сохранится в этом файле.\n"""
+    code_module += """функцией create_pydantic_models файла app/db/bd_control_func.py\n"""
+    code_module += """Ни одно изменение не сохранится в этом файле.\n"""
     code_module += """Тут объявляются pydantic-модели, в которых присутствуют все сущности БД\n"""
     code_module += """и все атрибуты сущностей\"\"\"\n\n"""
     code_module += """from typing import Set as PdSet, Union, List, Dict, Tuple, ForwardRef\n"""
@@ -398,7 +403,7 @@ def create_pydantic_models(create_file=AUTO_PYDANTIC_MODELS):
                        if bool(j) for j1 in j.split(',')))) for i in code)
         code = (({key: val for key, val in zip(['name', 'type_db_param', 'type_param'], i[:3])},
                  {j[0].strip(): j[1].strip() for j in (j1.split('=') for j1 in i[3:])}) for i in code)
-        code = [CreatePdModels(**i[0], **i[1]) for i in code if not print(i)]
+        code = [CreatePdModels(**i[0], **i[1]) for i in code]
         # print(pr_key_str, entity_nane)
 
         # =======! Обработка кода (к примеру, удаление пробелов) !=======

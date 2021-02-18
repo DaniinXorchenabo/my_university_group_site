@@ -17,11 +17,12 @@ if __name__ == '__main__':
 
     chdir(HOME_DIR)
 
+
 @SeniorVerification.only_func
 def __init__(self, *args, **kwargs):
     if kwargs.get('senior_in_the_group') and kwargs.get('user', '') == kwargs.get('senior_in_the_group')._user:
         # староста не может верифицировать сам сабя
-        print('----------------------------------------------')
+        # print('----------------------------------------------')
         del self
         return
     super(SeniorVerification, self).__init__(*args, **kwargs)

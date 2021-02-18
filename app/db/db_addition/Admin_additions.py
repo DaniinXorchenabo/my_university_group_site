@@ -21,5 +21,5 @@ if __name__ == '__main__':
 @Admin.only_func
 def __init__(self, *args, **kwargs):
     kwargs['user'].is_verificated = True
-    print("^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^")
+    # print("^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^")
     super(Admin, self).__init__(*args, **kwargs)

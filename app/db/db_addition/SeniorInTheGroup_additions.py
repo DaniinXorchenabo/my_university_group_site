@@ -32,20 +32,22 @@ def __init__(self, *args, **kwargs):
         kwargs['user'].is_verification = True
     # староста не верифицирован, если явно не указано обратное
     kwargs['is_verification'] = kwargs.get('is_verification', False)
-    print('^^^^^^^^^^^^^^^^^^^---------')
+    # print('^^^^^^^^^^^^^^^^^^^---------')
     super(SeniorInTheGroup, self).__init__(*args, **kwargs)
     if not kwargs['is_verification']:  # Если староста не верифицирован
         if SeniorInTheGroup.exists(**kwargs):
-            print('существует')
+            # print('существует')
             my_group_friends = set(kwargs['group'].users) - {kwargs.get('user')}
-            print(my_group_friends)
+            # print(my_group_friends)
             [SeniorVerification(senior_in_the_group=self, user=u) for u in my_group_friends
              if not SeniorVerification.exists(senior_in_the_group=self, user=u)]
             commit()  # создаем ему тех, кто будет его верифицировать
         else:
-            print('не существует')
+            # print('не существует')
+            pass
     else:
-        print('староста верифицирован при инициализации')
+        pass
+        # print('староста верифицирован при инициализации')
 
 
 @SeniorInTheGroup.getter_and_classmethod
@@ -80,7 +82,7 @@ def protect_verification(attr_name='is_verification'):
     new_attr_name = '_' + attr_name
 
     def decorator(cls):
-        print('!!!!!!!!!!')
+        # print('!!!!!!!!!!')
 
         @property
         def attr(self):
@@ -111,7 +113,7 @@ def protect_user(attr_name='user'):
     new_attr_name = '_' + attr_name
 
     def decorator(cls):
-        print('!!!!!!!!!!')
+        # print('!!!!!!!!!!')
 
         @property
         def attr(self):

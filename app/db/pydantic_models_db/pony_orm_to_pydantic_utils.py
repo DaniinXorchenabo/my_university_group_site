@@ -19,7 +19,7 @@ class MyGetterDict(GetterDict):
     """Родительский класс для превращения объектов Pony ORM в pydantic-модели"""
 
     def __init__(self, obj: Any):
-        print('!!!!!!!!----', obj)
+        # print('!!!!!!!!----', obj)
         if hasattr(obj, "to_dict"):
             self._obj = obj.to_dict(with_collections=True)
             self._obj['primary_key'] = obj.get_pk()
@@ -37,6 +37,8 @@ class MyGetterDict(GetterDict):
 
 
 def get_p_k(pd_obj):
+    """Получение PrimaryKey для сущности"""
+
     if type(pd_obj) == list:
         return [get_p_k(i) for i in pd_obj]
     if not hasattr(pd_obj, 'Config') or not hasattr(pd_obj.Config, 'my_primaty_key_field'):
@@ -52,16 +54,22 @@ def get_p_k(pd_obj):
 def check_model(cls, values: dict, ent, pk=[], unique=[]):
     """
     Валидатор для проверки наличия такой сущности в БД
-    :param values:
-    :param ent:
-    :param pk:
-    :param unique:
-    :return:
+
+    Эта функция вызывается в валидаторах модели pydantic
+    для обработки значений по общим правилам для всех моделей pydantic
+    :param values: все значения
+    :param ent: Сущность, связанная с этой моделью pydantic (для PdUser - это User)
+    :param pk: Список полей, которые являются primaryKey
+    :param unique: Список уникальных параметров (тех, благодаря которым можно идентифицировать)
+    :return: Изменённые значения, из которых создастся модель pydantic
     """
 
     def test_p_k(errors=True, val_mode=False, pk=pk, values=values, ent=ent):
         """
         Проверяет, есть ли пользователь с таким(и) Primary key
+
+        не используется
+
         :param errors: Если True, то будут подниматься исключения, указанные в assert
         :type errors: bool
         :param val_mode: Если True, то будет возвращен словарь с допустимыми ключами
@@ -83,7 +91,9 @@ def check_model(cls, values: dict, ent, pk=[], unique=[]):
 
     def test_unique_params(errors=True, unique=unique, values=values, ent=ent):
         """
-         Проверяет, есть ли пользователь с такими уникальными параметрами
+        Проверяет, есть ли пользователь с такими уникальными параметрами
+
+        Не используется
         :param errors: Если True, то будут подниматься исключения, указанные в assert
         :param unique:
         :param values:
@@ -215,6 +225,22 @@ def check_model(cls, values: dict, ent, pk=[], unique=[]):
 
 
 def new_init_pydantic(base_init):
+    """
+    Декорирует __init__ BaseModel класса
+
+    Позволяет сделать так, чтобы pydantic-модель можно было инициализировать
+    сущностью БД. К примеру,
+        PdUser(User[100])
+    или
+        @app.get('/test')
+        @db_session
+        def get_user_for_id(id_user: int):
+            if User.exists(id=id_user):
+                return dict(PdUser(User[100]))
+
+    :param base_init: изначальный __init__ метод
+    :return: новый __init__ метод
+    """
     def decorator(self, *args, **kwargs):
         # print('BaseModel.__init__')
         new_args = []
