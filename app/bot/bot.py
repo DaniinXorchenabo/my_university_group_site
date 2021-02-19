@@ -84,6 +84,7 @@ app = Flask(__name__)
 
 @app.route('/', methods=["GET", "POST"])
 def bot():
+    print('GGGGGGG-------------------------------------------------------------------------------------')
     def reply(message, responce, text, peer_id, attachment=""):
         if message in text.lower():
             print('^^^^^^^^--------------------------^^^^^^^^')
