@@ -8,3 +8,4 @@ uvicorn
 wheel -U
 fastapi[all]
 pydantic
+flask
