@@ -57,6 +57,7 @@ keyboard.add_button("Расписание на завтра", color=VkKeyboardCo
 keyboard.add_line()
 keyboard.add_button("Расписание пар", color=VkKeyboardColor.POSITIVE)
 keyboard.add_openlink_button("Ссылка на диск", "https://yadi.sk/d/0W7wTf29wwaOYw")
+
 app = Flask(__name__)
 
 token = cfg.get("vk", "token")
