@@ -58,10 +58,6 @@ keyboard.add_line()
 keyboard.add_button("Расписание пар", color=VkKeyboardColor.POSITIVE)
 keyboard.add_openlink_button("Ссылка на диск", "https://yadi.sk/d/0W7wTf29wwaOYw")
 
-app = Flask(__name__)
-
-token = cfg.get("vk", "token")
-
 
 def get_week(tomorrow=False):
     if tomorrow:
@@ -85,6 +81,7 @@ app = Flask(__name__)
 @app.route('/', methods=["GET", "POST"])
 def bot():
     print('GGGGGGG-------------------------------------------------------------------------------------')
+
     def reply(message, responce, text, peer_id, attachment=""):
         if message in text.lower():
             print('^^^^^^^^--------------------------^^^^^^^^')
@@ -93,6 +90,8 @@ def bot():
 
     if request.data:
         data = json.loads(request.data)
+        if data['type'] == 'confirmation':
+            return '0a8b71d1'
         if data['type'] == 'message_new':
             peer_id = data['object']['peer_id']
             text = data['object']["text"]
@@ -103,6 +102,7 @@ def bot():
             reply("расписание на сегодня", raspisanie[get_today()][get_week()], text, peer_id)
             reply("расписание на завтра", raspisanie[get_today() + 1][get_week(True)], text, peer_id)
             reply("расписание пар", raspisanie_par, text, peer_id)
+
     return "ok"
 
 
