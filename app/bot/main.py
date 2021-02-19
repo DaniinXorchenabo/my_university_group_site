@@ -7,4 +7,6 @@ from app.bot.base.libs import *
 if __name__ == '__main__':
     connect_with_db()
     create_test_db_1()
-    show_all()
+    #show_all()
+    token = cfg.get("vk", "token")
+    print(token)
