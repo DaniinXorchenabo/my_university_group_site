@@ -6,6 +6,7 @@ import json
 import datetime
 from app.db.all_tools_db import *
 from app.bot.base.libs import *
+import git
 
 
 raspisanie_par = """1 Пара - 8:00-9:35
@@ -71,5 +72,14 @@ def bot():
             reply("расписание на завтра", raspisanie[get_today()+1][get_week(True)], text, peer_id)
             reply("расписание пар", raspisanie_par, text, peer_id)
     return "ok"
+@app.route('/update', methods=["GET", "POST"])
+def webhook():
+    if request.method == 'POST':
+        repo = git.Repo('path/to/git_repo')
+        origin = repo.remotes.origin
+        origin.pull()
+        return 'Updated PythonAnywhere successfully', 200
+    else:
+        return 'Wrong event type', 400
 if __name__ == "__main__":
     app.run()
