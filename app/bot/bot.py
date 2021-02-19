@@ -7,6 +7,7 @@ import datetime
 from app.db.all_tools_db import *
 from app.bot.base.libs import *
 
+
 raspisanie_par = """1 Пара - 8:00-9:35
 2 Пара - 9:50-11:25
 3 Пара - 11:40-13:15
