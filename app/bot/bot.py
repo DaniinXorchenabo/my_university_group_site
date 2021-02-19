@@ -86,6 +86,7 @@ app = Flask(__name__)
 def bot():
     def reply(message, responce, text, peer_id, attachment=""):
         if message in text.lower():
+            print('^^^^^^^^--------------------------^^^^^^^^')
             vk.messages.send(peer_id=str(peer_id), message=responce, random_id=random.getrandbits(64),
                              attachment=attachment, keyboard=keyboard.get_keyboard())
 
