@@ -1,1 +1,11 @@
-pymorphy2 regex nltk pony vk-api git+git://github.com/ponyorm/pony.git@orm-migrations uvicorn fastapi[all] pydantic
+pymorphy2
+regex
+nltk
+pony
+vk-api
+git+git://github.com/ponyorm/pony.git@orm-migrations
+uvicorn
+wheel -U
+fastapi[all]
+pydantic
+flask
