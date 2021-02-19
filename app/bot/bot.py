@@ -4,6 +4,8 @@ from vk_api.keyboard import VkKeyboard, VkKeyboardColor
 import random
 import json
 import datetime
+from app.db.all_tools_db import *
+from app.bot.base.libs import *
 
 raspisanie_par = """1 Пара - 8:00-9:35
 2 Пара - 9:50-11:25
@@ -38,7 +40,7 @@ keyboard.add_button("Расписание пар", color=VkKeyboardColor.POSITIV
 keyboard.add_openlink_button("Ссылка на диск", "https://yadi.sk/d/0W7wTf29wwaOYw")
 app = Flask(__name__)
 
-token = "8a9c94c201e8f0b1e9af4ebf74bbc1b4d81a0c60e8f21e454b8f23ea61c6d04b9d7b375bec85723bd7158"
+token = cfg.get("vk", "token")
 
 def get_week(tomorrow=False):
     if tomorrow:
