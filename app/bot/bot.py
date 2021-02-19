@@ -91,7 +91,7 @@ def bot():
     if request.data:
         data = json.loads(request.data)
         if data['type'] == 'confirmation':
-            return '0a8b71d1'
+            return cfg.get('vk', 'confirmation')
         if data['type'] == 'message_new':
             peer_id = data['object']['peer_id']
             text = data['object']["text"]
