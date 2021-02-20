@@ -92,7 +92,7 @@ def bot():
         data = json.loads(request.data)
         if data['type'] == 'confirmation':
             return cfg.get('vk', 'confirmation')
-        if data['type'] == 'message_new':
+        elif data['type'] == 'message_new':
             peer_id = data['object']['peer_id']
             text = data['object']["text"]
             reply("привет", "привет", text, peer_id)
