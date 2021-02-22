@@ -10,14 +10,16 @@ if __name__ == '__main__':
 
 import random
 import json
-from datetime import datetime
+# from datetime import datetime
 import os
 
 from flask import Flask, request
 import vk_api
 from vk_api.keyboard import VkKeyboard, VkKeyboardColor
 
-from app.db.all_tools_db import cfg
+# from app.db.all_tools_db import cfg
+from app.db.all_tools_db import *
+
 
 token = cfg.get('vk', 'token')
 vk = vk_api.VkApi(token=token).get_api()
@@ -87,6 +89,8 @@ def get_week(tomorrow=False):
 def get_today():
     return (datetime.utcnow().isocalendar()[2] - 1) % 6
 
+
+print(get_today())
 
 app = Flask(__name__)
 
