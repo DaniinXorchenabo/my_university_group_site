@@ -201,6 +201,6 @@ def bot(**data):
 #     else:
 #         return 'Wrong event type', 400
 
-
+app = vk_app
 if __name__ == "__main__":
-    app.run()
+    vk_app.run()
