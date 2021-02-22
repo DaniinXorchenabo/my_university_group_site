@@ -10,15 +10,14 @@ if __name__ == '__main__':
 
 import random
 import json
-#import datetime
+from datetime import datetime
 import os
 
 from flask import Flask, request
 import vk_api
 from vk_api.keyboard import VkKeyboard, VkKeyboardColor
 
-from app.db.all_tools_db import *
-from app.bot.base.libs import *
+from app.db.all_tools_db import cfg
 
 token = cfg.get('vk', 'token')
 vk = vk_api.VkApi(token=token).get_api()
