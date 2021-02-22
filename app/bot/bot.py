@@ -151,7 +151,7 @@ def bot():
                     vk.messages.send(user_id=str(from_id), message=raspisanie[get_today() + 1][get_week(True)],
                                      random_id=random.getrandbits(64), keyboard=keyboard.get_keyboard())
                 elif "расписание пар" in text:
-                    vk.messages.send(user_id=str(from_id), message=raspisanie[get_today() + 1][get_week(True)],
+                    vk.messages.send(user_id=str(from_id), message=raspisanie_par,
                                      random_id=random.getrandbits(64), keyboard=keyboard.get_keyboard())
                 elif "getcwd" in text:
                     vk.messages.send(user_id=str(from_id), message=os.getcwd(), random_id=random.getrandbits(64),
