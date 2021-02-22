@@ -90,7 +90,6 @@ def get_today():
     return (datetime.utcnow().isocalendar()[2] - 1) % 6
 
 
-print(get_today())
 
 app = Flask(__name__)
 
