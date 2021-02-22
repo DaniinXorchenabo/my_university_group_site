@@ -10,30 +10,15 @@ if __name__ == '__main__':
 
 import random
 import json
-#import datetime
-import os
+# import datetime
 
 from flask import Flask, request
 import vk_api
 from vk_api.keyboard import VkKeyboard, VkKeyboardColor
+# import git
 
 from app.db.all_tools_db import *
 from app.bot.base.libs import *
-
-token = cfg.get('vk', 'token')
-vk = vk_api.VkApi(token=token).get_api()
-
-
-def write_json(data, file):
-    with open("mysite/" + file, "w", encoding="utf-8") as write_file:
-        json.dump(data, write_file)
-
-
-def read_json(file):
-    with open("mysite/" + file, "r", encoding="utf-8") as read_file:
-        data = json.load(read_file)
-    return data
-
 
 raspisanie_par = """1 Пара - 8:00-9:35
 2 Пара - 9:50-11:25
@@ -41,6 +26,7 @@ raspisanie_par = """1 Пара - 8:00-9:35
 4 Пара - 13:45-15:20
 5 Пара - 15:35-17:10
 """
+
 raspisanie = [
     ["Понедельник\n11:40 Физика пр Костина Н.В. 8-507\n15:35 Математика пр. Купряшина Л.А. 8-216",
      "Понедельник\n9:50 Кураторский час 7а-307\n11:40 Физика пр Костина Н.В. 8-507\n13:45Математика пр. Купряшина Л.А. 8-216"],
@@ -61,7 +47,6 @@ raspisanie = [
         "Суббота\nКрутяк, пар нет!"],
     ["В воскресень пар нет, ты что ку-ку?", "В воскресень пар нет, ты что ку-ку?"]
 ]
-prepody = "Английский Юрасова Ольга Николаевна Данкова Наталья Станиславовна\nИТ в ПД Голобокова Елена Михайловна\nМатематика Купряшина Лилия Александровна\nМатематическая логика и теория алгоритмов Казакова Ирина Анатольевна\nПравоведение Данилова Валерия Александровна\nПрограммирование Гурьянов Лев Вячеславович\nТРИР Такташкин Денис Витальевич\nФизика Лекция Суровицкая Галина Владимировна Практика Костина Наталья Владимировна\n"
 
 keyboard = VkKeyboard(one_time=False)
 keyboard.add_button("Расписание на неделю", color=VkKeyboardColor.POSITIVE)
@@ -71,8 +56,6 @@ keyboard.add_line()
 keyboard.add_button("Расписание на завтра", color=VkKeyboardColor.POSITIVE)
 keyboard.add_line()
 keyboard.add_button("Расписание пар", color=VkKeyboardColor.POSITIVE)
-keyboard.add_line()
-keyboard.add_button("ФИО преподавателей", color=VkKeyboardColor.POSITIVE)
 keyboard.add_openlink_button("Ссылка на диск", "https://yadi.sk/d/0W7wTf29wwaOYw")
 
 
@@ -89,115 +72,50 @@ def get_today():
     return (datetime.utcnow().isocalendar()[2] - 1) % 6
 
 
+
+# token = "8a9c94c201e8f0b1e9af4ebf74bbc1b4d81a0c60e8f21e454b8f23ea61c6d04b9d7b375bec85723bd7158"
+token = cfg.get('vk', 'token')
+vk = vk_api.VkApi(token=token).get_api()
 app = Flask(__name__)
 
 
 @app.route('/', methods=["GET", "POST"])
 def bot():
-    def homework(text, from_id, peer_id):
-        ids = read_json("ids.json")["ids"]
-        all_hw = read_json("homework.json")
-        s = ""
-        if str(from_id) in list(map(str, ids)):
-            text = text.lower()
-            if "добавить_дз" in text:
-                dl, subject, hw = text.split("добавить_дз")[1].split()
-                try:
-                    all_hw['homework'][0][dl].append([subject, hw])
-                except KeyError:
-                    all_hw['homework'][0].update({dl: []})
-                    all_hw['homework'][0][dl].append([subject, hw])
-                write_json(all_hw, "homework.json")
-                vk.messages.send(peer_id=str(peer_id), message="получил", random_id=random.getrandbits(64),
-                                 keyboard=keyboard.get_keyboard())
-            elif "получить_дз" in text:
-                m = text.split("получить_дз ")
-                if len(m) == 2:
-                    _, dl = m
-                    for i in all_hw["homework"][0][dl]:
-                        s += i[0] + " " + i[1] + '\n'
-                    vk.messages.send(peer_id=str(peer_id), message=s, random_id=random.getrandbits(64),
-                                     keyboard=keyboard.get_keyboard())
-            elif "очистить_дз" in text:
-                m = text.split("очистить_дз ")
-                if len(m) == 2:
-                    _, dl = m
-                    all_hw['homework'][0][dl] = []
-                    write_json(all_hw, "homework.json")
-                    vk.messages.send(peer_id=str(peer_id), message="Дз " + dl + "очищено",
-                                     random_id=random.getrandbits(64), keyboard=keyboard.get_keyboard())
+    print('GGGGGGG-------------------------------------------------------------------------------------')
+
+    def reply(message, responce, text, peer_id, attachment=""):
+        if message in text.lower():
+            print('^^^^^^^^--------------------------^^^^^^^^')
+            vk.messages.send(peer_id=str(peer_id), message=responce, random_id=random.getrandbits(64),
+                             attachment=attachment, keyboard=keyboard.get_keyboard())
 
     if request.data:
         data = json.loads(request.data)
-        request_type = data['type']
         if data['type'] == 'confirmation':
             return cfg.get('vk', 'confirmation')
-        if request_type == 'message_new':
-            message = data['object']["message"]
-            from_id = message["from_id"]
-            peer_id = message['peer_id']
-            text = message["text"].lower()
-            if peer_id == from_id:
-                if "начать" in text:
-                    responce = "Привет. У меня ты можешь узнать расписание на неделю и в дальнейшем домашнее задание)"
-                    vk.messages.send(user_id=str(from_id), message=responce, random_id=random.getrandbits(64),
-                                     keyboard=keyboard.get_keyboard())
-                elif "расписание на неделю" in text:
-                    vk.messages.send(user_id=str(from_id), random_id=random.getrandbits(64),
-                                     attachment="photo-201379365_457239017", keyboard=keyboard.get_keyboard())
-                elif "расписание на сегодня" in text:
-                    vk.messages.send(user_id=str(from_id), message=raspisanie[get_today()][get_week()],
-                                     random_id=random.getrandbits(64), keyboard=keyboard.get_keyboard())
-                elif "расписание на завтра" in text:
-                    vk.messages.send(user_id=str(from_id), message=raspisanie[get_today() + 1][get_week(True)],
-                                     random_id=random.getrandbits(64), keyboard=keyboard.get_keyboard())
-                elif "расписание пар" in text:
-                    vk.messages.send(user_id=str(from_id), message=raspisanie[get_today() + 1][get_week(True)],
-                                     random_id=random.getrandbits(64), keyboard=keyboard.get_keyboard())
-                elif "getcwd" in text:
-                    vk.messages.send(user_id=str(from_id), message=os.getcwd(), random_id=random.getrandbits(64),
-                                     keyboard=keyboard.get_keyboard())
-                elif "фио преподавателей" in text:
-                    vk.messages.send(user_id=str(from_id), message=prepody, random_id=random.getrandbits(64),
-                                     keyboard=keyboard.get_keyboard())
-            elif "[club201379365|@20vp1helper] " in text:
-                if "начать" in text:
-                    responce = "Привет. У меня ты можешь узнать расписание на неделю и в дальнейшем домашнее задание)"
-                    vk.messages.send(peer_id=str(peer_id), message=responce, random_id=random.getrandbits(64),
-                                     keyboard=keyboard.get_keyboard())
-                elif "расписание на неделю" in text:
-                    vk.messages.send(peer_id=str(peer_id), random_id=random.getrandbits(64),
-                                     attachment="photo-201379365_457239017", keyboard=keyboard.get_keyboard())
-                elif "расписание на сегодня" in text:
-                    vk.messages.send(peer_id=str(peer_id), message=raspisanie[get_today()][get_week()],
-                                     random_id=random.getrandbits(64), keyboard=keyboard.get_keyboard())
-                elif "расписание на завтра" in text:
-                    vk.messages.send(peer_id=str(peer_id), message=raspisanie[get_today() + 1][get_week(True)],
-                                     random_id=random.getrandbits(64), keyboard=keyboard.get_keyboard())
-                elif "расписание пар" in text:
-                    vk.messages.send(peer_id=str(peer_id), message=raspisanie_par, random_id=random.getrandbits(64),
-                                     keyboard=keyboard.get_keyboard())
-                elif "getcwd" in text:
-                    vk.messages.send(peer_id=str(peer_id), message=os.getcwd(), random_id=random.getrandbits(64),
-                                     keyboard=keyboard.get_keyboard())
-                elif "фио преподавателей" in text:
-                    vk.messages.send(peer_id=str(peer_id), message=prepody, random_id=random.getrandbits(64),
-                                     keyboard=keyboard.get_keyboard())
-            homework(text, from_id, peer_id)
-        # elif type == "confirmation":
-        #     return "b6750942"
+        elif data['type'] == 'message_new':
+            peer_id = data['object']['peer_id']
+            text = data['object']["text"]
+            reply("привет", "привет", text, peer_id)
+            reply("начать", "Привет. У меня ты можешь узнать расписание на неделю и в дальнейшем домашнее задание)",
+                  text, peer_id)
+            reply("расписание на неделю", "", text, peer_id, "photo-201379365_457239017")
+            reply("расписание на сегодня", raspisanie[get_today()][get_week()], text, peer_id)
+            reply("расписание на завтра", raspisanie[get_today() + 1][get_week(True)], text, peer_id)
+            reply("расписание пар", raspisanie_par, text, peer_id)
+
     return "ok"
 
 
-# @app.route('/update', methods=["GET", "POST"])
-# def webhook():
-#     if request.method == 'POST':
-#         repo = git.Repo('path/to/git_repo')
-#         origin = repo.remotes.origin
-#         origin.pull()
-#         return 'Updated PythonAnywhere successfully', 200
-#     else:
-#         return 'Wrong event type', 400
+@app.route('/update', methods=["GET", "POST"])
+def webhook():
+    if request.method == 'POST':
+        repo = git.Repo('path/to/git_repo')
+        origin = repo.remotes.origin
+        origin.pull()
+        return 'Updated PythonAnywhere successfully', 200
+    else:
+        return 'Wrong event type', 400
 
 
 if __name__ == "__main__":
