@@ -9,3 +9,4 @@ wheel -U
 fastapi[all]
 pydantic
 flask
+GitPython
