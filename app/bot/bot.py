@@ -10,7 +10,7 @@ if __name__ == '__main__':
 
 import random
 import json
-from datetime import datetime as dt
+#import datetime
 import os
 
 from flask import Flask, request
@@ -78,15 +78,15 @@ keyboard.add_openlink_button("Ссылка на диск", "https://yadi.sk/d/0W
 
 def get_week(tomorrow=False):
     if tomorrow:
-        if dt.utcnow().isocalendar()[2] - 1 < 6:
+        if datetime.utcnow().isocalendar()[2] - 1 < 6:
             pass
         else:
-            return int(not bool(dt.utcnow().isocalendar()[1] % 2 - 1))
-    return dt.utcnow().isocalendar()[1] % 2 - 1
+            return int(not bool(datetime.utcnow().isocalendar()[1] % 2 - 1))
+    return datetime.utcnow().isocalendar()[1] % 2 - 1
 
 
 def get_today():
-    return (dt.utcnow().isocalendar()[2] - 1) % 6
+    return (datetime.utcnow().isocalendar()[2] - 1) % 6
 
 
 app = Flask(__name__)
