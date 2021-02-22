@@ -26,12 +26,12 @@ vk = vk_api.VkApi(token=token).get_api()
 
 
 def write_json(data, file):
-    with open("mysite/" + file, "w", encoding="utf-8") as write_file:
+    with open(file, "w", encoding="utf-8") as write_file:
         json.dump(data, write_file)
 
 
 def read_json(file):
-    with open("mysite/" + file, "r", encoding="utf-8") as read_file:
+    with open(file, "r", encoding="utf-8") as read_file:
         data = json.load(read_file)
     return data
 
