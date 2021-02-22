@@ -10,7 +10,7 @@ if __name__ == '__main__':
 
 import random
 import json
-import datetime
+from datetime import datetime as dt
 import os
 
 from flask import Flask, request
@@ -82,11 +82,11 @@ def get_week(tomorrow=False):
             pass
         else:
             return int(not bool(datetime.datetime.utcnow().isocalendar()[1] % 2 - 1))
-    return datetime.datetime.utcnow().isocalendar()[1] % 2 - 1
+    return dt.utcnow().isocalendar()[1] % 2 - 1
 
 
 def get_today():
-    return (datetime.datetime.utcnow().isocalendar()[2] - 1) % 6
+    return (dt.utcnow().isocalendar()[2] - 1) % 6
 
 
 app = Flask(__name__)
