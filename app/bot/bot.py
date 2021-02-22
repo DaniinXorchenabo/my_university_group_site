@@ -8,16 +8,14 @@ if __name__ == '__main__':
 
     sys.path += [os_split(os_split(os_split(__file__)[0])[0])[0]]
 
-# from flask import Flask, request
-
 import random
 import json
 import datetime
 import os
 
+from flask import Flask, request
 import vk_api
 from vk_api.keyboard import VkKeyboard, VkKeyboardColor
-from fastapi import FastAPI
 
 from app.db.all_tools_db import *
 from app.bot.base.libs import *
@@ -91,11 +89,11 @@ def get_today():
     return (datetime.datetime.utcnow().isocalendar()[2] - 1) % 6
 
 
-vk_app = FastAPI(openapi_prefix="/vk_bot")
+app = Flask(__name__)
 
 
-@vk_app.route('/', methods=["GET", "POST"])
-def bot(**data):
+@app.route('/', methods=["GET", "POST"])
+def bot():
     def homework(text, from_id, peer_id):
         ids = read_json("ids.json")["ids"]
         all_hw = read_json("homework.json")
@@ -129,8 +127,8 @@ def bot(**data):
                     vk.messages.send(peer_id=str(peer_id), message="Дз " + dl + "очищено",
                                      random_id=random.getrandbits(64), keyboard=keyboard.get_keyboard())
 
-    if bool(data):
-        # data = json.loads(request["data"])
+    if request.data:
+        data = json.loads(request.data)
         request_type = data['type']
         if data['type'] == 'confirmation':
             return cfg.get('vk', 'confirmation')
@@ -201,6 +199,6 @@ def bot(**data):
 #     else:
 #         return 'Wrong event type', 400
 
-app = vk_app
+
 if __name__ == "__main__":
-    vk_app.run()
+    app.run()
