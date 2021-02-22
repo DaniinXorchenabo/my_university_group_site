@@ -78,10 +78,10 @@ keyboard.add_openlink_button("Ссылка на диск", "https://yadi.sk/d/0W
 
 def get_week(tomorrow=False):
     if tomorrow:
-        if datetime.datetime.utcnow().isocalendar()[2] - 1 < 6:
+        if dt.utcnow().isocalendar()[2] - 1 < 6:
             pass
         else:
-            return int(not bool(datetime.datetime.utcnow().isocalendar()[1] % 2 - 1))
+            return int(not bool(dt.utcnow().isocalendar()[1] % 2 - 1))
     return dt.utcnow().isocalendar()[1] % 2 - 1
 
 
