@@ -93,8 +93,9 @@ def bot():
         if data['type'] == 'confirmation':
             return cfg.get('vk', 'confirmation')
         elif data['type'] == 'message_new':
-            peer_id = data['object']['peer_id']
-            text = data['object']["text"]
+            message = data["object"]["message"]
+            peer_id = message['peer_id']
+            text = message["text"]
             reply("привет", "привет", text, peer_id)
             reply("начать", "Привет. У меня ты можешь узнать расписание на неделю и в дальнейшем домашнее задание)",
                   text, peer_id)
