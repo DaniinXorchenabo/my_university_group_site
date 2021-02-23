@@ -212,5 +212,5 @@ def testing_pd_model(user_data: MyUserLogin):
 
 
 if __name__ == "__main__":
-    # is_DB_created()
+    connect_with_db()
     show_all()

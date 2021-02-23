@@ -2,6 +2,13 @@
 
 """Главный файл нашего web-приложения"""
 
+if __name__ == '__main__':
+    from os.path import split as os_split
+    import sys
+
+    sys.path += [os_split(os_split(os_split(__file__)[0])[0])[0]]
+
+
 from app.web.dependencies import *
 from app.web.routers.api_app import *
 
