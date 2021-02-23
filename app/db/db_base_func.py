@@ -42,15 +42,23 @@ change_field = {}  # Список изменённых атрибутов
 
 
 class AddArrtInDbClass(object):
-    # _white_list = {'_white_list'}
-    # _expanded_white_list = _white_list
+    """
+    Класс-родитель для сущностей БД
 
-    # @classmethod
-    # def get_into_white_list(cls, name):
-    #     if not hasattr(cls, '_white_list'):
-    #         cls._white_list = {'_white_list'}
-    #     cls._white_list.add(name)
-    #     cls._expanded_white_list = cls._white_list.copy()
+    Содержит инструменты для добавления новых методов (и не только)
+    к классам сущностей БД.
+    Добавляется к классам сущностей БД как второй родитель,
+    что позволяет использовать синтаксис:
+
+    @Group.only_getter
+    def get_all_homework(self):
+        # какой-то код
+        return all_homework
+
+    К примеру, можно добавить к сущности группы (Group)
+    геттер (@property), возвращающий список всего домашнего задания
+    для этой группы.
+    """
 
     @classmethod
     def getter_and_classmethod(cls, func):
@@ -62,8 +70,6 @@ class AddArrtInDbClass(object):
         """
         setattr(cls, func.__name__, property(func))  # types.MethodType(func, cls)
 
-        # cls.get_into_white_list(func.__name__)
-
         def w(*arfs, **kwargs):
             if cls.exists(**kwargs):
                 ent = cls.get(**kwargs)
@@ -72,7 +78,6 @@ class AddArrtInDbClass(object):
 
         setattr(cls, 'cl_' + func.__name__, classmethod(w))
         change_field[cls] = change_field.get(cls, []) + [func.__name__]
-        # cls.get_into_white_list('cl_' + func.__name__)
 
     @classmethod
     def only_func(cls, func):
@@ -81,7 +86,6 @@ class AddArrtInDbClass(object):
         Group['20ВП1'].func(ваши параметры, которые требует функция)"""
         setattr(cls, func.__name__, func)  # types.MethodType(func, cls)
         change_field[cls] = change_field.get(cls, []) + [func.__name__]
-        # cls.get_into_white_list(func.__name__)
 
     @classmethod
     def func_and_classmethod(cls, func):
@@ -90,9 +94,7 @@ class AddArrtInDbClass(object):
         Group['20ВП1'].func(ваши параметры, которые требует функция)
         и так 
         Group['20ВП1'].func(ваши параметры, которые требует функция)"""
-        setattr(cls, func.__name__, func)  # types.MethodType(func, cls)
-
-        # cls.get_into_white_list(func.__name__)
+        setattr(cls, func.__name__, func)
 
         def w(*arfs, **kwargs):
             if cls.exists(id=kwargs.get('id', -1234)):
@@ -102,7 +104,6 @@ class AddArrtInDbClass(object):
 
         setattr(cls, 'cl_' + func.__name__, classmethod(w))
         change_field[cls] = change_field.get(cls, []) + [func.__name__]
-        # cls.get_into_white_list('cl_' + func.__name__)
 
     @classmethod
     def only_setter(cls, func):
@@ -125,7 +126,6 @@ class AddArrtInDbClass(object):
         """добавляет к классу метод класса"""
         """Это означает, что можно так:
         Group.func()"""
-        # cls.get_into_white_list(func.__name__)
         setattr(cls, func.__name__, classmethod(func))
         change_field[cls] = change_field.get(cls, []) + [func.__name__]
 
@@ -135,7 +135,6 @@ class AddArrtInDbClass(object):
         """Это означает, что можно так:
         Group.func(<параметры>)
         Group['20ВП1'].func(<параметры>)"""
-        # cls.get_into_white_list(func.__name__)
         setattr(cls, func.__name__, staticmethod(func))
         change_field[cls] = change_field.get(cls, []) + [func.__name__]
 

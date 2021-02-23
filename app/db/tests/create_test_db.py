@@ -38,17 +38,6 @@ def create_test_db_1():
     admin = User[103]
     Admin(user=admin)
 
-    # non_verivicared = {User[100], User[101], User[102]}
-    # verivicared = {User[104], User[103]}
-    # NoneVerification(it_is_i=User[100], he_verificate_me=User[104])
-    # NoneVerification(it_is_i=User[101], he_verificate_me=User[104])
-    # NoneVerification(it_is_i=User[102], he_verificate_me=User[104])
-    # commit()
-    # NoneVerification(it_is_i=User[100], he_verificate_me=User[103])
-    # NoneVerification(it_is_i=User[101], he_verificate_me=User[103])
-    # NoneVerification(it_is_i=User[102], he_verificate_me=User[103])
-    # [NoneVerification(it_is_i=non_verif_user, he_verificate_me=verificates_user) for non_verif_user in non_verivicared
-    #  for verificates_user in verivicared]
     commit()
     User[104].is_verificated = True
     gr = Group['20ВП1']
@@ -120,19 +109,3 @@ def show_all():
 
 if __name__ == '__main__':
     pass
-    # db.bind(provider=cfg.get("db", "type"), filename=join(HOME_DIR, "db", "tests", "test_" + cfg.get('db', "name")))
-    # db.generate_mapping(create_tables=True)
-    # make_migrate_file()
-    # is_DB_created()
-    # create_test_db_1()
-    # show_all()
-    # with db_session:
-    #     gr = Group['20ВП1']
-    #     u = User(name='Вася Тестовый-Второй', id=105, password="123")
-    #     commit()
-    #     NoneVerification[User[106], User[104]].confirmation = 1
-    #     print(*Group['20ВП1'].get_teachers_data, sep='\n')
-    #     print(User[105].check_verificated)
-    #     print(User[106].i_verificate_thei)
-    from pprint import pprint
-    # pprint(db.entities)

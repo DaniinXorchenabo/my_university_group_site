@@ -29,16 +29,11 @@ def check_verificated(self):
     """если по большинству голосов за пользователя он получается веривицированным, то функция верифицирует его"""
     if bool(self.my_verification):
         num, count, *_ = zip(*((i.confirmation, 1) for i in self.my_verification.select()))
-        # print(self, num, count, sum(count) // 2 <= sum(num),  not (sum(num) == 1 and sum(count) == 0))
         if sum(count) // 2 <= sum(num) and not (sum(num) == 0 and sum(count) == 1):
             self._is_verificated = True
-            # print('-----True')
             return True
-        # print('-----False')
         return False
-    # User._expanded_white_list.add('groups')
     gr = self._groups
-    # print('------', [gr])
     return gr is not None and type(gr) != str
 
 
@@ -46,7 +41,6 @@ def check_verificated(self):
 def _is_verificated(self):
     """Возвращает True, если пользователь верифицирован
     False - в противном случае"""
-    # return self.check_verificated
     return not bool(self.my_verification)
 
 
@@ -63,7 +57,7 @@ def _is_verificated(self, value: bool):
     """устанавлмвает значение верификации
     True - пользователь верифицирован
     False - пользователь не верифицирован"""
-    # print('&&6')
+
     if value:  # если мы делаем пользователя верифицированным
         self.my_verification = set()
         self.i_verificate_thei = set()
@@ -105,74 +99,11 @@ def _is_verificated(self, value: bool):
 
 @User.only_setter
 def is_verificated(self, value: bool):
-    # print(self._is_verificated)
     if not (self._is_verificated == value == True):
         [u.check_verificated for u in self._groups._users.select()]
-        # self.check_verificated
         commit()
         self._is_verificated = value
 
-
-# @User.only_func
-# def __getattribute__(self, item, ):
-#     # print(super(User.__bases__[0], self))
-#     if item in User._expanded_white_list or item[0] == '_':
-#         User._expanded_white_list = User._white_list.copy()
-#         return super(User.__bases__[0], self).__getattribute__(item)
-#     # self.my_verification
-#     # print(item, User.my_verification, item in {'senior_in_the_group': None, 'groups': "вы не авторизированы"})
-#     block_attr = {'senior_in_the_group': None, 'groups': 'Вы не выбрали группу'}
-#     # print("*****", item, not self.is_verificated,  item in block_attr)
-#     if item in block_attr and not self.is_verificated:
-#         if item == 'groups':
-#             # print('*************')
-#             User._expanded_white_list.add(item)
-#             block_attr['groups'] = super(User.__bases__[0], self).__getattribute__(item) or block_attr['groups']
-#             block_attr['groups'] = (type(block_attr['groups']) == str and block_attr['groups']) or block_attr['groups'].name
-#         return block_attr[item]
-#     else:
-#         User._expanded_white_list.add(item)
-#         return super(User.__bases__[0], self).__getattribute__(item)
-
-# @User.only_getter
-# def groups(self):
-#     if
-
-# @User.func_and_classmethod
-# def add_group(self, *args, **params):
-#     """Функция для добавления пользователю группы
-#     =======! Внимание !=======
-#     никаким образом больше добавлять группы нельзя!!!!!"""
-#     """Использование:
-#     User.add_group('20ВП1', id=123078234)
-#     User.add_group(Group['20ВП1'], id=123078234)
-#     User.add_group('20ВП1', id=123078234, name='Billy' <и другие параметры пользователя>)
-#     User.add_group(Group['20ВП1'], id=123078234, name='Billy' <и другие параметры пользователя>)
-#     User[123078234].add_group('20ВП1')
-#     User[123078234].add_group(Group['20ВП1'])
-#     User[123078234].add_group('20ВП1', name='Billy' <и другие параметры пользователя>)
-#     User[123078234].add_group(Group['20ВП1'], name='Billy' <и другие параметры пользователя>)
-#     """
-#
-#     if bool(args) and type(args[0]) in [str, Group]:
-#         if bool(params):
-#             self.set(**params)
-#             commit()
-#         self.groups = Group[args[0]] if type(args[0]) == str else args[0]
-#         commit()
-#         self.is_verificated = False
-#         return True
-#     elif bool(params):
-#         flag = False
-#         if "groups" in params and self.groups is None:
-#             flag = True
-#         self.set(**params)
-#         commit()
-#         if flag:
-#             self.is_verificated = False
-#         return True
-#     return False
-#
 
 @User.only_staticmethod
 def create_hash(string, salt):
@@ -190,7 +121,6 @@ def protect_attr(attr_name='groups'):
     new_attr_name = '_' + attr_name
 
     def decorator(cls):
-        # print('!!!!!!!!!!')
 
         @property
         def attr(self):
@@ -228,7 +158,6 @@ def protect_password(attr_name='password'):
     get_key_password_name = '_get_key_' + attr_name
 
     def decorator(cls):
-        # print('!!!!!!!!!!')
 
         @property
         def attr(self):
@@ -240,8 +169,6 @@ def protect_password(attr_name='password'):
             """Будет выполнятся при присваивании нового значения атрибуту attr_name"""
             salt = urandom(32)  # размер строки - 64
             key = self.create_hash(new_password, salt)  # размер строки - 64
-            # print(len(str(binascii.hexlify(key), encoding="utf-8")))
-            # print(len(str(binascii.hexlify(salt), encoding="utf-8")))
             storage = salt + key
             setattr(self, new_attr_name, str(hexlify(storage), encoding="utf-8"))
             commit()
@@ -288,7 +215,6 @@ def protect_senior(attr_name='senior_in_the_group'):
     new_attr_name = '_' + attr_name
 
     def decorator(cls):
-        # print('!!!!!!!!!!')
 
         @property
         def attr(self):
@@ -337,7 +263,6 @@ def check_password(self, password: str = ""):
     testing_password_hash = self.create_hash(password, salt)
     testing_password_hash = str(hexlify(testing_password_hash), encoding="utf-8")
     count = 0
-    # print(testing_password_hash, self._get_key_password)
     for ch1, ch2 in zip(testing_password_hash, self._get_key_password):
         count += 1 if ch1 == ch2 else 2
     return count == len(self._get_key_password) and len(testing_password_hash) == len(self._get_key_password)
@@ -346,7 +271,6 @@ def check_password(self, password: str = ""):
 @User.only_func
 def __init__(self, *args, **kwargs):
     """при инициализации пользователя делаем его неверифицированным, если не указано иное"""
-    # print('^^^^^^^^^^^^^^--------')
     init_kw = kwargs.copy()
     is_verificated_user = kwargs.pop('is_verificated', None)
     verificate_bool = (is_verificated_user is None and
@@ -357,19 +281,14 @@ def __init__(self, *args, **kwargs):
     super(User, self).__init__(*args, **kwargs)  # создание пользователя
     if verificate_bool:  # если пользователь не верифицирован
         if User.exists(**init_kw):
-            # print('существует')
             if init_kw.get("groups", None):  # и имеет группу
                 my_group_friends = set(select(i for i in self._groups._users if i._is_verificated)[:]) - {self}
-                # print(my_group_friends)
                 [NoneVerification(it_is_i=self, he_verificate_me=u) for u in my_group_friends
                  if not NoneVerification.exists(it_is_i=self, he_verificate_me=u)]
                 commit()  # то дабовляем ему тех, кто будет верифицировать его
-        else:
-            pass
-            # print('не существует')
+
     elif is_verificated_user:  # если при создании явно указано, что пользователь верифицирован
         my_no_verificated_friends = set(select(i for i in self._groups._users if not i._is_verificated)[:]) - {self}
-        # print(my_no_verificated_friends)
         [NoneVerification(it_is_i=u, he_verificate_me=self) for u in my_no_verificated_friends
          if not NoneVerification.exists(it_is_i=u, he_verificate_me=self)]
         commit()  # то добавляем ему тех, кого он должен верифицировать

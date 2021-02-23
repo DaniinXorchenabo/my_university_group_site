@@ -13,7 +13,9 @@ from app.db.models import *
 
 
 def controller_migration_version(db_path=DB_PATH, db_l=db):
+
     """не работает, не использовать"""
+
     db_l.provider = db_l.schema = None
     db_l.migrate(
         # command='apply --fake-initial',
@@ -27,13 +29,6 @@ def controller_migration_version(db_path=DB_PATH, db_l=db):
     print('перезапустите программу для дальнейшего использования')
     import sys
     sys.exit()
-    # from os.path import isfile
-    # version = None
-    # if not isfile(join(MIGRATIOMS_DIR, 'controller.txt')):
-    #     version = 1
-    # else:
-    #     with open(join(MIGRATIOMS_DIR, 'controller.txt'), 'r', encoding='utf-8') as f:
-    #         version = int(f.read().split()[0])
 
 
 def make_migrate_file(db_l=db):
@@ -175,8 +170,6 @@ def create_pydantic_models(create_file=AUTO_PYDANTIC_MODELS):
     from pydantic import BaseModel, validator
     from functools import reduce
 
-    CreatePdModels = ForwardRef('CreatePdModels')
-
     class CreatePdModels(BaseModel):
         """ Олицетворяет одну строку будущего кода"""
         name: Optional[str] = None  # Название параметра
@@ -186,7 +179,7 @@ def create_pydantic_models(create_file=AUTO_PYDANTIC_MODELS):
         code: Union[str, Dict[str, str], None] = ''  # Сгенерированный код строки
         is_primary_key: Optional[bool] = None  # Является ли данный параметр PrimaryKey
         # Неотформатированный тип параметра (int, str, User, ...)
-        raw_type_param: Union[str, list, CreatePdModels, None] = None
+        raw_type_param: Union[str, list, None] = None
         raw_name: Optional[str] = None  # Неотформатированное имя параметра
         entity_name: Union[str, list, None] = None  # Имя сущности из БД, тип которой имеет параметр (если имеет)
 
@@ -200,7 +193,6 @@ def create_pydantic_models(create_file=AUTO_PYDANTIC_MODELS):
     def get_aributs(entity, blanks):
         from inspect import getsource
 
-        # print([entity])
         code = getsource(entity).split('\n')
         count_tabs = code[0].split('def')[0].count(' ') + 3
         code = (''.join(list(i.split('#')[0])[count_tabs:]) for i in code[1:])
@@ -404,7 +396,6 @@ def create_pydantic_models(create_file=AUTO_PYDANTIC_MODELS):
         code = (({key: val for key, val in zip(['name', 'type_db_param', 'type_param'], i[:3])},
                  {j[0].strip(): j[1].strip() for j in (j1.split('=') for j1 in i[3:])}) for i in code)
         code = [CreatePdModels(**i[0], **i[1]) for i in code]
-        # print(pr_key_str, entity_nane)
 
         # =======! Обработка кода (к примеру, удаление пробелов) !=======
         [[val(i) for key, val in rules_type_param.items() if key(i)] for i in code]
@@ -428,7 +419,6 @@ def create_pydantic_models(create_file=AUTO_PYDANTIC_MODELS):
 
         pr_key_str = [[val(i) for key, val in p_k_to_text.items() if key(i)][0] for i in pr_key_str]
         [[val(i) for key, val in type_param_to_text.items() if key(i)] for i in pr_key_str]
-        # print(pr_key_str)
 
         postfix = '\n\n'
         postfix += '\t@root_validator\n'
