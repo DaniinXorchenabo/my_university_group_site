@@ -20,7 +20,7 @@ if __name__ == '__main__':
     create_pydantic_models()
 
     chdir(HOME_DIR)
-    is_DB_created()
+    connect_with_db()
     create_test_db_1()
     show_all()
 

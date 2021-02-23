@@ -474,4 +474,4 @@ if __name__ == '__main__':
     from os import chdir
 
     chdir(HOME_DIR)
-    is_DB_created()
+    connect_with_db()

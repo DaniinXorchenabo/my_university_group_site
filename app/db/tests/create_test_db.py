@@ -108,4 +108,4 @@ def show_all():
 
 
 if __name__ == '__main__':
-    pass
+    connect_with_db()
