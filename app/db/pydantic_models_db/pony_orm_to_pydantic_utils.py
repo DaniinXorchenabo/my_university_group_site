@@ -19,17 +19,14 @@ class MyGetterDict(GetterDict):
     """Родительский класс для превращения объектов Pony ORM в pydantic-модели"""
 
     def __init__(self, obj: Any):
-        # print('!!!!!!!!----', obj)
         if hasattr(obj, "to_dict"):
             self._obj = obj.to_dict(with_collections=True)
             self._obj['primary_key'] = obj.get_pk()
         else:
             self._obj = {obj: obj}
-        # print(self._obj)
 
     def get(self, key: Any, default: Any = None) -> Any:
         if type(self._obj) == dict:
-            # print(key, self._obj.get(key, default))
             return self._obj.get(key, default)
         if type(self._obj) in [str, int, float]:
             return self._obj
@@ -111,9 +108,8 @@ def check_model(cls, values: dict, ent, pk=[], unique=[]):
 
     mode_of_operation = values.pop('mode', None)
     upload_orm = values.pop('upload_orm', None)
-    p_k = values.pop('primary_key', None)
+    values.pop('primary_key', None)
     p_k = [{j: values.get(j, None) for j in (i if type(i) == tuple else [i])} for i in cls.Config.my_primaty_key_field]
-    # print('-^^----------------', [p_k], upload_orm, mode_of_operation)
 
     values = {key: ([] if val == [None] else val) for key, val in values.items()}
     values = {key: val for key, val in values.items()}
@@ -123,9 +119,7 @@ def check_model(cls, values: dict, ent, pk=[], unique=[]):
         data = [{param: get_p_k(values[param]) for param in ([i] if type(i) != tuple else i)}
                 for i in pk + unique
                 if all((p in values for p in ([i] if type(i) != tuple else i)))]
-        # print('--------')
         values = {key: get_p_k(val) for key, val in values.items()}
-        # print(values)
         assert all((i in values for i in my_required_fields)), 'Не все обязательные поля заполнены'
         assert all((not ent.exists(**i) for i in data)), \
             f'Следующие параметры уже заняты:' + ', '.join([', '.join(i.keys()) for i in data if ent.exists(**i)])
@@ -168,22 +162,14 @@ def check_model(cls, values: dict, ent, pk=[], unique=[]):
         values = {key: ([] if val == [None] else val) for key, val in values.items()}
         #  ent.exists почему-то не работает с параметром типа Set
         data = {key: val for key, val in values.items() if type(val) != list}
-        # print({key: get_p_k(val) for key, val in data.items()})
         assert ent.exists(**{key: get_p_k(val) for key, val in data.items()}), 'Данный человек отсутствует в БД'
 
     if upload_orm == 'min':
         # Если хоть один обязательный параметр (или хоть один надор ключей)
         # указан верно, то пользователь будет найден
-        # Если указанные уникальные значения принадлежат разным пользователям, то ошибка
-        data = {key: val for key, val in values.items() if val is not None and val != [None] and val != []}
-        #  ent.exists почему-то не работает с параметром типа Set
-        data = {key: get_p_k(val) for key, val in data.items() if type(val) != list}
-        # print('-@@@@')
         if bool(p_k) and any((all((j is not None for j in i.values())) for i in p_k)):
             # Если был указан primary key
-            # print('-******')
             p_k = [i for i in p_k if all((j is not None for j in i.values()))]
-
             testing = [i for i in p_k if ent.exists(**i)]
             # Не удалось найти пользователя, ибо его нет в БД
             assert len(testing) != 0, 'Пользователь не найден'
@@ -193,33 +179,24 @@ def check_model(cls, values: dict, ent, pk=[], unique=[]):
             return values
         unique = {i: values.get(i) for i in unique}
         unique = [{key: val} for key, val in unique.items() if val is not None]
-        # print('---&&&&&&&&&&&&&')
         if bool(unique):
-            # print('--**&^%', data, unique)
             # Если был указан хоть один уникальный параметр
             testing = [i for i in unique if ent.exists(**i)]
-            # print(testing)
             # Не удалось найти пользователя, ибо его нет в БД
             assert len(testing) != 0, 'Пользователь не найден'
             if not ent.exists(**reduce(lambda i, j: (i.update(j), i)[1], testing)):
                 # Ошибка, если уникальные параметры принадлежат разным пользователям
                 assert len(testing) == 1, 'Пользователь не найден'
-            # print('-8*****')
             values = dict(cls.from_orm(ent.get(**reduce(lambda i, j: (i.update(j), i)[1], testing))))
-            # print('**&&&&&&&&&&&&&', values)
             return values
 
     if upload_orm:
-        # print('upload_orm')
         # Если хоть один параметр указан не верно - ошибка
-        # print('-----&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&')
         data = {key: val for key, val in values.items() if val is not None and val != [None] and val != []}
         #  ent.exists почему-то не работает с параметром типа Set
         data = {key: get_p_k(val) for key, val in data.items() if type(val) != list}
         assert ent.exists(**data), "Такого пользователя нет в БД"
         values = dict(cls.from_orm(ent.get(**data)))
-
-    # print(upload_orm, mode_of_operation)
 
     return values
 
@@ -242,7 +219,6 @@ def new_init_pydantic(base_init):
     :return: новый __init__ метод
     """
     def decorator(self, *args, **kwargs):
-        # print('BaseModel.__init__')
         new_args = []
         for i in args:
             if hasattr(i, '__class__') and hasattr(i.__class__, '__name__') and i.__class__.__name__ in db.entities:

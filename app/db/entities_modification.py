@@ -10,8 +10,9 @@ from app.db.models import *
 
 entities_code = {}  # Тут будет находиться код сущностей БД в удобном виде
 for name, ent in db.entities.items():
-    ent.__bases__ = tuple(list(ent.__bases__) + [AddArrtInDbClass]) \
-        if AddArrtInDbClass not in list(ent.__bases__) else tuple(list(ent.__bases__))
+    ent.__bases__ = (tuple(list(ent.__bases__) + [AddArrtInDbClass])
+                     if AddArrtInDbClass not in list(ent.__bases__)
+                     else tuple(list(ent.__bases__)))
     entities_code[ent] = db_ent_to_dict(ent)
     entities_code[name] = entities_code[ent]
 
