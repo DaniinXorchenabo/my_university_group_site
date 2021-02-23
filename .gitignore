@@ -1,6 +1,9 @@
-*/settings/settings.ini
+/**/settings/settings.ini
 *.sqlite
-.idea/
-*/__pycache__/
-venv/
-*/venv/
+/**/.idea/**/*
+/**/__pycache__/**/*
+/**/venv/**/*
+/**/.deta/**/*
+/**/.vscode/**/*
+/**/.git/**/*
+/**/.vs/**/*
