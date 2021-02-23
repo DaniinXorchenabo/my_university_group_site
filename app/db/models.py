@@ -39,10 +39,6 @@ class User(db.Entity):
     senior_verification = Optional('SeniorVerification')
     groups = Optional('Group')
 
-    # def __init__(self, *args, **kwargs):
-    #     print('---------******************************************')
-    #     super(User, self).__init__(*args, **kwargs)
-
 
 class DustbiningChat(db.Entity):
     """Флудилка, чат, где будут спрашивать домашку"""
@@ -201,45 +197,8 @@ class SeniorVerification(db.Entity):
 
 
 if __name__ == '__main__':
-    from app.db.db_control_func import *
+    from app.db.db_control_func import connect_with_db
 
-    is_DB_created()
-    with db_session:
-        User[103].is_verificated = True
-        print(User[103].is_verificated)
-        # User[105].groups = None
-        commit()
+    connect_with_db()
     from os import chdir
-
     chdir(HOME_DIR)
-    # is_DB_created()
-
-    # db.migrate(command='make',
-    #            migration_dir=join(HOME_DIR, "db", 'migrations'),
-    #            # allow_auto_upgrade=True,
-    #            # create_tables=True,
-    #            create_db=True,
-    #            provider=cfg.get("db", "type"),
-    #            filename=":memory:")
-
-    # make_migrate_file()
-    # controller_migration_version(TEST_DB)
-    # is_DB_created(TEST_DB)
-    # DB_PATH = ""
-    # db.migrate(command='make',
-    #            migration_dir=join(HOME_DIR, "db", 'migrations'),
-    #            allow_auto_upgrade=True,
-    #            # create_tables=True,
-    #            # create_db=True,
-    #            provider=cfg.get("db", "type"),
-    #            filename=":memory:")  # join(HOME_DIR, "db", "tests", "test_" + cfg.get('db', "name"))
-    # controller_migration_version()
-    # is_DB_created()
-    # db.connect(allow_auto_upgrade=True,
-    #             create_tables=True,
-    #             create_db=True,
-    #            provider=cfg.get("db", "type"),
-    #            filename=":memory:")
-
-    # with db_session():
-    #     User.select().show()

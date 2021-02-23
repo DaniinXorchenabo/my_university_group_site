@@ -3,35 +3,27 @@
 """Место для настроек, которые нельзя записать в .ini"""
 
 from os.path import split, dirname, abspath, join
+from pathlib import Path
 from os import chdir
 
 from app.settings.config_control import *
 
 
 HOME_DIR = split(dirname(abspath(__file__)))[0]
+
 SETTINGS_DIR = join(HOME_DIR, "settings")
 SETTINGS_FILE = "settings.ini"
 EXAMPLE_SETTINGS_FILE = f"example_{SETTINGS_FILE}"
-AUTO_PYDANTIC_MODELS = join("pydantic_models_db", "pydantic_models.py")
-
 SETTINGS_FILE = join(HOME_DIR, SETTINGS_DIR, SETTINGS_FILE)
 EXAMPLE_SETTINGS_FILE = join(HOME_DIR, SETTINGS_DIR, EXAMPLE_SETTINGS_FILE)
-print(SETTINGS_FILE, EXAMPLE_SETTINGS_FILE)
-cfg = create_cfg(SETTINGS_FILE, EXAMPLE_SETTINGS_FILE)
-DB_PATH = join(HOME_DIR, "db", cfg.get('db', "name"))
-MIGRATIONS_DIR = join(HOME_DIR, "db", 'migrations')
-TEST_DB = join(HOME_DIR, "db", "tests", "test_" + cfg.get('db', "name"))
-DB_BACKUPS = join(HOME_DIR, "db", "backups")
-AUTO_PYDANTIC_MODELS = join(HOME_DIR, "db", AUTO_PYDANTIC_MODELS)
-weekdays_num = {1: "Понидельник",
-                2: "Вторник",
-                3: "Среда",
-                4: "Четверг",
-                5: "Пятница",
-                6: "Суббота",
-                7: "Воскресенье"}
 
-weekdays = {val: key for key, val in weekdays_num.items()}
+cfg = create_cfg(SETTINGS_FILE, EXAMPLE_SETTINGS_FILE)
+
+AUTO_PYDANTIC_MODELS = Path(HOME_DIR, cfg.get('paths', 'auto_pydantic_models'))
+DB_PATH = Path(HOME_DIR, cfg.get('paths', "db_path"), cfg.get('db', "name"))
+MIGRATIONS_DIR = Path(HOME_DIR, cfg.get('paths', "migration_dir"))
+TEST_DB = Path(HOME_DIR, cfg.get('paths', "test_db"), cfg.get('db', "test_db_name"))
+DB_BACKUPS = Path(HOME_DIR, cfg.get('paths', "db_backups"))
 
 if __name__ == '__main__':
     chdir(HOME_DIR)

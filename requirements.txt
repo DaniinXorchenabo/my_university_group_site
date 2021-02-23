@@ -3,8 +3,10 @@ regex
 nltk
 pony
 vk-api
-git+git://github.com/ponyorm/pony.git@orm-migrations
+https://github.com/ponyorm/pony/archive/orm-migrations.zip#egg=pony
 uvicorn
-wheel -U
+wheel
 fastapi[all]
 pydantic
+flask
+GitPython
