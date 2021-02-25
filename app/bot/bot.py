@@ -93,7 +93,7 @@ def bot():
                     write_json(all_hw, "homework.json")
                     reply(peer_id=peer_id, message=f"Дз на {dl} успешно удалено")
         if temp[0] == "/получить_дз":
-            dl, subject, hw = temp[1:]
+            dl = temp[1:]
             for i in all_hw["homework"][0][dl]:
                 s += i[0] + " " + i[1] + '\n'
             reply(peer_id=peer_id, message=f"Дз на {dl}\n {s}")
