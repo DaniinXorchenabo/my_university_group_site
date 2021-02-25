@@ -63,7 +63,7 @@ app = Flask(__name__)
 
 
 def reply(**kwargs):
-    general = dict(random_id=random.randbytes(64), message=None, keyboard=keyboard.get_keyboard())
+    general = dict(random_id=random.randint(0, 343439483948), message=None, keyboard=keyboard.get_keyboard())
     kwargs.update(general)
     vk.messages.send(kwargs)
 
