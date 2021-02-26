@@ -1,18 +1,25 @@
 # -*- coding: utf-8 -*-
 
-"""Место для настроек, которые нельзя записать в .ini"""
+"""
+    Место для настроек, которые нельзя записать в .ini
+
+    Этот файл должен быть импортирован (со *) в любой другой файл проекта
+    Сам по себе файл запускаться не должен
+"""
 
 from os.path import split, dirname, abspath, join
 from pathlib import Path
 from os import chdir
 
-from app.settings.config_control import *
+from app.settings.config_control import create_cfg
 
+
+SETTINGS_DIR = 'settings'
+SETTINGS_FILE = 'settings.ini'
 
 HOME_DIR = split(dirname(abspath(__file__)))[0]
 
-SETTINGS_DIR = join(HOME_DIR, "settings")
-SETTINGS_FILE = "settings.ini"
+SETTINGS_DIR = join(HOME_DIR, SETTINGS_DIR)
 EXAMPLE_SETTINGS_FILE = f"example_{SETTINGS_FILE}"
 SETTINGS_FILE = join(HOME_DIR, SETTINGS_DIR, SETTINGS_FILE)
 EXAMPLE_SETTINGS_FILE = join(HOME_DIR, SETTINGS_DIR, EXAMPLE_SETTINGS_FILE)

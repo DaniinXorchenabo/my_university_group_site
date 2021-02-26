@@ -1,4 +1,4 @@
-/**/settings/settings.ini
+/app/settings/settings.ini
 *.sqlite
 *.json
 *.json5
