@@ -9,7 +9,7 @@ from pony.orm import *
 
 from app.settings.config import *
 from app.db.models import *
-from app.db.db_addition.user_addition import *
+from app.db.db_addition.User_addition import *
 
 
 if __name__ == '__main__':

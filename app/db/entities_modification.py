@@ -17,7 +17,7 @@ for name, ent in db.entities.items():
     entities_code[name] = entities_code[ent]
 
 
-from app.db.db_addition.user_addition import *
+from app.db.db_addition.User_addition import *
 from app.db.db_addition.Group_addition import *
 from app.db.db_addition.NoneVerification_additions import *
 from app.db.db_addition.Admin_additions import *
