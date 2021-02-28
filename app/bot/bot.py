@@ -141,7 +141,6 @@ def bot():
                 payload[-1] = ""
                 payload[-2] = ""
                 payload = ''.join(payload)
-                reply(peer_id=peer_id, message=payload)
                 if payload == "start":
                     responce = "Привет. У меня ты можешь узнать расписание, фио преподовов и дз"
                     reply(peer_id=peer_id, message=responce)
