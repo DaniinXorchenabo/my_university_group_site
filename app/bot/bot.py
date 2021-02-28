@@ -91,6 +91,7 @@ keyboard.add_button("Расписание пар", color=VkKeyboardColor.POSITIV
 keyboard.add_line()
 keyboard.add_button("ФИО преподавателей", color=VkKeyboardColor.POSITIVE, payload='{"payload":"prepody"}')
 keyboard.add_openlink_button("Ссылка на диск", "https://yadi.sk/d/0W7wTf29wwaOYw")
+keyboard.add_callback_button("проверка callback button", payload='{"payload":"callback"}')
 
 subjects_keyboard = VkKeyboard(one_time=False)
 subjects_keyboard.add_button("Английский")
@@ -175,6 +176,8 @@ def bot():
                     reply(peer_id=peer_id, message="Выберете предмет", keyboard=subjects_keyboard.get_keyboard())
                 elif payload == "mainmenu":
                     reply(peer_id=peer_id, message="Вы вернулись в главное меню", keyboard=keyboard.get_keyboard())
+                elif payload == "callback":
+                    reply(peer_id=peer_id, message="Была нажата callback кнопка", keyboard=keyboard.get_keyboard())
 
             homework(text, from_id, peer_id)
     return "ok"
