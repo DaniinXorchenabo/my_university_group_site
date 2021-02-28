@@ -72,7 +72,7 @@ def get_raspisanie_on_tomorrow():
 token = cfg.get('vk', 'token')
 vk = vk_api.VkApi(token=token).get_api()
 
-keyboard = VkKeyboard(one_time=True)
+keyboard = VkKeyboard(one_time=False)
 keyboard.add_button("Расписание на неделю", color=VkKeyboardColor.POSITIVE, payload='{"payload":"week"}')
 keyboard.add_line()
 keyboard.add_button("Расписание на сегодня", color=VkKeyboardColor.POSITIVE, payload='{"payload":"today"}')
@@ -101,7 +101,7 @@ app = Flask(__name__)
 
 def reply(**kwargs):
     general = dict(random_id=random.randint(0, 343439483948), keyboard=keyboard.get_keyboard())
-    kwargs.update(general)
+    general.update(kwargs)
     vk.messages.send(**kwargs)
 
 
