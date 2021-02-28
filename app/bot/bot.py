@@ -102,7 +102,7 @@ app = Flask(__name__)
 def reply(**kwargs):
     general = dict(random_id=random.randint(0, 343439483948), keyboard=keyboard.get_keyboard())
     general.update(kwargs)
-    vk.messages.send(general)
+    vk.messages.send(**general)
 
 
 @app.route('/', methods=["GET", "POST"])
