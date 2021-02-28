@@ -91,6 +91,7 @@ keyboard.add_button("Расписание пар", color=VkKeyboardColor.POSITIV
 keyboard.add_line()
 keyboard.add_button("ФИО преподавателей", color=VkKeyboardColor.POSITIVE, payload='{"payload":"prepody"}')
 keyboard.add_openlink_button("Ссылка на диск", "https://yadi.sk/d/0W7wTf29wwaOYw")
+keyboard.add_line()
 keyboard.add_callback_button("проверка callback button", payload='{"payload":"callback"}')
 
 subjects_keyboard = VkKeyboard(one_time=False)
