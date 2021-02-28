@@ -150,7 +150,7 @@ def bot():
         request_type = data['type']
         if data['type'] == 'confirmation':
             return cfg.get('vk', 'confirmation')
-        if request_type == "event_type":
+        if request_type == "message_event":
             peer_id = data["object"]["peer_id"]
             payload = data["object"]["payload"]["payload"]
             if payload == "callback":
