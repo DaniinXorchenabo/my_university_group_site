@@ -59,6 +59,8 @@ def get_raspisanie_on_week(tomorrow=False):
 
 def get_raspisanie_on_today():
     day = get_today()
+    if day > 5:
+        day = 0
     s = get_raspisanie_on_week().split("*****")[1:]
     raspisanie = s[day]
     return raspisanie
