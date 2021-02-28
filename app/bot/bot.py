@@ -38,7 +38,7 @@ def get_week(tomorrow=False):
 
 
 def get_today():
-    return (datetime.utcnow().isocalendar()[2] - 1) % 6
+    return ((datetime.utcnow().isocalendar()[2]) % 8) - 1
 
 
 def get_raspisanie_on_week(tomorrow=False):

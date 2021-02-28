@@ -14,12 +14,14 @@ def get_week(tomorrow=False):
 
 
 def get_today():
-    return (datetime.utcnow().isocalendar()[2] - 1) % 6
+    return ((datetime.utcnow().isocalendar()[2]) % 8) - 1
 
 
 def get_raspisanie_on_week(tomorrow=False):
     day = get_today()
+    print(day)
     week = get_week(tomorrow)
+    print(week)
     if not tomorrow:
         if day > 5:
             week = int(not bool(week))
@@ -49,4 +51,4 @@ def get_raspisanie_on_tomorrow():
     return raspisanie
 
 
-print(get_week())
+print(get_raspisanie_on_week())
