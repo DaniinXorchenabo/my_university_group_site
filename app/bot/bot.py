@@ -155,7 +155,7 @@ def bot():
             payload = data["object"]["payload"]["payload"]
             if payload == "callback":
                 reply(peer_id=peer_id, message="Была нажата callback кнопка", keyboard=keyboard.get_keyboard())
-        if request_type == 'message_new':
+        elif request_type == 'message_new':
             message = data['object']["message"]
             from_id = message["from_id"]
             peer_id = message['peer_id']
