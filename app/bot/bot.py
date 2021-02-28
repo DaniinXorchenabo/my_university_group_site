@@ -135,7 +135,7 @@ def bot():
             peer_id = message['peer_id']
             text = message["text"].lower()
             if text == "/showkb":
-                reply(peer_id, keyboard=keyboard.get_keyboard())
+                reply(peer_id, message="keyboard on", keyboard=keyboard.get_keyboard())
             if "payload" in message.keys():
                 payload = message["payload"]["payload"]
                 if payload == "start":
