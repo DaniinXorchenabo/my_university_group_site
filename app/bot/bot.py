@@ -137,7 +137,10 @@ def bot():
             if text == "/showkb":
                 reply(peer_id=peer_id, message="keyboard on", keyboard=keyboard.get_keyboard())
             if "payload" in message.keys():
-                payload = message["payload"]
+                payload = list(message["payload"])[13:]
+                payload[-1] = ""
+                payload[-2] = ""
+                payload = ''.join(payload)
                 reply(peer_id=peer_id, message=str(type(payload)))
                 if payload == "start":
                     responce = "Привет. У меня ты можешь узнать расписание, фио преподовов и дз"
