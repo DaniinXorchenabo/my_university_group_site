@@ -150,6 +150,13 @@ def bot():
         request_type = data['type']
         if data['type'] == 'confirmation':
             return cfg.get('vk', 'confirmation')
+        if request_type == "event_type":
+            peer_id = data["object"]["peer_id"]
+            payload = list(data["object"]["payload"])[12:]
+            payload[-1] = ""
+            payload[-2] = ""
+            if payload == "callback":
+                reply(peer_id=peer_id, message="Была нажата callback кнопка", keyboard=keyboard.get_keyboard())
         if request_type == 'message_new':
             message = data['object']["message"]
             from_id = message["from_id"]
@@ -177,8 +184,7 @@ def bot():
                     reply(peer_id=peer_id, message="Выберете предмет", keyboard=subjects_keyboard.get_keyboard())
                 elif payload == "mainmenu":
                     reply(peer_id=peer_id, message="Вы вернулись в главное меню", keyboard=keyboard.get_keyboard())
-                elif payload == "callback":
-                    reply(peer_id=peer_id, message="Была нажата callback кнопка", keyboard=keyboard.get_keyboard())
+
 
             homework(text, from_id, peer_id)
     return "ok"
