@@ -138,6 +138,7 @@ def bot():
                 reply(peer_id=peer_id, message="keyboard on", keyboard=keyboard.get_keyboard())
             if "payload" in message.keys():
                 payload = message["payload"]["payload"]
+                reply(peer_id=peer_id, message=payload)
                 if payload == "start":
                     responce = "Привет. У меня ты можешь узнать расписание, фио преподовов и дз"
                     reply(peer_id=peer_id, message=responce)
