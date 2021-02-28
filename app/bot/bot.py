@@ -53,7 +53,7 @@ def get_raspisanie_on_week(tomorrow=False):
 
 def get_raspisanie_on_today():
     day = get_today()
-    s = get_raspisanie_on_week().split("*****")[2:]
+    s = get_raspisanie_on_week().split("*****")[1:]
     raspisanie = s[day]
     return raspisanie
 
