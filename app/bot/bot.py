@@ -34,7 +34,7 @@ def read_json(file):
 def get_week(tomorrow=False):
     if tomorrow:
         return int(not bool(datetime.utcnow().isocalendar()[1] % 2))
-    return datetime.utcnow().isocalendar()[1] % 2 - 1
+    return datetime.utcnow().isocalendar()[1] % 2
 
 
 def get_today():
@@ -43,7 +43,9 @@ def get_today():
 
 def get_raspisanie_on_week(tomorrow=False):
     day = get_today()
+    print(day)
     week = get_week(tomorrow)
+    print(week)
     if not tomorrow:
         if day > 5:
             week = int(not bool(week))
