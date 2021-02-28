@@ -107,6 +107,7 @@ def reply(**kwargs):
 
 @app.route('/', methods=["GET", "POST"])
 def bot():
+    global keyboard
     def homework(text, from_id, peer_id):
         temp = text.split()  # для разделения команда параметры
         if len(temp) < 2:
@@ -164,7 +165,8 @@ def bot():
                 elif payload == "timetable":
                     reply(peer_id=peer_id, message=raspisanie_par)
                 elif payload == "prepody":
-                    reply(peer_id=peer_id, message="Выберете предмет", keyboard=subjects_keyboard.get_keyboard())
+                    keyboard = subjects_keyboard
+                    reply(peer_id=peer_id, message="Выберете предмет")
                 elif payload == "mainmenu":
                     reply(peer_id=peer_id, message="Вы вернулись в главное меню", keyboard=keyboard.get_keyboard())
 
