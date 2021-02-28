@@ -29,7 +29,7 @@ def get_raspisanie_on_week(tomorrow=False):
 
 def get_raspisanie_on_today():
     day = get_today()
-    s = get_raspisanie_on_week().split("*****")[2:]
+    s = get_raspisanie_on_week().split("*****")[1:]
     raspisanie = s[day]
     return raspisanie
 
@@ -37,11 +37,11 @@ def get_raspisanie_on_today():
 def get_raspisanie_on_tomorrow():
     day = get_today()
     if day > 4:
-        s = get_raspisanie_on_week(True).split("\n")[1:]
+        s = get_raspisanie_on_week(True).split("*****")[1:]
         raspisanie = s[0]
     else:
-        s = get_raspisanie_on_week().split("\n")[1:]
+        s = get_raspisanie_on_week().split("*****")[1:]
         raspisanie = s[day]
     return raspisanie
 
-print(get_raspisanie_on_today())
+print(get_raspisanie_on_tomorrow())
