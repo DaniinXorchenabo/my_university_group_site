@@ -64,7 +64,7 @@ def get_raspisanie_on_tomorrow():
         s = get_raspisanie_on_week(True).split("*****")[2:]
         raspisanie = s[0]
     else:
-        s = get_raspisanie_on_week().split("\n")[1:]
+        s = get_raspisanie_on_week().split("*****")[1:]
         raspisanie = s[day]
     return raspisanie
 
