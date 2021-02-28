@@ -44,7 +44,7 @@ def get_today():
 def get_raspisanie_on_week(tomorrow=False):
     day = get_today()
     week = get_week(tomorrow)
-    if day > 5:
+    if day > 5 and tomorrow == False:
         week = int(not bool(week))
     raspisanie = ""
     if week == 0:
