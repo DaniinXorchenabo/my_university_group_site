@@ -153,8 +153,6 @@ def bot():
         if request_type == "event_type":
             peer_id = data["object"]["peer_id"]
             payload = data["object"]["payload"]["payload"]
-            payload[-1] = ""
-            payload[-2] = ""
             if payload == "callback":
                 reply(peer_id=peer_id, message="Была нажата callback кнопка", keyboard=keyboard.get_keyboard())
         if request_type == 'message_new':
