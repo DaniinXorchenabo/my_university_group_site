@@ -40,6 +40,7 @@ def get_week(tomorrow=False):
 def get_today():
     return (datetime.utcnow().isocalendar()[2] - 1) % 6
 
+
 def get_raspisanie_on_week(tomorrow=False):
     week = get_week(tomorrow)
     raspisanie = ""
@@ -49,11 +50,13 @@ def get_raspisanie_on_week(tomorrow=False):
         raspisanie = raspisanie_second_week
     return raspisanie
 
+
 def get_raspisanie_on_today():
     day = get_today()
     s = get_raspisanie_on_week().split("\n")[1:]
     raspisanie = s[day]
     return raspisanie
+
 
 def get_raspisanie_on_tomorrow():
     day = get_today()
@@ -64,6 +67,7 @@ def get_raspisanie_on_tomorrow():
         s = get_raspisanie_on_week().split("\n")[1:]
         raspisanie = s[day]
     return raspisanie
+
 
 token = cfg.get('vk', 'token')
 vk = vk_api.VkApi(token=token).get_api()
@@ -80,7 +84,6 @@ keyboard.add_line()
 keyboard.add_button("ФИО преподавателей", color=VkKeyboardColor.POSITIVE, payload='{"payload":"prepody"}')
 keyboard.add_openlink_button("Ссылка на диск", "https://yadi.sk/d/0W7wTf29wwaOYw")
 
-
 subjects_keyboard = VkKeyboard(one_time=False)
 app = Flask(__name__)
 
@@ -94,7 +97,7 @@ def reply(**kwargs):
 @app.route('/', methods=["GET", "POST"])
 def bot():
     def homework(text, from_id, peer_id):
-        temp = text.split() #для разделения команда параметры
+        temp = text.split()  # для разделения команда параметры
         if len(temp) < 2:
             return
         all_hw = read_json("homework.json")
@@ -131,7 +134,7 @@ def bot():
             from_id = message["from_id"]
             peer_id = message['peer_id']
             text = message["text"].lower()
-            if text=="/showkb":
+            if text == "/showkb":
                 reply(peer_id, keyboard=keyboard.get_keyboard())
             if "payload" in message.keys():
                 payload = message["payload"]["payload"]
