@@ -85,6 +85,17 @@ keyboard.add_button("ФИО преподавателей", color=VkKeyboardColor
 keyboard.add_openlink_button("Ссылка на диск", "https://yadi.sk/d/0W7wTf29wwaOYw")
 
 subjects_keyboard = VkKeyboard(one_time=False)
+subjects_keyboard.add_button("Английский")
+subjects_keyboard.add_button("ИТвПД")
+subjects_keyboard.add_button("Математика")
+subjects_keyboard.add_button("МЛиТА")
+subjects_keyboard.add_line()
+subjects_keyboard.add_button("Правоведение")
+subjects_keyboard.add_button("Программирование")
+subjects_keyboard.add_button("ТРИР")
+subjects_keyboard.add_button("Физика")
+subjects_keyboard.add_line()
+subjects_keyboard.add_button("Назад", payload='{"payload":"mainmenu"}')
 app = Flask(__name__)
 
 
@@ -153,7 +164,10 @@ def bot():
                 elif payload == "timetable":
                     reply(peer_id=peer_id, message=raspisanie_par)
                 elif payload == "prepody":
-                    reply(peer_id=peer_id, keyboard=subjects_keyboard.get_keyboard())
+                    reply(peer_id=peer_id, message="Выберете предмет", keyboard=subjects_keyboard.get_keyboard())
+                elif payload == "mainmenu":
+                    reply(peer_id=peer_id, message="Вы вернулись в главное меню", keyboard=keyboard.get_keyboard())
+
             homework(text, from_id, peer_id)
     return "ok"
 
