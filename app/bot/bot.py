@@ -152,7 +152,7 @@ def bot():
             return cfg.get('vk', 'confirmation')
         if request_type == "event_type":
             peer_id = data["object"]["peer_id"]
-            payload = list(data["object"]["payload"])[12:]
+            payload = data["object"]["payload"]["payload"]
             payload[-1] = ""
             payload[-2] = ""
             if payload == "callback":
