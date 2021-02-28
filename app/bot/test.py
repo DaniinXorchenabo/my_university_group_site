@@ -10,7 +10,7 @@ with open("raspisanie_second_week.txt", encoding="utf-8") as f:
 def get_week(tomorrow=False):
     if tomorrow:
         return int(not bool(datetime.utcnow().isocalendar()[1] % 2))
-    return datetime.utcnow().isocalendar()[1] % 2 - 1
+    return datetime.utcnow().isocalendar()[1] % 2
 
 
 def get_today():
@@ -18,9 +18,13 @@ def get_today():
 
 
 def get_raspisanie_on_week(tomorrow=False):
+    day = get_today()
     week = get_week(tomorrow)
+    if not tomorrow:
+        if day > 5:
+            week = int(not bool(week))
     raspisanie = ""
-    if week == 0:
+    if week == 1:
         raspisanie = raspisanie_first_week
     else:
         raspisanie = raspisanie_second_week
@@ -44,4 +48,5 @@ def get_raspisanie_on_tomorrow():
         raspisanie = s[day]
     return raspisanie
 
-print(get_raspisanie_on_tomorrow())
+
+print(get_week())

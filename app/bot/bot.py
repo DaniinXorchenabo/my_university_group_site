@@ -48,7 +48,7 @@ def get_raspisanie_on_week(tomorrow=False):
         if day > 5:
             week = int(not bool(week))
     raspisanie = ""
-    if week == 0:
+    if week == 1:
         raspisanie = raspisanie_first_week
     else:
         raspisanie = raspisanie_second_week
