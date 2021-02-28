@@ -42,7 +42,10 @@ def get_today():
 
 
 def get_raspisanie_on_week(tomorrow=False):
+    day = get_today()
     week = get_week(tomorrow)
+    if day > 5:
+        week = int(not bool(week))
     raspisanie = ""
     if week == 0:
         raspisanie = raspisanie_first_week
