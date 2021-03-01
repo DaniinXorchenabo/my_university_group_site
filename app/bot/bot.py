@@ -113,6 +113,12 @@ def reply(**kwargs):
     vk.messages.send(**general)
 
 
+def reply_with_event(peer_id, event_id, user_id, text):
+    vk.messages.sendMessageEventAnswer(peer_id=peer_id, event_id=event_id, user_id=user_id,
+                                       event_data=json.dumps(
+                                           '{"type": "show_snackbar", "text": ' + text + ' }'))
+
+
 @app.route('/', methods=["GET", "POST"])
 def bot():
     def homework(text, from_id, peer_id):
@@ -153,11 +159,6 @@ def bot():
             user_id = data["object"]["user_id"]
             peer_id = data["object"]["peer_id"]
             payload = data["object"]["payload"]
-
-            def reply_with_event(peer_id, event_id, user_id, text):
-                vk.messages.sendMessageEventAnswer(peer_id=peer_id, event_id=event_id, user_id=user_id,
-                                                   event_data=json.dumps(
-                                                       '{"type": "show_snackbar", "text": ' + text + ' }'))
 
             if len(payload) < 85:
                 payload = payload["payload"]
