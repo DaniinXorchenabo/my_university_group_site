@@ -92,7 +92,6 @@ keyboard.add_line()
 keyboard.add_callback_button("ФИО преподавателей", color=VkKeyboardColor.POSITIVE, payload='{"payload":"prepody"}')
 keyboard.add_line()
 keyboard.add_openlink_button("Ссылка на диск", "https://yadi.sk/d/0W7wTf29wwaOYw")
-keyboard.add_line()
 
 subjects_keyboard = VkKeyboard(one_time=False)
 subjects_keyboard.add_callback_button("Английский")
