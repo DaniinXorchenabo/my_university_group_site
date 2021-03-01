@@ -182,6 +182,7 @@ def bot():
             elif payload == "new_type_message":
                 vk.messages.sendMessageEventAnswer(peer_id=peer_id, event_id=event_id,
                                                    event_data='"{type": "show_snackbar", "text": "Это исчезающее сообщение"}')
+                print(1)
 
         elif request_type == 'message_new':
             message = data['object']["message"]
