@@ -93,7 +93,7 @@ keyboard.add_callback_button("ФИО преподавателей", color=VkKeyb
 keyboard.add_line()
 keyboard.add_openlink_button("Ссылка на диск", "https://yadi.sk/d/0W7wTf29wwaOYw")
 keyboard.add_line()
-keyboard.add_callback_button("Зацени", payload={"payload":"new_type_message"})
+keyboard.add_callback_button("Зацени", payload={"payload": "new_type_message"})
 
 subjects_keyboard = VkKeyboard(one_time=False)
 subjects_keyboard.add_callback_button("Английский")
@@ -152,6 +152,7 @@ def bot():
         if data['type'] == 'confirmation':
             return cfg.get('vk', 'confirmation')
         if request_type == "message_event":
+            event_id = data["object"]["event_id"]
             peer_id = data["object"]["peer_id"]
             payload = data["object"]["payload"]
             if len(payload) < 85:
@@ -178,7 +179,8 @@ def bot():
             elif payload == "mainmenu":
                 reply(peer_id=peer_id, message="Вы вернулись в главное меню", keyboard=keyboard.get_keyboard())
             elif payload == "new_type_message":
-                vk.messages.sendMessageEventAnswer(peer_id=peer_id, event_data='"{type": "show_snackbar", "text": "Это исчезающее сообщение"}')
+                vk.messages.sendMessageEventAnswer(peer_id=peer_id, event_id=event_id,
+                                                   event_data='"{type": "show_snackbar", "text": "Это исчезающее сообщение"}')
 
         elif request_type == 'message_new':
             message = data['object']["message"]
