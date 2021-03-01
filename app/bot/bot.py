@@ -185,6 +185,7 @@ def bot():
                 reply(peer_id=peer_id, message="Вы вернулись в главное меню", keyboard=keyboard.get_keyboard())
             # преподы предметов
             elif payload == "english":
+                reply(peer_id=peer_id, message=event_id)
                 reply_with_event(peer_id=peer_id, event_id=event_id, user_id=user_id,
                                  text="Английский\nДанкова Наталья Станиславовна n.s.dankova@mail.ru\nЮрасова Ольга Николаевна ol.iurasova@yandex.ru")
 
