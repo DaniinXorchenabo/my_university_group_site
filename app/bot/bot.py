@@ -156,7 +156,7 @@ def bot():
 
             def reply_with_event(text):
                 vk.messages.sendMessageEventAnswer(peer_id=peer_id, event_id=event_id, user_id=user_id,
-                                                   event_data=json.dump('{"type": "show_snackbar", "text": ' + text + ' }'))
+                                                   event_data=json.dumps('{"type": "show_snackbar", "text": ' + text + ' }'))
 
             if len(payload) < 85:
                 payload = payload["payload"]
