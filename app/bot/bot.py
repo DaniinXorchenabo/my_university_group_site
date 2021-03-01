@@ -75,7 +75,7 @@ def get_raspisanie_on_tomorrow():
         raspisanie = s[0]
     else:
         s = get_raspisanie_on_week().split("*****")[1:]
-        raspisanie = s[day+1]
+        raspisanie = s[day + 1]
     return raspisanie
 
 
@@ -93,7 +93,7 @@ keyboard.add_callback_button("ФИО преподавателей", color=VkKeyb
 keyboard.add_line()
 keyboard.add_openlink_button("Ссылка на диск", "https://yadi.sk/d/0W7wTf29wwaOYw")
 keyboard.add_line()
-keyboard.add_callback_button("Зацени", payload='{"type":"show_snackbar", text="Я полетело!"}')
+keyboard.add_callback_button("Зацени", payload={"type": "show_snackbar", "text=": "Я полетело!"})
 
 subjects_keyboard = VkKeyboard(one_time=False)
 subjects_keyboard.add_callback_button("Английский")
@@ -159,7 +159,7 @@ def bot():
             else:
                 payload = list(payload)[85:]
 
-                for i in range(-5, -1+1, -1):
+                for i in range(-5, -1 + 1, -1):
                     payload[i] = ''
                 ''.join(payload)
             if payload == "start":
