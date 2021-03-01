@@ -10,16 +10,15 @@ if __name__ == '__main__':
 
     sys.path += [os_split(os_split(os_split(__file__)[0])[0])[0]]
 
-import random
 import json
-import os
+import random
 
-from flask import Flask, request
 import vk_api
+from flask import Flask, request
 from vk_api.keyboard import VkKeyboard, VkKeyboardColor
 
-from app.db.all_tools_db import *
 from app.bot.data import *
+from app.db.all_tools_db import *
 
 
 def write_json(data, file):
@@ -157,7 +156,8 @@ def bot():
 
             def reply_with_event(text):
                 vk.messages.sendMessageEventAnswer(peer_id=peer_id, event_id=event_id, user_id=user_id,
-                                                   event_data=json.dump(f'{"type": "show_snackbar", "text": {text} }'))
+                                                   event_data=json.dump(
+                                                       '{"type": "show_snackbar", "text": ' + text + ' }'))
 
             if len(payload) < 85:
                 payload = payload["payload"]
