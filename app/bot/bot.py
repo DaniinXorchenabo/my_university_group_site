@@ -92,21 +92,19 @@ keyboard.add_line()
 keyboard.add_callback_button("ФИО преподавателей", color=VkKeyboardColor.POSITIVE, payload='{"payload":"prepody"}')
 keyboard.add_line()
 keyboard.add_openlink_button("Ссылка на диск", "https://yadi.sk/d/0W7wTf29wwaOYw")
-keyboard.add_line()
-keyboard.add_callback_button("Зацени", payload={"payload": "new_type_message"})
 
-subjects_keyboard = VkKeyboard(one_time=False)
-subjects_keyboard.add_callback_button("Английский")
-subjects_keyboard.add_callback_button("ИТвПД")
-subjects_keyboard.add_callback_button("Математика")
-subjects_keyboard.add_callback_button("МЛиТА")
+subjects_keyboard = VkKeyboard(inline=True)
+subjects_keyboard.add_callback_button("Английский", payload={"payload":"english"})
+subjects_keyboard.add_callback_button("ИТвПД", payload={"payload":"itvpd"})
+subjects_keyboard.add_callback_button("Математика", payload={"payload":"math"})
+subjects_keyboard.add_callback_button("МЛиТА", payload={"payload":"mlita"})
 subjects_keyboard.add_line()
-subjects_keyboard.add_callback_button("Правоведение")
-subjects_keyboard.add_callback_button("Программирование")
-subjects_keyboard.add_callback_button("ТРИР")
-subjects_keyboard.add_callback_button("Физика")
+subjects_keyboard.add_callback_button("Правоведение", payload={"payload":"pravo"})
+subjects_keyboard.add_callback_button("Программирование", payload={"payload":"proga"})
+subjects_keyboard.add_callback_button("ТРИР", payload={"payload":"trir"})
+subjects_keyboard.add_callback_button("Физика", payload={"payload":"phisic"})
 subjects_keyboard.add_line()
-subjects_keyboard.add_callback_button("Назад", payload='{"payload":"mainmenu"}')
+subjects_keyboard.add_callback_button("Назад", payload={"payload":"mainmenu"})
 app = Flask(__name__)
 
 
@@ -156,6 +154,10 @@ def bot():
             user_id = data["object"]["user_id"]
             peer_id = data["object"]["peer_id"]
             payload = data["object"]["payload"]
+            def reply_with_event(text):
+                vk.messages.sendMessageEventAnswer(peer_id=peer_id, event_id=event_id, user_id=user_id,
+                                                   event_data=json.dump({"type": "show_snackbar",
+                                                                         "text": text}))
             if len(payload) < 85:
                 payload = payload["payload"]
             else:
@@ -179,10 +181,24 @@ def bot():
                 reply(peer_id=peer_id, message="Выберете предмет", keyboard=subjects_keyboard.get_keyboard())
             elif payload == "mainmenu":
                 reply(peer_id=peer_id, message="Вы вернулись в главное меню", keyboard=keyboard.get_keyboard())
-            elif payload == "new_type_message":
-                vk.messages.sendMessageEventAnswer(peer_id=peer_id, event_id=event_id, user_id=user_id,
-                                                   event_data=json.dump({"type": "show_snackbar", "text": "Это исчезающее сообщение"}))
-                print(1)
+            # преподы предметов
+            elif payload == "english":
+                reply_with_event("Английский\nДанкова Наталья Станиславовна n.s.dankova@mail.ru\nЮрасова Ольга Николаевна ol.iurasova@yandex.ru")
+
+            elif payload == "itvpd":
+                reply_with_event("ИТвПД\nГолобокова Елена Михайловна")
+            elif payload == "math":
+                reply_with_event("Математика\nКупряшина Лилия Александровна")
+            elif payload == "mlita":
+                reply_with_event("МЛиТА\nКазакова Ирина Александровна")
+            elif payload == "pravo":
+                reply_with_event("Правоведение\nДанилова Валерия Александровна")
+            elif payload == "proga":
+                reply_with_event("Программирование\nГурьянов Лев Вячеславович")
+            elif payload == "trir":
+                reply_with_event("ТРИР\nТакташкин Денис Витальевич")
+            elif payload == "phisic":
+                reply_with_event("Физика\nКостина Наталья Владимировна\nСуровичкая Галина Владимировна")
 
         elif request_type == 'message_new':
             message = data['object']["message"]
