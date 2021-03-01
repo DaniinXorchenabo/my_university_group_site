@@ -92,6 +92,19 @@ keyboard.add_line()
 # keyboard.add_line()
 keyboard.add_openlink_button("Ссылка на диск", "https://yadi.sk/d/0W7wTf29wwaOYw")
 
+keyboard_my = VkKeyboard(one_time=False)
+keyboard_my.add_callback_button("Расписание на сегодня", color=VkKeyboardColor.POSITIVE, payload='{"payload":"today"}')
+keyboard_my.add_line()
+keyboard_my.add_callback_button("Расписание на завтра", color=VkKeyboardColor.POSITIVE, payload='{"payload":"tomorrow"}')
+keyboard_my.add_line()
+keyboard_my.add_callback_button("Расписание пар", color=VkKeyboardColor.POSITIVE, payload='{"payload":"timetable"}')
+keyboard_my.add_line()
+keyboard_my.add_callback_button("Defend", color=VkKeyboardColor.NEGATIVE, payload='{"payload":"defend"}')
+keyboard_my.add_line()
+# keyboard.add_callback_button("ФИО преподавателей", color=VkKeyboardColor.POSITIVE, payload='{"payload":"prepody"}')
+# keyboard.add_line()
+keyboard.add_openlink_button("Ссылка на диск", "https://yadi.sk/d/0W7wTf29wwaOYw")
+
 subjects_keyboard = VkKeyboard(inline=True)
 subjects_keyboard.add_callback_button("Английский", payload={"payload": "english"})
 subjects_keyboard.add_callback_button("ИТвПД", payload={"payload": "itvpd"})
@@ -200,7 +213,8 @@ def bot():
                                                    text=json.dumps(
                                                        {"type": "show_snackbar",
                                                         "text": "Английский\nДанкова Наталья Станиславовна n.s.dankova@mail.ru\nЮрасова Ольга Николаевна ol.iurasova@yandex.ru"}))
-
+            elif payload == "defend":
+                reply(peer_id=peer_id, attachment="photo379254977_457239134")
             elif payload == "itvpd":
                 vk.messages.sendMessageEventAnswer(peer_id=peer_id, event_id=event_id, user_id=user_id,
                                                    text=json.dumps(
@@ -243,7 +257,11 @@ def bot():
             peer_id = message['peer_id']
             text = message["text"].lower()
             if text == "/showkb":
-                reply(peer_id=peer_id, message="keyboard on", keyboard=keyboard.get_keyboard())
+                if from_id == "159526068":
+                    reply(peer_id=peer_id, message="keyboard on", keyboard=keyboard_my.get_keyboard())
+                else:
+                    reply(peer_id=peer_id, message="keyboard on", keyboard=keyboard.get_keyboard())
+
 
             homework(text, from_id, peer_id)
     return "ok"
