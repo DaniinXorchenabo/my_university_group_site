@@ -177,9 +177,13 @@ def bot():
                 vk.messages.sendMessageEventAnswer(peer_id=peer_id, event_id=event_id, user_id=user_id,
                                                    event_data=json.dumps({"type": "show_snackbar", "text":get_raspisanie_on_today()}))
             elif payload == "tomorrow":
-                reply(peer_id=peer_id, message=get_raspisanie_on_tomorrow())
+                vk.messages.sendMessageEventAnswer(peer_id=peer_id, event_id=event_id, user_id=user_id,
+                                                   event_data=json.dumps(
+                                                       {"type": "show_snackbar", "text": get_raspisanie_on_tomorrow()}))
             elif payload == "timetable":
-                reply(peer_id=peer_id, message=raspisanie_par)
+                vk.messages.sendMessageEventAnswer(peer_id=peer_id, event_id=event_id, user_id=user_id,
+                                                   event_data=json.dumps(
+                                                       {"type": "show_snackbar", "text": raspisanie_par}))
             elif payload == "prepody":
                 reply(peer_id=peer_id, message="Выберете предмет", keyboard=subjects_keyboard.get_keyboard())
             elif payload == "mainmenu":
