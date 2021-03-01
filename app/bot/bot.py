@@ -2,6 +2,8 @@
 
 """документация к коду"""
 
+# TODO: Добавить список команд для бота в кнопку
+
 if __name__ == '__main__':
     from os.path import split as os_split
     import sys
@@ -81,31 +83,28 @@ token = cfg.get('vk', 'token')
 vk = vk_api.VkApi(token=token).get_api()
 
 keyboard = VkKeyboard(one_time=False)
-keyboard.add_button("Расписание на неделю", color=VkKeyboardColor.POSITIVE, payload='{"payload":"week"}')
+keyboard.add_callback_button("Расписание на сегодня", color=VkKeyboardColor.POSITIVE, payload='{"payload":"today"}')
 keyboard.add_line()
-keyboard.add_button("Расписание на сегодня", color=VkKeyboardColor.POSITIVE, payload='{"payload":"today"}')
+keyboard.add_callback_button("Расписание на завтра", color=VkKeyboardColor.POSITIVE, payload='{"payload":"tomorrow"}')
 keyboard.add_line()
-keyboard.add_button("Расписание на завтра", color=VkKeyboardColor.POSITIVE, payload='{"payload":"tomorrow"}')
+keyboard.add_callback_button("Расписание пар", color=VkKeyboardColor.POSITIVE, payload='{"payload":"timetable"}')
 keyboard.add_line()
-keyboard.add_button("Расписание пар", color=VkKeyboardColor.POSITIVE, payload='{"payload":"timetable"}')
-keyboard.add_line()
-keyboard.add_button("ФИО преподавателей", color=VkKeyboardColor.POSITIVE, payload='{"payload":"prepody"}')
+keyboard.add_callback_button("ФИО преподавателей", color=VkKeyboardColor.POSITIVE, payload='{"payload":"prepody"}')
 keyboard.add_openlink_button("Ссылка на диск", "https://yadi.sk/d/0W7wTf29wwaOYw")
 keyboard.add_line()
-keyboard.add_callback_button("проверка callback button", payload='{"payload":"callback"}')
 
 subjects_keyboard = VkKeyboard(one_time=False)
-subjects_keyboard.add_button("Английский")
-subjects_keyboard.add_button("ИТвПД")
-subjects_keyboard.add_button("Математика")
-subjects_keyboard.add_button("МЛиТА")
+subjects_keyboard.add_callback_button("Английский")
+subjects_keyboard.add_callback_button("ИТвПД")
+subjects_keyboard.add_callback_button("Математика")
+subjects_keyboard.add_callback_button("МЛиТА")
 subjects_keyboard.add_line()
-subjects_keyboard.add_button("Правоведение")
-subjects_keyboard.add_button("Программирование")
-subjects_keyboard.add_button("ТРИР")
-subjects_keyboard.add_button("Физика")
+subjects_keyboard.add_callback_button("Правоведение")
+subjects_keyboard.add_callback_button("Программирование")
+subjects_keyboard.add_callback_button("ТРИР")
+subjects_keyboard.add_callback_button("Физика")
 subjects_keyboard.add_line()
-subjects_keyboard.add_button("Назад", payload='{"payload":"mainmenu"}')
+subjects_keyboard.add_callback_button("Назад", payload='{"payload":"mainmenu"}')
 app = Flask(__name__)
 
 
@@ -152,9 +151,30 @@ def bot():
             return cfg.get('vk', 'confirmation')
         if request_type == "message_event":
             peer_id = data["object"]["peer_id"]
-            payload = data["object"]["payload"]["payload"]
-            if payload == "callback":
-                reply(peer_id=peer_id, message="Была нажата callback кнопка", keyboard=keyboard.get_keyboard())
+            payload = data["object"]["payload"]
+            if len(payload) < 85:
+                payload = payload["payload"]
+            else:
+                payload = list(payload)[85:]
+                for i in range(-5, -1+1, -1):
+                    payload[i] = ''
+                ''.join(payload)
+            if payload == "start":
+                responce = "Привет. У меня ты можешь узнать расписание, фио преподовов и дз"
+                reply(peer_id=peer_id, message=responce)
+            elif payload == "week":
+                reply(peer_id=peer_id, message=get_raspisanie_on_week())
+            elif payload == "today":
+                reply(peer_id=peer_id, message=get_raspisanie_on_today())
+            elif payload == "tomorrow":
+                reply(peer_id=peer_id, message=get_raspisanie_on_tomorrow())
+            elif payload == "timetable":
+                reply(peer_id=peer_id, message=raspisanie_par)
+            elif payload == "prepody":
+                reply(peer_id=peer_id, message="Выберете предмет", keyboard=subjects_keyboard.get_keyboard())
+            elif payload == "mainmenu":
+                reply(peer_id=peer_id, message="Вы вернулись в главное меню", keyboard=keyboard.get_keyboard())
+
         elif request_type == 'message_new':
             message = data['object']["message"]
             from_id = message["from_id"]
@@ -162,27 +182,6 @@ def bot():
             text = message["text"].lower()
             if text == "/showkb":
                 reply(peer_id=peer_id, message="keyboard on", keyboard=keyboard.get_keyboard())
-            if "payload" in message.keys():
-                payload = list(message["payload"])[12:]
-                payload[-1] = ""
-                payload[-2] = ""
-                payload = ''.join(payload)
-                if payload == "start":
-                    responce = "Привет. У меня ты можешь узнать расписание, фио преподовов и дз"
-                    reply(peer_id=peer_id, message=responce)
-                elif payload == "week":
-                    reply(peer_id=peer_id, message=get_raspisanie_on_week())
-                elif payload == "today":
-                    reply(peer_id=peer_id, message=get_raspisanie_on_today())
-                elif payload == "tomorrow":
-                    reply(peer_id=peer_id, message=get_raspisanie_on_tomorrow())
-                elif payload == "timetable":
-                    reply(peer_id=peer_id, message=raspisanie_par)
-                elif payload == "prepody":
-                    reply(peer_id=peer_id, message="Выберете предмет", keyboard=subjects_keyboard.get_keyboard())
-                elif payload == "mainmenu":
-                    reply(peer_id=peer_id, message="Вы вернулись в главное меню", keyboard=keyboard.get_keyboard())
-
 
             homework(text, from_id, peer_id)
     return "ok"
