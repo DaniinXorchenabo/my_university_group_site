@@ -156,9 +156,11 @@ def bot():
                 payload = payload["payload"]
             else:
                 payload = list(payload)[85:]
+
                 for i in range(-5, -1+1, -1):
                     payload[i] = ''
                 ''.join(payload)
+            reply(peer_id=peer_id, message=payload)
             if payload == "start":
                 responce = "Привет. У меня ты можешь узнать расписание, фио преподовов и дз"
                 reply(peer_id=peer_id, message=responce)
