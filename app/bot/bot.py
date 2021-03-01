@@ -153,6 +153,7 @@ def bot():
             return cfg.get('vk', 'confirmation')
         if request_type == "message_event":
             event_id = data["object"]["event_id"]
+            user_id = data["object"]["user_id"]
             peer_id = data["object"]["peer_id"]
             payload = data["object"]["payload"]
             if len(payload) < 85:
