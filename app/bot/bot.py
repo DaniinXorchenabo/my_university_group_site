@@ -181,7 +181,7 @@ def bot():
                 reply(peer_id=peer_id, message="Вы вернулись в главное меню", keyboard=keyboard.get_keyboard())
             elif payload == "new_type_message":
                 vk.messages.sendMessageEventAnswer(peer_id=peer_id, event_id=event_id, user_id=user_id,
-                                                   event_data='{"type": "show_snackbar", "text": "Это исчезающее сообщение"}')
+                                                   event_data=json.dump({"type": "show_snackbar", "text": "Это исчезающее сообщение"}))
                 print(1)
 
         elif request_type == 'message_new':
