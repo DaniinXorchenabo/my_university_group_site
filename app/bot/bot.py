@@ -93,7 +93,7 @@ keyboard.add_callback_button("ФИО преподавателей", color=VkKeyb
 keyboard.add_line()
 keyboard.add_openlink_button("Ссылка на диск", "https://yadi.sk/d/0W7wTf29wwaOYw")
 keyboard.add_line()
-keyboard.add_callback_button("Зацени", payload={"type": "show_snackbar", "text=": "Я полетело!"})
+keyboard.add_callback_button("Зацени", payload={"payload":"new_type_message"})
 
 subjects_keyboard = VkKeyboard(one_time=False)
 subjects_keyboard.add_callback_button("Английский")
@@ -177,6 +177,8 @@ def bot():
                 reply(peer_id=peer_id, message="Выберете предмет", keyboard=subjects_keyboard.get_keyboard())
             elif payload == "mainmenu":
                 reply(peer_id=peer_id, message="Вы вернулись в главное меню", keyboard=keyboard.get_keyboard())
+            elif payload == "new_type_message":
+                vk.messages.sendMessageEventAnswer(peer_id=peer_id, event_data='"{type": "show_snackbar", "text": "Это исчезающее сообщение"}')
 
         elif request_type == 'message_new':
             message = data['object']["message"]
