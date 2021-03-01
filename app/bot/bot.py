@@ -154,9 +154,10 @@ def bot():
             peer_id = data["object"]["peer_id"]
             payload = data["object"]["payload"]
 
-            def reply_with_event(text):
+            def reply_with_event(peer_id, event_id, user_id, text):
                 vk.messages.sendMessageEventAnswer(peer_id=peer_id, event_id=event_id, user_id=user_id,
-                                                   event_data=json.dumps('{"type": "show_snackbar", "text": ' + text + ' }'))
+                                                   event_data=json.dumps(
+                                                       '{"type": "show_snackbar", "text": ' + text + ' }'))
 
             if len(payload) < 85:
                 payload = payload["payload"]
@@ -183,23 +184,24 @@ def bot():
                 reply(peer_id=peer_id, message="Вы вернулись в главное меню", keyboard=keyboard.get_keyboard())
             # преподы предметов
             elif payload == "english":
-                reply_with_event(
-                    "Английский\nДанкова Наталья Станиславовна n.s.dankova@mail.ru\nЮрасова Ольга Николаевна ol.iurasova@yandex.ru")
+                reply_with_event(peer_id, event_id, user_id,
+                                 "Английский\nДанкова Наталья Станиславовна n.s.dankova@mail.ru\nЮрасова Ольга Николаевна ol.iurasova@yandex.ru")
 
             elif payload == "itvpd":
-                reply_with_event("ИТвПД\nГолобокова Елена Михайловна")
+                reply_with_event(peer_id, event_id, user_id, "ИТвПД\nГолобокова Елена Михайловна")
             elif payload == "math":
-                reply_with_event("Математика\nКупряшина Лилия Александровна")
+                reply_with_event(peer_id, event_id, user_id, "Математика\nКупряшина Лилия Александровна")
             elif payload == "mlita":
-                reply_with_event("МЛиТА\nКазакова Ирина Александровна")
+                reply_with_event(peer_id, event_id, user_id, "МЛиТА\nКазакова Ирина Александровна")
             elif payload == "pravo":
-                reply_with_event("Правоведение\nДанилова Валерия Александровна")
+                reply_with_event(peer_id, event_id, user_id, "Правоведение\nДанилова Валерия Александровна")
             elif payload == "proga":
-                reply_with_event("Программирование\nГурьянов Лев Вячеславович")
+                reply_with_event(peer_id, event_id, user_id, "Программирование\nГурьянов Лев Вячеславович")
             elif payload == "trir":
-                reply_with_event("ТРИР\nТакташкин Денис Витальевич")
+                reply_with_event(peer_id, event_id, user_id, "ТРИР\nТакташкин Денис Витальевич")
             elif payload == "phisic":
-                reply_with_event("Физика\nКостина Наталья Владимировна\nСуровичкая Галина Владимировна")
+                reply_with_event(peer_id, event_id, user_id,
+                                 "Физика\nКостина Наталья Владимировна\nСуровичкая Галина Владимировна")
 
         elif request_type == 'message_new':
             message = data['object']["message"]
