@@ -174,7 +174,8 @@ def bot():
             elif payload == "week":
                 reply(peer_id=peer_id, message=get_raspisanie_on_week())
             elif payload == "today":
-                reply_with_event(peer_id=peer_id, user_id=user_id, event_id=event_id, text=get_raspisanie_on_today())
+                vk.messages.sendMessageEventAnswer(peer_id=peer_id, event_id=event_id, user_id=user_id,
+                                                   event_data=json.dumps({"type": "show_snackbar", "text":get_raspisanie_on_today()}))
             elif payload == "tomorrow":
                 reply(peer_id=peer_id, message=get_raspisanie_on_tomorrow())
             elif payload == "timetable":
