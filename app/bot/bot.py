@@ -198,11 +198,7 @@ def bot():
                 vk.messages.sendMessageEventAnswer(peer_id=peer_id, event_id=event_id, user_id=user_id,
                                                    event_data=json.dumps(
                                                        {"type": "show_snackbar",
-                                                        "text": ''.join(list(raspisanie_par)[:80])}))
-                vk.messages.sendMessageEventAnswer(peer_id=peer_id, event_id=event_id, user_id=user_id,
-                                                   event_data=json.dumps(
-                                                       {"type": "show_snackbar",
-                                                        "text": ''.join(list(raspisanie_par)[81:])}))
+                                                        "text": raspisanie_par}))
             elif payload == "prepody":
                 reply(peer_id=peer_id, message="Выберете предмет", keyboard=subjects_keyboard.get_keyboard())
             elif payload == "mainmenu":
