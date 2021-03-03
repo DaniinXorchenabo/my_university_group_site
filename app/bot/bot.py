@@ -254,7 +254,7 @@ def bot():
             text = message["text"].lower()
             if text == "/showkb":
                 if str(from_id) == "159526068":
-                    reply(user_id=from_id, message="keyboard on", keyboard=keyboard_my.get_keyboard())
+                    reply(user_id=from_id, keyboard=keyboard_my.get_keyboard())
                 else:
                     reply(peer_id=peer_id, message="keyboard on", keyboard=keyboard.get_keyboard())
 
