@@ -99,7 +99,7 @@ keyboard_my.add_callback_button("Расписание на завтра", color=
 keyboard_my.add_line()
 keyboard_my.add_callback_button("Расписание пар", color=VkKeyboardColor.POSITIVE, payload='{"payload":"timetable"}')
 keyboard_my.add_line()
-keyboard_my.add_callback_button("Defend", color=VkKeyboardColor.NEGATIVE, payload='{"payload":"defend"}')
+keyboard_my.add_callback_button("Defend", color=VkKeyboardColor.NEGATIVE, payload={"payload":"defend"})
 keyboard_my.add_line()
 # keyboard.add_callback_button("ФИО преподавателей", color=VkKeyboardColor.POSITIVE, payload='{"payload":"prepody"}')
 # keyboard.add_line()
