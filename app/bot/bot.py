@@ -131,7 +131,9 @@ def reply_with_event(peer_id, event_id, user_id, text):
                                        event_data=json.dumps(
                                            '{"type": "show_snackbar", "text": ' + text + ' }'))
 
-
+def delete_last_message(peer_id_):
+    message_id = vk.messages.getHistory(count=1, peer_id=peer_id_)["responce"]["items"][0]["id"]
+    vk.messages.delete(messages_ids=message_id, delete_for_all=True)
 @app.route('/', methods=["GET", "POST"])
 def bot():
     def homework(text, from_id, peer_id):
@@ -257,7 +259,7 @@ def bot():
                     reply(user_id=from_id, keyboard=keyboard_my.get_keyboard())
                 else:
                     reply(peer_id=peer_id, message="keyboard on", keyboard=keyboard.get_keyboard())
-
+                delete_last_message(peer_id)
 
             homework(text, from_id, peer_id)
     return "ok"
