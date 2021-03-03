@@ -133,7 +133,7 @@ def reply_with_event(peer_id, event_id, user_id, text):
 
 def delete_last_message(peer_id_):
     message_id = vk.messages.getHistory(count=1, peer_id=peer_id_)
-    reply(peer_id=peer_id_, message=message_id)
+    reply(peer_id=peer_id_, message=str(message_id))
     #[0]["response"]["items"][0]["id"]
     vk.messages.delete(messages_ids=message_id, delete_for_all=True)
 @app.route('/', methods=["GET", "POST"])
