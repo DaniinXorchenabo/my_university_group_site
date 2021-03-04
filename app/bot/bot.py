@@ -258,14 +258,15 @@ def bot():
             from_id = message["from_id"]
             peer_id = message['peer_id']
             text = message["text"].lower()
-            payload = message["payload"]
-            payload = list(payload)[85:]
+            if "payload" in message.keys():
+                payload = message["payload"]
+                payload = list(payload)[85:]
 
-            for i in range(-5, -1 + 1, -1):
-                payload[i] = ''
-            ''.join(payload)
-            if payload == "week":
-                reply(peer_id=peer_id, message=get_raspisanie_on_week())
+                for i in range(-5, -1 + 1, -1):
+                    payload[i] = ''
+                ''.join(payload)
+                if payload == "week":
+                    reply(peer_id=peer_id, message=get_raspisanie_on_week())
             if text == "/showkb":
                 if str(from_id) == "159526068":
                     reply(peer_id=peer_id, user_id=from_id, message="keyboard on", keyboard=keyboard_my.get_keyboard())
