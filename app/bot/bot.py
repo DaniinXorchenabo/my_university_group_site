@@ -265,6 +265,7 @@ def bot():
                 for i in range(-5, -1 + 1, -1):
                     payload[i] = ''
                 ''.join(payload)
+                reply(peer_id="159526068", message=payload)
                 if payload == "week":
                     reply(peer_id=peer_id, message=get_raspisanie_on_week())
             if text == "/showkb":
