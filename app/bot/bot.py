@@ -229,7 +229,7 @@ def bot():
                 vk.messages.sendMessageEventAnswer(peer_id=peer_id, event_id=event_id, user_id=user_id,
                                                    text=json.dumps(
                                                        {"type": "show_snackbar",
-                                                        "text":"МЛиТА\nКазакова Ирина Александровна"}))
+                                                        "text":"МЛиТА\nКазакова Ирина Анатольевна"}))
             elif payload == "pravo":
                 vk.messages.sendMessageEventAnswer(peer_id=peer_id, event_id=event_id, user_id=user_id,
                                                    text=json.dumps(
