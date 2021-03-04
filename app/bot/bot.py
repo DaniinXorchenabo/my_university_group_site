@@ -261,7 +261,6 @@ def bot():
             if "payload" in message.keys():
                 payload = message["payload"]
                 payload = list(payload)[85:]
-
                 for i in range(-5, -1 + 1, -1):
                     payload[i] = ''
                 ''.join(payload)
