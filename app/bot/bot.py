@@ -82,7 +82,7 @@ token = cfg.get('vk', 'token')
 vk = vk_api.VkApi(token=token).get_api()
 
 keyboard = VkKeyboard(one_time=False)
-keyboard.add_callback_button("Расписание на неделю", color=VkKeyboardColor.POSITIVE, payload='{"payload":week"}')
+keyboard.add_callback_button("Расписание на неделю", color=VkKeyboardColor.POSITIVE, payload='{"payload":"week"}')
 keyboard.add_line()
 keyboard.add_callback_button("Расписание на сегодня", color=VkKeyboardColor.POSITIVE, payload='{"payload":"today"}')
 keyboard.add_line()
