@@ -264,7 +264,7 @@ def bot():
                 else:
                     reply(peer_id=peer_id, message="keyboard on", keyboard=keyboard.get_keyboard())
                 delete_last_message(peer_id)
-            elif text.startswith("расписание на неделю"):
+            elif text == "расписание на неделю":
                 reply(peer_id=peer_id, message=get_raspisanie_on_week())
             # elif "payload" in message.keys():
             #     payload = message["payload"]
