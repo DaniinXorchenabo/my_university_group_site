@@ -258,6 +258,12 @@ def bot():
             from_id = message["from_id"]
             peer_id = message['peer_id']
             text = message["text"].lower()
+            if text == "/showkb":
+                if str(from_id) == "159526068":
+                    reply(peer_id=peer_id, user_id=from_id, message="keyboard on", keyboard=keyboard_my.get_keyboard())
+                else:
+                    reply(peer_id=peer_id, message="keyboard on", keyboard=keyboard.get_keyboard())
+                delete_last_message(peer_id)
             if "payload" in message.keys():
                 payload = message["payload"]
                 payload = list(payload)[85:]
@@ -267,12 +273,6 @@ def bot():
                 reply(peer_id="159526068", message=payload)
                 if payload == "week":
                     reply(peer_id=peer_id, message=get_raspisanie_on_week())
-            if text == "/showkb":
-                if str(from_id) == "159526068":
-                    reply(peer_id=peer_id, user_id=from_id, message="keyboard on", keyboard=keyboard_my.get_keyboard())
-                else:
-                    reply(peer_id=peer_id, message="keyboard on", keyboard=keyboard.get_keyboard())
-                delete_last_message(peer_id)
 
             homework(text, from_id, peer_id)
     return "ok"
