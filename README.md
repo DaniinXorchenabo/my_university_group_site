@@ -15,6 +15,7 @@
   - [Pony ORM Editor][Pony ORM Editor] - Наша база данных
   - [trello.com][trello.com] - Наше трелло
   - [Figma][Figma] - Наш дизайн
+  - [Figma][Figma2] - Наш новый дизайн
 
 # API
 
@@ -287,3 +288,4 @@ answer: {
 [Pony ORM Editor]: https://editor.ponyorm.com/user/DaniinXorchenabo/university_timesheet_bot/designer
 [trello.com]: https://trello.com/b/eLvWkKFq/создание-сайта
 [Figma]: https://www.figma.com/file/2os4UXkrOKU4L3C4l7lkxV/20ВП1?node-id=17%3A121
+[Figma2]: https://www.figma.com/file/FMrpB8J2f7YpOdAQdMwUem/Untitled?node-id=0%3A1
