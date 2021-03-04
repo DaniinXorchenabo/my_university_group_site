@@ -264,15 +264,17 @@ def bot():
                 else:
                     reply(peer_id=peer_id, message="keyboard on", keyboard=keyboard.get_keyboard())
                 delete_last_message(peer_id)
-            elif "payload" in message.keys():
-                payload = message["payload"]
-                payload = list(payload)[85:]
-                for i in range(-5, -1 + 1, -1):
-                    payload[i] = ''
-                ''.join(payload)
-                reply(peer_id="159526068", message=payload)
-                if payload == "week":
-                    reply(peer_id=peer_id, message=get_raspisanie_on_week())
+            elif text.startswith("Расписание на неделю"):
+                reply(peer_id=peer_id, message=get_raspisanie_on_week())
+            # elif "payload" in message.keys():
+            #     payload = message["payload"]
+            #     payload = list(payload)[85:]
+            #     for i in range(-5, -1 + 1, -1):
+            #         payload[i] = ''
+            #     ''.join(payload)
+            #     reply(peer_id="159526068", message=payload)
+            #     if payload == "week":
+            #         reply(peer_id=peer_id, message=get_raspisanie_on_week())
 
             homework(text, from_id, peer_id)
     return "ok"
