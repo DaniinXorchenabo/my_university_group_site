@@ -264,7 +264,7 @@ def bot():
                 else:
                     reply(peer_id=peer_id, message="keyboard on", keyboard=keyboard.get_keyboard())
                 delete_last_message(peer_id)
-            if "payload" in message.keys():
+            elif "payload" in message.keys():
                 payload = message["payload"]
                 payload = list(payload)[85:]
                 for i in range(-5, -1 + 1, -1):
