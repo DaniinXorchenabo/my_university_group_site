@@ -143,7 +143,7 @@ def bot():
         if len(temp) < 2:
             return
         all_hw = read_json("homework.json")
-        s = ""
+
         ids = read_json("ids.json")["ids"]
         if str(from_id) in list(map(str, ids)):
             if temp[0] == "/добавить_дз":
@@ -164,9 +164,10 @@ def bot():
                     reply(peer_id=peer_id, message=f"Дз на {dl} успешно удалено")
         if temp[0] == "/получить_дз":
             dl = temp[1]
+            msg = f"Дз на {dl}\n" + '-' * 10 + '\n'
             for i in all_hw["homework"][0][dl]:
-                s += i[0] + " " + i[1] + '\n'
-            reply(peer_id=peer_id, message=f"Дз на {dl}\n {s}")
+                msg += i[0] + " - " + i[1] + '\n\n'
+            reply(peer_id=peer_id, message=msg)
 
     if request.data:
         data = json.loads(request.data)
