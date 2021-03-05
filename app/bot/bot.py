@@ -351,6 +351,7 @@ def bot():
                 # )
 
         elif request_type == 'message_new':
+            print('-------------------------------', data['object'])
             message = data['object']["message"]
             from_id = message["from_id"]
             peer_id = message['peer_id']
