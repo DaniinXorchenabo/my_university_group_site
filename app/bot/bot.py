@@ -95,11 +95,12 @@ keyboard.add_openlink_button("Ссылка на диск", "https://yadi.sk/d/0W
 keyboard_my = VkKeyboard(one_time=False)
 keyboard_my.add_callback_button("Расписание на сегодня", color=VkKeyboardColor.POSITIVE, payload='{"payload":"today"}')
 keyboard_my.add_line()
-keyboard_my.add_callback_button("Расписание на завтра", color=VkKeyboardColor.POSITIVE, payload='{"payload":"tomorrow"}')
+keyboard_my.add_callback_button("Расписание на завтра", color=VkKeyboardColor.POSITIVE,
+                                payload='{"payload":"tomorrow"}')
 keyboard_my.add_line()
 keyboard_my.add_callback_button("Расписание пар", color=VkKeyboardColor.POSITIVE, payload='{"payload":"timetable"}')
 keyboard_my.add_line()
-keyboard_my.add_callback_button("Defend", color=VkKeyboardColor.NEGATIVE, payload={"payload":"defend"})
+keyboard_my.add_callback_button("Defend", color=VkKeyboardColor.NEGATIVE, payload={"payload": "defend"})
 keyboard_my.add_line()
 # keyboard.add_callback_button("ФИО преподавателей", color=VkKeyboardColor.POSITIVE, payload='{"payload":"prepody"}')
 # keyboard.add_line()
@@ -131,11 +132,14 @@ def reply_with_event(peer_id, event_id, user_id, text):
                                        event_data=json.dumps(
                                            '{"type": "show_snackbar", "text": ' + text + ' }'))
 
+
 def delete_last_message(peer_id_):
     message_id = vk.messages.getHistory(count=1, peer_id=peer_id_)["items"][0]["id"]
-    #reply(peer_id=peer_id_, message=str(message_id))
-    #[0]["response"]["items"][0]["id"]
+    # reply(peer_id=peer_id_, message=str(message_id))
+    # [0]["response"]["items"][0]["id"]
     vk.messages.delete(message_ids=message_id, delete_for_all=True)
+
+
 @app.route('/', methods=["GET", "POST"])
 def bot():
     def homework(text, from_id, peer_id):
@@ -267,7 +271,7 @@ def bot():
                     event_id=event_id,
                     user_id=user_id,
                     text=json.dumps(
-                        {"type": "show_snackbar", "text":"Математика\nКупряшина Лилия Александровна"}
+                        {"type": "show_snackbar", "text": "Математика\nКупряшина Лилия Александровна"}
                     )
                 )
             elif payload == "mlita":
@@ -276,7 +280,7 @@ def bot():
                     event_id=event_id,
                     user_id=user_id,
                     text=json.dumps(
-                        {"type": "show_snackbar", "text":"МЛиТА\nКазакова Ирина Анатольевна"}
+                        {"type": "show_snackbar", "text": "МЛиТА\nКазакова Ирина Анатольевна"}
                     )
                 )
             elif payload == "pravo":
@@ -285,7 +289,7 @@ def bot():
                     event_id=event_id,
                     user_id=user_id,
                     text=json.dumps(
-                        {"type": "show_snackbar", "text":"Правоведение\nДанилова Валерия Александровна"}
+                        {"type": "show_snackbar", "text": "Правоведение\nДанилова Валерия Александровна"}
                     )
                 )
             elif payload == "proga":
@@ -294,7 +298,7 @@ def bot():
                     event_id=event_id,
                     user_id=user_id,
                     text=json.dumps(
-                        {"type": "show_snackbar", "text":"Программирование\nГурьянов Лев Вячеславович"}
+                        {"type": "show_snackbar", "text": "Программирование\nГурьянов Лев Вячеславович"}
                     )
                 )
             elif payload == "trir":
@@ -303,7 +307,7 @@ def bot():
                     event_id=event_id,
                     user_id=user_id,
                     text=json.dumps(
-                        {"type": "show_snackbar", "text":"ТРИР\nТакташкин Денис Витальевич"}
+                        {"type": "show_snackbar", "text": "ТРИР\nТакташкин Денис Витальевич"}
                     )
                 )
             elif payload == "phisic":
@@ -314,7 +318,7 @@ def bot():
                     text=json.dumps(
                         {
                             "type": "show_snackbar",
-                            "text":"Физика\nКостина Наталья Владимировна\nСуровичкая Галина Владимировна"
+                            "text": "Физика\nКостина Наталья Владимировна\nСуровичкая Галина Владимировна"
                         }
                     )
                 )
