@@ -62,10 +62,11 @@ def connect_with_db(db_path=DB_PATH, deep=0, db_l=db):
     from time import ctime
     from shutil import copy as shutil_copy
 
+    db_path = str(db_path)
     if deep > 5:
         print('в коннекте с базой данных наблюдается большая рекурсия, значит что-то идет не так')
         exit()
-
+    print(db_path)
     if not isfile(db_path):
         db_l.connect(allow_auto_upgrade=True,
                      create_tables=True,

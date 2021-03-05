@@ -31,4 +31,6 @@ if __name__ == '__main__':
     show_all()
 
     with db_session:
-        pass
+        set_sql_debug(True)
+        data = Group.select(lambda i: '20' in i.name)[:]
+        print(data)
