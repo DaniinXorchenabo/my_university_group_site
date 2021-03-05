@@ -197,38 +197,43 @@ def bot():
 
                 ''.join(payload)  # Бессмысленно, оно возвращает значение, а не изменяет объект
 
+            basic_data_msg = dict(
+                peer_id=peer_id,
+                event_id=event_id,
+                user_id=user_id,
+            )
+
             if payload == "start":
                 ans = "Привет. У меня ты можешь узнать расписание, фио преподовов и дз"
                 reply(peer_id=peer_id, message=ans)
             elif payload == "week":
                 reply(peer_id=peer_id, message=get_raspisanie_on_week())
             elif payload == "today":
-                vk.messages.sendMessageEventAnswer(
-                    peer_id=peer_id,
-                    event_id=event_id,
-                    user_id=user_id,
-                    event_data=json.dumps(
-                        {"type": "show_snackbar", "text": get_raspisanie_on_today()}
-                    )
-                )
+                basic_data_msg['event_data'] = json.dumps(
+                    {"type": "show_snackbar", "text": get_raspisanie_on_today()})
+                vk.messages.sendMessageEventAnswer(**basic_data_msg)
             elif payload == "tomorrow":
-                vk.messages.sendMessageEventAnswer(
-                    peer_id=peer_id,
-                    event_id=event_id,
-                    user_id=user_id,
-                    event_data=json.dumps(
-                        {"type": "show_snackbar", "text": get_raspisanie_on_tomorrow()}
-                    )
-                )
+                basic_data_msg['event_data'] = json.dumps(
+                    {"type": "show_snackbar", "text": get_raspisanie_on_tomorrow()})
+                vk.messages.sendMessageEventAnswer(**basic_data_msg)
+                    # peer_id=peer_id,
+                    # event_id=event_id,
+                    # user_id=user_id,
+                    # event_data=json.dumps(
+                    #     {"type": "show_snackbar", "text": get_raspisanie_on_tomorrow()}
+                    # )
+
             elif payload == "timetable":
-                vk.messages.sendMessageEventAnswer(
-                    peer_id=peer_id,
-                    event_id=event_id,
-                    user_id=user_id,
-                    event_data=json.dumps(
-                        {"type": "show_snackbar", "text": raspisanie_par}
-                    )
-                )
+                basic_data_msg['event_data'] = json.dumps(
+                    {"type": "show_snackbar", "text": raspisanie_par})
+                vk.messages.sendMessageEventAnswer(**basic_data_msg)
+                    # peer_id=peer_id,
+                    # event_id=event_id,
+                    # user_id=user_id,
+                    # event_data=json.dumps(
+                    #     {"type": "show_snackbar", "text": raspisanie_par}
+                    # )
+
             elif payload == "prepody":
                 reply(
                     peer_id=peer_id,
@@ -244,84 +249,107 @@ def bot():
             # преподы предметов
             # мне хочется плакать, когда я вижу этот код
             elif payload == "english":
-                vk.messages.sendMessageEventAnswer(
-                    peer_id=peer_id,
-                    event_id=event_id,
-                    user_id=user_id,
-                    text=json.dumps(
-                        {"type": "show_snackbar",
-                         "text": "Английский\nДанкова Наталья Станиславовна n.s.dankova@mail.ru\nЮрасова Ольга Николаевна ol.iurasova@yandex.ru"
-                         }
-                    )
+                basic_data_msg['event_data'] = json.dumps(
+                    {"type": "show_snackbar",
+                     "text": "Английский\nДанкова Наталья Станиславовна n.s.dankova@mail.ru\nЮрасова Ольга Николаевна ol.iurasova@yandex.ru"
+                     }
                 )
+                vk.messages.sendMessageEventAnswer(**basic_data_msg)
+                    # peer_id=peer_id,
+                    # event_id=event_id,
+                    # user_id=user_id,
+                    # text=json.dumps(
+                    #     {"type": "show_snackbar",
+                    #      "text": "Английский\nДанкова Наталья Станиславовна n.s.dankova@mail.ru\nЮрасова Ольга Николаевна ol.iurasova@yandex.ru"
+                    #      }
+                    # )
+
             elif payload == "defend":
                 reply(peer_id=peer_id, attachment="photo379254977_457239134")
             elif payload == "itvpd":
-                vk.messages.sendMessageEventAnswer(
-                    peer_id=peer_id,
-                    event_id=event_id,
-                    user_id=user_id,
-                    text=json.dumps(
-                        {"type": "show_snackbar", "text": "ИТвПД\nГолобокова Елена Михайловна"}
-                    )
-                )
+                basic_data_msg['event_data'] = json.dumps(
+                    {"type": "show_snackbar", "text": "ИТвПД\nГолобокова Елена Михайловна"})
+                vk.messages.sendMessageEventAnswer(**basic_data_msg)
+                    # peer_id=peer_id,
+                    # event_id=event_id,
+                    # user_id=user_id,
+                    # text=json.dumps(
+                    #     {"type": "show_snackbar", "text": "ИТвПД\nГолобокова Елена Михайловна"}
+                    # )
+
             elif payload == "math":
-                vk.messages.sendMessageEventAnswer(
-                    peer_id=peer_id,
-                    event_id=event_id,
-                    user_id=user_id,
-                    text=json.dumps(
-                        {"type": "show_snackbar", "text": "Математика\nКупряшина Лилия Александровна"}
-                    )
-                )
+                basic_data_msg['event_data'] = json.dumps(
+                    {"type": "show_snackbar", "text": "Математика\nКупряшина Лилия Александровна"})
+                vk.messages.sendMessageEventAnswer(**basic_data_msg)
+                    # peer_id=peer_id,
+                    # event_id=event_id,
+                    # user_id=user_id,
+                    # text=json.dumps(
+                    #     {"type": "show_snackbar", "text": "Математика\nКупряшина Лилия Александровна"}
+                    # )
+
             elif payload == "mlita":
-                vk.messages.sendMessageEventAnswer(
-                    peer_id=peer_id,
-                    event_id=event_id,
-                    user_id=user_id,
-                    text=json.dumps(
-                        {"type": "show_snackbar", "text": "МЛиТА\nКазакова Ирина Анатольевна"}
-                    )
-                )
+                basic_data_msg['event_data'] = json.dumps(
+                    {"type": "show_snackbar", "text": "МЛиТА\nКазакова Ирина Анатольевна"})
+                vk.messages.sendMessageEventAnswer(**basic_data_msg)
+                    # peer_id=peer_id,
+                    # event_id=event_id,
+                    # user_id=user_id,
+                    # text=json.dumps(
+                    #     {"type": "show_snackbar", "text": "МЛиТА\nКазакова Ирина Анатольевна"}
+                    # )
+
             elif payload == "pravo":
-                vk.messages.sendMessageEventAnswer(
-                    peer_id=peer_id,
-                    event_id=event_id,
-                    user_id=user_id,
-                    text=json.dumps(
-                        {"type": "show_snackbar", "text": "Правоведение\nДанилова Валерия Александровна"}
-                    )
-                )
+                basic_data_msg['event_data'] = json.dumps(
+                    {"type": "show_snackbar", "text": "Правоведение\nДанилова Валерия Александровна"})
+                vk.messages.sendMessageEventAnswer(**basic_data_msg)
+                    # peer_id=peer_id,
+                    # event_id=event_id,
+                    # user_id=user_id,
+                    # text=json.dumps(
+                    #     {"type": "show_snackbar", "text": "Правоведение\nДанилова Валерия Александровна"}
+                    # )
+
             elif payload == "proga":
-                vk.messages.sendMessageEventAnswer(
-                    peer_id=peer_id,
-                    event_id=event_id,
-                    user_id=user_id,
-                    text=json.dumps(
-                        {"type": "show_snackbar", "text": "Программирование\nГурьянов Лев Вячеславович"}
-                    )
-                )
+                basic_data_msg['event_data'] = json.dumps(
+                    {"type": "show_snackbar", "text": "Программирование\nГурьянов Лев Вячеславович"})
+                vk.messages.sendMessageEventAnswer(**basic_data_msg)
+                    # peer_id=peer_id,
+                    # event_id=event_id,
+                    # user_id=user_id,
+                    # text=json.dumps(
+                    #     {"type": "show_snackbar", "text": "Программирование\nГурьянов Лев Вячеславович"}
+                    # )
+
             elif payload == "trir":
-                vk.messages.sendMessageEventAnswer(
-                    peer_id=peer_id,
-                    event_id=event_id,
-                    user_id=user_id,
-                    text=json.dumps(
-                        {"type": "show_snackbar", "text": "ТРИР\nТакташкин Денис Витальевич"}
-                    )
-                )
+                basic_data_msg['event_data'] = json.dumps(
+                    {"type": "show_snackbar", "text": "ТРИР\nТакташкин Денис Витальевич"})
+                vk.messages.sendMessageEventAnswer(**basic_data_msg)
+                    # peer_id=peer_id,
+                    # event_id=event_id,
+                    # user_id=user_id,
+                    # text=json.dumps(
+                    #     {"type": "show_snackbar", "text": "ТРИР\nТакташкин Денис Витальевич"}
+                    # )
+
             elif payload == "phisic":
-                vk.messages.sendMessageEventAnswer(
-                    peer_id=peer_id,
-                    event_id=event_id,
-                    user_id=user_id,
-                    text=json.dumps(
-                        {
-                            "type": "show_snackbar",
-                            "text": "Физика\nКостина Наталья Владимировна\nСуровичкая Галина Владимировна"
-                        }
-                    )
+                basic_data_msg['event_data'] = json.dumps(
+                    {
+                        "type": "show_snackbar",
+                        "text": "Физика\nКостина Наталья Владимировна\nСуровичкая Галина Владимировна"
+                    }
                 )
+                vk.messages.sendMessageEventAnswer(**basic_data_msg)
+                    # peer_id=peer_id,
+                    # event_id=event_id,
+                    # user_id=user_id,
+                    # text=json.dumps(
+                    #     {
+                    #         "type": "show_snackbar",
+                    #         "text": "Физика\nКостина Наталья Владимировна\nСуровичкая Галина Владимировна"
+                    #     }
+                    # )
+
 
         elif request_type == 'message_new':
             message = data['object']["message"]
