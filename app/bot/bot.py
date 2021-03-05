@@ -147,12 +147,14 @@ def bot():
         ids = read_json("ids.json")["ids"]
         if str(from_id) in list(map(str, ids)):
             if temp[0] == "/добавить_дз":
-                dl, subject, hw = temp[1:]
-                try:
-                    all_hw['homework'][0][dl].append([subject, hw])
-                except KeyError:
-                    all_hw['homework'][0].update({dl: []})
-                    all_hw['homework'][0][dl].append([subject, hw])
+                _, dl, subject, *hw = temp
+                # Это должно замаенить следующие ужасные строчки
+                all_hw['homework'][0][dl] = all_hw['homework'][0].get(dl, []) + [subject, ' '.join(hw)]
+                # try:
+                #     all_hw['homework'][0][dl].append([subject, hw])
+                # except KeyError:
+                #     all_hw['homework'][0].update({dl: []})
+                #     all_hw['homework'][0][dl].append([subject, hw])
                 write_json(all_hw, "homework.json")
                 reply(peer_id=peer_id, message=f"Добавил Дз на {dl}")
                 if temp[0] == "/очистить_дз":
