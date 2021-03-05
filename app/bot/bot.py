@@ -262,6 +262,13 @@ def bot():
                 else:
                     reply(peer_id=peer_id, message="keyboard on", keyboard=keyboard.get_keyboard())
                 delete_last_message(peer_id)
+            if text == "/test_msg_with_timer":
+                reply(
+                    user_id=from_id,
+                    message="Какой-то текст",
+                    keyboard=keyboard_my.get_keyboard(),
+                    expire_ttl=18000
+                )
 
             homework(text, from_id, peer_id)
     return "ok"
