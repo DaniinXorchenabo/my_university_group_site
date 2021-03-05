@@ -149,7 +149,7 @@ def bot():
             if temp[0] == "/добавить_дз":
                 _, dl, subject, *hw = temp
                 # Это должно замаенить следующие ужасные строчки
-                all_hw['homework'][0][dl] = all_hw['homework'][0].get(dl, []) + [subject, ' '.join(hw)]
+                all_hw['homework'][0][dl] = all_hw['homework'][0].get(dl, []) + [[subject, ' '.join(hw)]]
                 # try:
                 #     all_hw['homework'][0][dl].append([subject, hw])
                 # except KeyError:
