@@ -279,7 +279,7 @@ def bot():
             processing_msg(payload, data)
 
         elif request_type == 'message_new':
-            print('-------------------------------', data['object'])
+            print('-------------------------------', data)
             message = data['object']["message"]
             from_id = message["from_id"]
             peer_id = message['peer_id']
