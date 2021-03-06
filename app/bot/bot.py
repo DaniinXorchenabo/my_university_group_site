@@ -140,7 +140,7 @@ def delete_last_message(peer_id_):
 
 
 def smart_msg_creator(text, send_method, type_param="show_snackbar"):
-    if send_method == vk.messages.sendMessageEventAnswer:
+    if type(send_method) == type(vk.messages.sendMessageEventAnswer):
         data = dict(event_data=json.dumps({
             "type": type_param,
             "text": text
@@ -168,7 +168,7 @@ def processing_msg(command: str, data: dict, send_method=vk.messages.sendMessage
         message = data['object']["message"]
         from_id = message["from_id"]
         peer_id = message['peer_id']
-        basic_data_msg = dict()
+        basic_data_msg = dict(peer_id=peer_id, keyboard=keyboard.get_keyboard())
         command = command.split()[0].lstrip('/')
 
     if command == "start":
