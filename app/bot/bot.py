@@ -155,7 +155,7 @@ def processing_msg(command: str, data: dict, send_method=vk.messages.sendMessage
         user_id = data["object"]["user_id"]
         peer_id = data["object"]["peer_id"]
         print(data["object"])
-        payload = command = data["object"]["payload"]
+        payload = command = data["object"]["payload"].get('payload', '-')
         print(payload)
         basic_data_msg = dict(
             peer_id=peer_id,
@@ -278,7 +278,7 @@ def bot():
 
         elif request_type == "message_event":
             print('!!!!__________________', data["object"])
-            payload = data["object"]["payload"].get(['payload'], '-')
+            payload = data["object"]["payload"].get('payload', '-')
             processing_msg(payload, data)
 
         elif request_type == 'message_new':
