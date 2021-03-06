@@ -151,7 +151,7 @@ def smart_msg_creator(text, send_method, type_param="show_snackbar"):
 
 
 def processing_msg(command: str, data: dict, send_method=vk.messages.sendMessageEventAnswer):
-    if send_method == vk.messages.sendMessageEventAnswer:
+    if type(send_method) == type(vk.messages.sendMessageEventAnswer):
         user_id = data["object"]["user_id"]
         peer_id = data["object"]["peer_id"]
         print(data["object"])
@@ -164,6 +164,7 @@ def processing_msg(command: str, data: dict, send_method=vk.messages.sendMessage
         )
     else:
         print(data['object'], send_method, vk.messages.sendMessageEventAnswer)
+        print(type(send_method), type(vk.messages.sendMessageEventAnswer))
         message = data['object']["message"]
         from_id = message["from_id"]
         peer_id = message['peer_id']
