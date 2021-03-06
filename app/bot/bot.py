@@ -154,16 +154,16 @@ def processing_msg(command: str, data: dict, send_method=vk.messages.sendMessage
     if type(send_method) == type(vk.messages.sendMessageEventAnswer):
         user_id = data["object"]["user_id"]
         peer_id = data["object"]["peer_id"]
-        print(data["object"])
+        print('callback-------------', data["object"])
         payload = command = data["object"]["payload"].get('payload', '-')
-        print(payload)
+        # print(payload)
         basic_data_msg = dict(
             peer_id=peer_id,
             event_id=data["object"]["event_id"],
             user_id=user_id,
         )
     else:
-        print(data['object'], send_method, vk.messages.sendMessageEventAnswer)
+        print('normal--------------', data['object'])
         print(type(send_method), type(vk.messages.sendMessageEventAnswer))
         message = data['object']["message"]
         from_id = message["from_id"]
@@ -279,12 +279,12 @@ def bot():
             return cfg.get('vk', 'confirmation')
 
         elif request_type == "message_event":
-            print('!!!!__________________', data["object"])
+            # print('!!!!__________________', data["object"])
             payload = data["object"]["payload"].get('payload', '-')
             processing_msg(payload, data)
 
         elif request_type == 'message_new':
-            print('-------------------------------', data)
+            # print('-------------------------------', data)
             message = data['object']["message"]
             from_id = message["from_id"]
             peer_id = message['peer_id']
