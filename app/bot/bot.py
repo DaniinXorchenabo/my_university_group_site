@@ -163,7 +163,7 @@ def processing_msg(command: str, data: dict, send_method=vk.messages.sendMessage
             user_id=user_id,
         )
     else:
-        print(data['object'], send_method)
+        print(data['object'], send_method, vk.messages.sendMessageEventAnswer)
         message = data['object']["message"]
         from_id = message["from_id"]
         peer_id = message['peer_id']
