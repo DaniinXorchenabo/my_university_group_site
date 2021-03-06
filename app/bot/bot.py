@@ -170,7 +170,7 @@ def processing_msg(command: str, data: dict, send_method=vk.messages.sendMessage
         from_id = message["from_id"]
         peer_id = message['peer_id']
         basic_data_msg = dict(peer_id=peer_id, keyboard=keyboard.get_keyboard())
-        command = command.split()[0].lstrip('/')
+        command = message.get('payload', {}).get('payload', None) or command.split()[0].lstrip('/')
 
     if command == "start":
         ans = "Привет. У меня ты можешь узнать расписание, фио преподовов и дз"
