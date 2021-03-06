@@ -172,8 +172,17 @@ def processing_msg(command: str, data: dict, send_method=vk.messages.sendMessage
         peer_id = message['peer_id']
         basic_data_msg = dict(peer_id=peer_id, keyboard=keyboard.get_keyboard())
         print(message)
-        command = message.get('payload', {}).get('payload', None) or command.split()[0].lstrip('/')
-        print(command,  message.get('payload', {}))
+        payload = message.get('payload')
+        if payload:
+            # Парсинг payload
+            if type(payload) == str:
+                payload = payload.lsplit('{').rsplit('}').split(',')
+                payload = {key.strip(): val.strip() for [key, val] in payload.split(':')}
+                payload = payload.get('payload')
+            elif type(payload) == dict:
+                payload = payload.get('payload')
+        command = payload or command.split()[0].lstrip('/')
+        print(command)
 
     if command == "start":
         ans = "Привет. У меня ты можешь узнать расписание, фио преподовов и дз"
