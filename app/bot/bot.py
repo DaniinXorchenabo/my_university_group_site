@@ -144,7 +144,7 @@ def smart_msg_creator(text, send_method, type_param="show_snackbar"):
     if type(send_method) == type(vk.messages.sendMessageEventAnswer):
         data = dict(event_data=json.dumps({
             "type": type_param,
-            "text": text
+            "text": text,
         }))
     else:
         data = dict(message=text)
