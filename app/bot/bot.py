@@ -139,6 +139,107 @@ def delete_last_message(peer_id_):
     vk.messages.delete(message_ids=message_id, delete_for_all=True)
 
 
+def smart_msg_creator(text, send_method, type_param="show_snackbar"):
+    if send_method == vk.messages.sendMessageEventAnswer:
+        data = dict(event_data=json.dumps({
+            "type": type_param,
+            "text": text
+        }))
+    else:
+        data = dict(message=text)
+    return data
+
+
+def processing_msg(command: str, data: dict, send_method=vk.messages.sendMessageEventAnswer):
+    if send_method == vk.messages.sendMessageEventAnswer:
+        user_id = data["object"]["user_id"]
+        peer_id = data["object"]["peer_id"]
+        payload = command = data["object"]["payload"].get(['payload'], '-')
+        basic_data_msg = dict(
+            peer_id=peer_id,
+            event_id=data["object"]["event_id"],
+            user_id=user_id,
+        )
+    else:
+        message = data['object']["message"]
+        from_id = message["from_id"]
+        peer_id = message['peer_id']
+        basic_data_msg = dict()
+        command = command.split()[0].lstrip('/')
+
+    if command == "start":
+        ans = "Привет. У меня ты можешь узнать расписание, фио преподовов и дз"
+        send_method = reply
+        basic_data_msg = dict(peer_id=peer_id, message=ans)
+
+    elif command == "week":
+        send_method = reply
+        basic_data_msg = dict(peer_id=peer_id, message=get_raspisanie_on_week())
+
+    elif command == "today":
+        basic_data_msg.update(smart_msg_creator(get_raspisanie_on_today(), send_method))
+    elif command == "tomorrow":
+        basic_data_msg.update(smart_msg_creator(get_raspisanie_on_tomorrow(), send_method))
+
+    elif command == "timetable":
+        basic_data_msg.update(smart_msg_creator(raspisanie_par, send_method))
+
+    elif command == "prepody":
+        send_method = reply
+        basic_data_msg = dict(
+            peer_id=peer_id,
+            message="Выберете предмет",
+            keyboard=subjects_keyboard.get_keyboard()
+        )
+    elif command == "mainmenu":
+        send_method = reply
+        basic_data_msg = dict(
+            peer_id=peer_id,
+            message="Вы вернулись в главное меню",
+            keyboard=keyboard.get_keyboard()
+        )
+
+    # преподы предметов
+    # мне хочется плакать, когда я вижу этот код
+    elif command == "english":
+        basic_data_msg.update(smart_msg_creator(
+            "Английский\n"
+            "Данкова Наталья Станиславовна n.s.dankova@mail.ru\n"
+            "Юрасова Ольга Николаевна ol.iurasova@yandex.ru",
+            send_method
+        ))
+
+    elif command == "defend":
+        send_method = reply
+        basic_data_msg = dict(peer_id=peer_id, attachment="photo379254977_457239134")
+    elif command == "itvpd":
+        basic_data_msg.update(smart_msg_creator("ИТвПД\nГолобокова Елена Михайловна", send_method))
+
+    elif command == "math":
+        basic_data_msg.update(smart_msg_creator("Математика\nКупряшина Лилия Александровна", send_method))
+
+    elif command == "mlita":
+        basic_data_msg.update(smart_msg_creator("МЛиТА\nКазакова Ирина Анатольевна", send_method))
+
+    elif command == "pravo":
+        basic_data_msg.update(smart_msg_creator("Правоведение\nДанилова Валерия Александровна", send_method))
+
+    elif command == "proga":
+        basic_data_msg.update(smart_msg_creator("Программирование\nГурьянов Лев Вячеславович", send_method))
+
+    elif command == "trir":
+        basic_data_msg.update(smart_msg_creator("ТРИР\nТакташкин Денис Витальевич", send_method))
+
+    elif command == "phisic":
+        basic_data_msg.update(smart_msg_creator(
+            "Физика\nКостина Наталья Владимировна\nСуровичкая Галина Владимировна",
+            send_method
+        ))
+    else:
+        return
+    send_method(**basic_data_msg)
+
+
 @app.route('/', methods=["GET", "POST"])
 def bot():
     def homework(text, from_id, peer_id):
@@ -174,109 +275,8 @@ def bot():
             return cfg.get('vk', 'confirmation')
 
         elif request_type == "message_event":
-            event_id = data["object"]["event_id"]
-            user_id = data["object"]["user_id"]
-            peer_id = data["object"]["peer_id"]
-            payload = data["object"]["payload"]
-            print('!---------', payload)
-            if len(payload) < 85:
-                payload = payload["payload"]
-            else:
-                payload = list(payload)[85:]  # 100 % это все словает
-
-                for i in range(-5, -1 + 1, -1):  # не сработает ни единого раза
-                    # какой сокральный смысл несет -1 + 1 и почему нельзя просто написать 0 ????
-                    payload[i] = ''
-
-                ''.join(payload)  # Бессмысленно, оно возвращает значение, а не изменяет объект
-
-            basic_data_msg = dict(
-                peer_id=peer_id,
-                event_id=event_id,
-                user_id=user_id,
-            )
-
-            if payload == "start":
-                ans = "Привет. У меня ты можешь узнать расписание, фио преподовов и дз"
-                reply(peer_id=peer_id, message=ans)
-            elif payload == "week":
-                reply(peer_id=peer_id, message=get_raspisanie_on_week())
-            elif payload == "today":
-                basic_data_msg['event_data'] = json.dumps(
-                    {"type": "show_snackbar", "text": get_raspisanie_on_today()})
-                vk.messages.sendMessageEventAnswer(**basic_data_msg)
-            elif payload == "tomorrow":
-                basic_data_msg['event_data'] = json.dumps(
-                    {"type": "show_snackbar", "text": get_raspisanie_on_tomorrow()})
-                vk.messages.sendMessageEventAnswer(**basic_data_msg)
-
-            elif payload == "timetable":
-                basic_data_msg['event_data'] = json.dumps(
-                    {"type": "show_snackbar", "text": raspisanie_par})
-                vk.messages.sendMessageEventAnswer(**basic_data_msg)
-
-            elif payload == "prepody":
-                reply(
-                    peer_id=peer_id,
-                    message="Выберете предмет",
-                    keyboard=subjects_keyboard.get_keyboard()
-                )
-            elif payload == "mainmenu":
-                reply(
-                    peer_id=peer_id,
-                    message="Вы вернулись в главное меню",
-                    keyboard=keyboard.get_keyboard()
-                )
-            # преподы предметов
-            # мне хочется плакать, когда я вижу этот код
-            elif payload == "english":
-                basic_data_msg['event_data'] = json.dumps(
-                    {"type": "show_snackbar",
-                     "text": "Английский\nДанкова Наталья Станиславовна n.s.dankova@mail.ru\nЮрасова Ольга Николаевна ol.iurasova@yandex.ru"
-                     }
-                )
-                vk.messages.sendMessageEventAnswer(**basic_data_msg)
-
-            elif payload == "defend":
-                reply(peer_id=peer_id, attachment="photo379254977_457239134")
-            elif payload == "itvpd":
-                basic_data_msg['event_data'] = json.dumps(
-                    {"type": "show_snackbar", "text": "ИТвПД\nГолобокова Елена Михайловна"})
-                vk.messages.sendMessageEventAnswer(**basic_data_msg)
-
-            elif payload == "math":
-                basic_data_msg['event_data'] = json.dumps(
-                    {"type": "show_snackbar", "text": "Математика\nКупряшина Лилия Александровна"})
-                vk.messages.sendMessageEventAnswer(**basic_data_msg)
-
-            elif payload == "mlita":
-                basic_data_msg['event_data'] = json.dumps(
-                    {"type": "show_snackbar", "text": "МЛиТА\nКазакова Ирина Анатольевна"})
-                vk.messages.sendMessageEventAnswer(**basic_data_msg)
-
-            elif payload == "pravo":
-                basic_data_msg['event_data'] = json.dumps(
-                    {"type": "show_snackbar", "text": "Правоведение\nДанилова Валерия Александровна"})
-                vk.messages.sendMessageEventAnswer(**basic_data_msg)
-
-            elif payload == "proga":
-                basic_data_msg['event_data'] = json.dumps(
-                    {"type": "show_snackbar", "text": "Программирование\nГурьянов Лев Вячеславович"})
-                vk.messages.sendMessageEventAnswer(**basic_data_msg)
-
-            elif payload == "trir":
-                basic_data_msg['event_data'] = json.dumps(
-                    {"type": "show_snackbar", "text": "ТРИР\nТакташкин Денис Витальевич"})
-                vk.messages.sendMessageEventAnswer(**basic_data_msg)
-
-            elif payload == "phisic":
-                basic_data_msg['event_data'] = json.dumps(
-                    {
-                        "type": "show_snackbar",
-                        "text": "Физика\nКостина Наталья Владимировна\nСуровичкая Галина Владимировна"
-                    }
-                )
-                vk.messages.sendMessageEventAnswer(**basic_data_msg)
+            payload = data["object"]["payload"].get(['payload'], '-')
+            processing_msg(payload, data)
 
         elif request_type == 'message_new':
             print('-------------------------------', data['object'])
@@ -299,6 +299,8 @@ def bot():
                     keyboard=keyboard_my.get_keyboard(),
                     expire_ttl=18000
                 )
+            elif processing_msg(text, data, send_method=reply):
+                pass
             else:
                 homework(text, from_id, peer_id)
     return "ok"
