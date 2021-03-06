@@ -298,29 +298,30 @@ def bot():
 
         elif request_type == 'message_new':
             print('-------------------------------', data)
-            message = data['object']["message"]
-            from_id = message["from_id"]
-            peer_id = message['peer_id']
-            text = message["text"].lower()
+            message = data['object'].get("message")
+            if message:
+                from_id = message["from_id"]
+                peer_id = message['peer_id']
+                text = message["text"].lower()
 
-            if text == "/show_kb":
-                if str(from_id) in ["159526068", "285983191"]:
-                    reply(user_id=from_id, message="keyboard on", keyboard=keyboard_my.get_keyboard())
+                if text == "/show_kb":
+                    if str(from_id) in ["159526068", "285983191"]:
+                        reply(user_id=from_id, message="keyboard on", keyboard=keyboard_my.get_keyboard())
+                    else:
+                        reply(peer_id=peer_id, message="keyboard on", keyboard=keyboard.get_keyboard())
+                    delete_last_message(peer_id)
+
+                elif text == "/test_msg_with_timer":
+                    reply(
+                        user_id=from_id,
+                        message="Какой-то текст",
+                        keyboard=keyboard_my.get_keyboard(),
+                        expire_ttl=18000
+                    )
+                elif processing_msg(text, data, send_method=reply):
+                    pass
                 else:
-                    reply(peer_id=peer_id, message="keyboard on", keyboard=keyboard.get_keyboard())
-                delete_last_message(peer_id)
-
-            elif text == "/test_msg_with_timer":
-                reply(
-                    user_id=from_id,
-                    message="Какой-то текст",
-                    keyboard=keyboard_my.get_keyboard(),
-                    expire_ttl=18000
-                )
-            elif processing_msg(text, data, send_method=reply):
-                pass
-            else:
-                homework(text, from_id, peer_id)
+                    homework(text, from_id, peer_id)
     return "ok"
 
 
