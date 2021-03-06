@@ -176,8 +176,8 @@ def processing_msg(command: str, data: dict, send_method=vk.messages.sendMessage
         if payload:
             # Парсинг payload
             if type(payload) == str:
-                payload = payload.lstrip('{').rstrip('}').split(',')
-                payload = {key.strip(): val.strip() for [key, val] in payload.split(':')}
+                payload = [i.split(':') for i in payload.lstrip('{').rstrip('}').split(',')]
+                payload = {key.strip(): val.strip() for [key, val] in payload}
                 payload = payload.get('payload')
             elif type(payload) == dict:
                 payload = payload.get('payload')
