@@ -154,7 +154,8 @@ def processing_msg(command: str, data: dict, send_method=vk.messages.sendMessage
     if send_method == vk.messages.sendMessageEventAnswer:
         user_id = data["object"]["user_id"]
         peer_id = data["object"]["peer_id"]
-        payload = command = data["object"]["payload"].get(['payload'], '-')
+        payload = command = data["object"]["payload"]
+        print(payload)
         basic_data_msg = dict(
             peer_id=peer_id,
             event_id=data["object"]["event_id"],
