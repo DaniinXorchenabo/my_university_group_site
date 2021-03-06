@@ -167,9 +167,11 @@ def processing_msg(command: str, data: dict, send_method=vk.messages.sendMessage
         print('normal--------------', data['object'])
         print(type(send_method), type(vk.messages.sendMessageEventAnswer))
         message = data['object']["message"]
+        print(message)
         from_id = message["from_id"]
         peer_id = message['peer_id']
         basic_data_msg = dict(peer_id=peer_id, keyboard=keyboard.get_keyboard())
+        print(message)
         command = message.get('payload', {}).get('payload', None) or command.split()[0].lstrip('/')
         print(command,  message.get('payload', {}))
 
