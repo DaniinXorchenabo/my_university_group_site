@@ -177,10 +177,14 @@ def processing_msg(command: str, data: dict, send_method=vk.messages.sendMessage
             # Парсинг payload
             if type(payload) == str:
                 payload = [i.split(':') for i in payload.lstrip('{').rstrip('}').split(',')]
-                payload = {key.strip(): val.strip() for [key, val] in payload}
+                payload = {key.strip().strip('"').strip("'"): val.strip().strip('"').strip("'")
+                           for [key, val] in payload}
+                print(payload)
                 payload = payload.get('payload')
+                print(payload)
             elif type(payload) == dict:
                 payload = payload.get('payload')
+        print(payload)
         command = payload or command.split()[0].lstrip('/')
         print(command)
 
