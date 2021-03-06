@@ -92,6 +92,7 @@ keyboard.add_line()
 keyboard.add_openlink_button("Ссылка на диск", "https://yadi.sk/d/0W7wTf29wwaOYw")
 
 keyboard_my = VkKeyboard(one_time=False)
+keyboard_my.add_button("Расписание тест", color=VkKeyboardColor.POSITIVE, payload='{"payload":"today"}')
 keyboard_my.add_callback_button("Расписание на сегодня", color=VkKeyboardColor.POSITIVE, payload='{"payload":"today"}')
 keyboard_my.add_line()
 keyboard_my.add_callback_button("Расписание на завтра", color=VkKeyboardColor.POSITIVE,
