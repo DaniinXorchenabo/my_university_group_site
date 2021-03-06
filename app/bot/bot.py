@@ -277,6 +277,7 @@ def bot():
             return cfg.get('vk', 'confirmation')
 
         elif request_type == "message_event":
+            print('!!!!__________________', data["object"])
             payload = data["object"]["payload"].get(['payload'], '-')
             processing_msg(payload, data)
 
