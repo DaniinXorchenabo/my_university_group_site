@@ -5,14 +5,14 @@
 from datetime import date
 from datetime import datetime
 from datetime import time
-from typing import Any, List, Iterator, Tuple
+from typing import Any, List, Iterator, Tuple, Dict
 from functools import reduce
 
 from pony.orm import *
-from pydantic import BaseModel
+# from pydantic import BaseModel
 
 from app.settings.config import *
-from app.db.pydantic_models_db.pony_orm_to_pydantic_utils import get_p_k
+from app.db.pydantic_models_db.pony_orm_to_pydantic_utils import get_p_k, BaseModel
 
 
 class MyFrozenset(frozenset):
@@ -62,8 +62,9 @@ class AddArrtInDbClass(object):
 
     @classmethod
     def getter_and_classmethod(cls, func):
-        """добавляет одноимянный атрибут и метод сласса"""
-        """"Это означает, что можно так:
+        """добавляет одноимянный атрибут и метод сласса"
+
+        Это означает, что можно так:
         Group['20ВП1'].func
         и Group.cl_func(name='20ВП1')
         вместо name='20ВП1' могут быть любые параметры, идентифицирующие сущность
@@ -81,16 +82,18 @@ class AddArrtInDbClass(object):
 
     @classmethod
     def only_func(cls, func):
-        """добавляет к классу одноимянную функцию"""
-        """Это означает, что можно так:
+        """добавляет к классу одноимянную функцию
+
+        Это означает, что можно так:
         Group['20ВП1'].func(ваши параметры, которые требует функция)"""
         setattr(cls, func.__name__, func)  # types.MethodType(func, cls)
         change_field[cls] = change_field.get(cls, []) + [func.__name__]
 
     @classmethod
     def func_and_classmethod(cls, func):
-        """добавляет к классу одноимянную функцию и метод класса"""
-        """Это означает, что можно так:
+        """добавляет к классу одноимянную функцию и метод класса
+
+        Это означает, что можно так:
         Group['20ВП1'].func(ваши параметры, которые требует функция)
         и так 
         Group['20ВП1'].func(ваши параметры, которые требует функция)"""
@@ -107,54 +110,72 @@ class AddArrtInDbClass(object):
 
     @classmethod
     def only_setter(cls, func):
-        """добавляет к классу одноимянный сеттер"""
-        """Это означает, что можно так:
+        """добавляет к классу одноимянный сеттер
+
+        Это означает, что можно так:
         Group['20ВП1'].func = ваше значение"""
         setattr(cls, func.__name__, getattr(cls, func.__name__).setter(func))  # types.MethodType(func, cls)
         change_field[cls] = change_field.get(cls, []) + [func.__name__]
 
     @classmethod
     def only_getter(cls, func):
-        """добавляет одноимянный геттер"""
-        """"Это означает, что можно так:
+        """добавляет одноимянный геттер
+
+        Это означает, что можно так:
         Group['20ВП1'].func"""
         setattr(cls, func.__name__, property(func))  # types.MethodType(func, cls)
         change_field[cls] = change_field.get(cls, []) + [func.__name__]
 
     @classmethod
     def only_classmetod(cls, func):
-        """добавляет к классу метод класса"""
-        """Это означает, что можно так:
+        """добавляет к классу метод класса
+
+        Это означает, что можно так:
         Group.func()"""
         setattr(cls, func.__name__, classmethod(func))
         change_field[cls] = change_field.get(cls, []) + [func.__name__]
 
     @classmethod
     def only_staticmethod(cls, func):
-        """добавляет к классу статический метод"""
-        """Это означает, что можно так:
+        """добавляет к классу статический метод
+
+        Это означает, что можно так:
         Group.func(<параметры>)
         Group['20ВП1'].func(<параметры>)"""
         setattr(cls, func.__name__, staticmethod(func))
         change_field[cls] = change_field.get(cls, []) + [func.__name__]
 
 
-def db_ent_to_dict(ent):
+class StringDB(BaseModel):
+    """Олицетворяет одну строку в классе сузности Pony"""
+
+    name: str
+    db_type: str
+    param_type: str
+    default: Any
+    other_params: dict
+    is_primary_key: bool = False
+
+
+def db_ent_to_dict(ent) -> Tuple[Dict[str, StringDB], Dict[str, str]]:
     """
     Генерирует представление класса БД в виде кода
 
-    На выход поступает словарь {имя_атрибута: объект_StringDB}
-    и {имя_primary_key: тип_primary_key_в_БД}
-    """
+    :param ent: Класс сущности, код которого будет трансформироваться
+    :type ent: db.Entity
+    :return: кодтеж, где первый элемент - словарь с кодом сущности
+                (key: название поля, value: преобразованный код)
+                а второй - словарь с primaryKey, где key: имя primaryKey, value: тип primaryKey
+    :return type: Tuple[Dict[str, StringDB], Dict[str, str]]
 
-    class StringDB(BaseModel):
-        """Олицетворяет одну строку в классе сузности Pony"""
-        name: str
-        db_type: str
-        param_type: str
-        default: Any
-        other_params: dict
-        is_primary_key: bool = False
+    В проекте имеется необходимость иметь доступ непосредственно к коду
+    сущности БД (для построения другого файла и нетолько). Данная функция реализует
+    этот функционал. В последствие, каждый атрибут из сущности БД представляется в виде
+    pydantic-класса StringDB. Вся сущность объединяется в словарь с ключем
+     - имя атрибуда в сущности Pony и соответствующим объектом StringDB.
+     Также для каждой сущности возвращается словарь с primaryKey базы данных
+     и типами этих primaryKey в БД
+    """
 
     code = [i.strip() for i in ent.describe().split('\n')]
     p_k = [i for i in code if 'PrimaryKey' in i]

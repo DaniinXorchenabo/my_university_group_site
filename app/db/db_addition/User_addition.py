@@ -7,11 +7,12 @@ import hashlib
 from datetime import date
 from datetime import datetime
 from datetime import time
-from app.db.db_base_func import *
+
 from pony.orm import *
 
 from app.settings.config import *
-from app.db.models import *
+from app.db.db_base_func import change_field
+from app.db.models import User, NoneVerification, SeniorVerification, SeniorInTheGroup, Group
 
 
 if __name__ == '__main__':

@@ -5,11 +5,13 @@
 from datetime import date
 from datetime import datetime
 from datetime import time
+
 from pony.orm import *
 
 from app.settings.config import *
-from app.db.models import *
-from app.db.db_addition.User_addition import *
+from app.db.db_base_func import change_field
+from app.db.models import SeniorInTheGroup, SeniorVerification
+from app.db.db_addition.User_addition import User
 
 
 if __name__ == '__main__':

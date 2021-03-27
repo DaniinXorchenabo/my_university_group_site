@@ -5,16 +5,11 @@
 from datetime import date
 from datetime import datetime
 from datetime import time
+
 from pony.orm import *
 
 from app.settings.config import *
-from app.db.models import *
-
-
-if __name__ == '__main__':
-    from os import chdir
-
-    chdir(HOME_DIR)
+from app.db.models import NoneVerification
 
 
 @NoneVerification.only_func

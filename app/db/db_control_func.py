@@ -8,8 +8,7 @@ from datetime import time
 from pony.orm import *
 
 from app.settings.config import *
-from app.db.models import *
-
+from app.db.models import db
 
 
 def controller_migration_version(db_path=DB_PATH, db_l=db):
@@ -51,6 +50,7 @@ def make_migrate_file(db_l=db):
 def connect_with_db(db_path=DB_PATH, deep=0, db_l=db):
     """
     Создает соединение с БД для Pony ORM версии 0.8
+
     :param db_path: путь к БД
     :param deep: глубина рекурсии
     :param db_l: объект БД
@@ -113,6 +113,7 @@ is_DB_created = connect_with_db
 def old_connect_with_db(db_path=DB_PATH, deep=0, db_l=db):
     """
     Создает соединение с БД для Pony ORM версии 0.73
+
     :param db_path: путь к БД
     :param deep: глубина рекурсии
     :param db_l: объект БД
@@ -173,6 +174,7 @@ def create_pydantic_models(create_file=AUTO_PYDANTIC_MODELS):
 
     class CreatePdModels(BaseModel):
         """ Олицетворяет одну строку будущего кода"""
+
         name: Optional[str] = None  # Название параметра
         type_db_param: Optional[str] = None  # Тип параметра, который Optional, PrimaryKey, Required, Set
         type_param: Optional[str] = None  # Настоящий тип параметра (int, str, User, ...)
