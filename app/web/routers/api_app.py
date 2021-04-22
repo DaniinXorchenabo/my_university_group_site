@@ -1,11 +1,15 @@
 # -*- coding: utf-8 -*-
 
 """Тут будут только роуты, предназначенные для API (взаимодействия с android)"""
+from typing import Union, Optional as PdOptional, List, Tuple, Dict, Literal, Any
+
+from pydantic import validator, root_validator
 
 from app.web.dependencies import *
-
+from app.db.pydantic_models_db.pydantic_models import MyGetterDictGroup
 
 session_keyless_api = APIRouter(prefix="/api")  # Для роутов, не использующих session_key
+
 
 # =======! Роуты, не использующие session_key !=======
 
@@ -13,6 +17,7 @@ session_keyless_api = APIRouter(prefix="/api")  # Для роутов, не ис
 class MyUserLogin(BaseModel):
     login: str
     password: str
+
 
 @session_keyless_api.get("/")
 def test1():
@@ -171,6 +176,53 @@ def settings_group_senior():
     return {"<какой-то параметр> : <какое-то значение>"}
 
 
+class PdGroup(BaseModel):
+    senior_in_the_group: PdOptional[
+        Union[Dict, Tuple[Union[Dict, int, PdUser, Dict], Union[Dict, str, PdGroup, Dict]], PdSeniorInTheGroup, Dict]]
+    users: PdOptional[List[Union[Dict, int, PdUser, Dict, None]]] = []
+    dustbining_chats: PdOptional[List[Union[Dict, int, PdDustbiningChat, Dict, None]]] = []
+    important_chats: PdOptional[List[Union[Dict, int, PdImportantChat, Dict, None]]] = []
+    subjects: PdOptional[List[Union[Dict, Tuple[Union[Dict, str, PdGroup, Dict], str], PdSubject, Dict, None]]] = []
+    name: PdOptional[str]
+    events: PdOptional[List[Union[Dict, int, PdEvent, Dict, None]]] = []
+    timesheet_update: PdOptional[datetime] = lambda: datetime.now
+    news: PdOptional[List[Union[Dict, int, PdNews, Dict, None]]] = []
+    queues: PdOptional[List[Union[Dict, int, PdQueue, Dict, None]]] = []
+    mode: PdOptional[Union[Literal["new"], Literal["edit"], Literal["find"], Literal["strict_find"]]] = lambda i: None
+    upload_orm: PdOptional[Union[bool, Literal["min"]]] = lambda i: None
+    primary_key: Any = None
+
+    @root_validator
+    def check_orm_correcting_model(cls, values):
+        primary_keys = ["name"]
+        unique_params = []
+        return check_model(cls, values, Group, pk=primary_keys, unique=unique_params)
+
+    class Config:
+        orm_mode = True
+        getter_dict = MyGetterDictGroup
+        my_primaty_key_field = ["name"]
+        my_required_fields = []
+
+
+
+"""{
+"senior_in_the_group": {},
+"users":[],
+"dustbining_chats":[],
+"important_chats": [],
+"subjects":[],
+  "name": "string",
+"events": [],
+"timesheet_update": [],
+"news": [],
+"queues": [],
+"upload_orm": null,
+"mode": null,
+ "primary_key": "string"
+
+
+}"""
 @api_app.post("/test")
 @db_session
 def testing_pd_model(my_group: PdGroup):
@@ -195,10 +247,10 @@ def testing_pd_model(upgrade_user_data: PdUser):
     return dict(data)
 
 
-@api_app.post("/test/get")
+@api_app.post("/test/set")
 @db_session
 def testing_pd_model(user_data: PdUser):
-    edit_user = User.get(user_data)
+    edit_user = User.set(user_data)
     commit()
     return dict(PdUser(edit_user))
 
