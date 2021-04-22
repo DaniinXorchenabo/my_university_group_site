@@ -22,7 +22,7 @@ from app.db.entities_modification import (
     ImportantMessage, Group, HomeTask, Subject,
     WeekdayAndTimeSubject, ELearningUrl, Event,
     Teacher, SeniorInTheGroup, News, NoneVerification,
-    Queue, UserHasQueue, Reminder, SeniorVerification
+    Queue, UserHasQueue, Reminder, SeniorVerification, db
 )
 from app.db.pydantic_models_db.pony_orm_to_pydantic_utils import (
     MyGetterDict, BaseModel, check_model
