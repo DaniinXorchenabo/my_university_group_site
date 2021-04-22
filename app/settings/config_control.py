@@ -2,16 +2,18 @@
 
 """Тут находятся функции для работы с .ini файлом"""
 
-if __name__ == '__main__':
-    from os import chdir
-    from app.settings.config import HOME_DIR, SETTINGS_FILE, EXAMPLE_SETTINGS_FILE
+from os.path import exists
 
-    chdir(HOME_DIR)
+from configparser import ConfigParser
 
 
 def create_new_settings(config_path, example_settings_filename):
+    """
+    Создаёт файл конфига из примера конфига
 
-    from configparser import ConfigParser
+    Недостабщие данные запрашиваются у пользователя через терминал.
+    Эта функция не должна вызываться за пределами этого файла
+    """
 
     example_cfg = ConfigParser(allow_no_value=True, converters={'list': lambda x: [i.strip() for i in x.split(',')]})
     example_cfg.read(example_settings_filename)
@@ -19,44 +21,44 @@ def create_new_settings(config_path, example_settings_filename):
     print("Config file not found!")
     print(f"I am trying to create {config_path}...")
     print(f"I am coping {example_settings_filename} and rename this to {config_path}")
-    with open(f"{example_settings_filename}", "r", encoding="utf-8") as file, open(config_path, 'w',
-                                                                                   encoding='utf-8') as wtiten_file:
-        print(
-            '\n'.join([(''.join([i + input(f"\nВведите пожалуйста {i.replace('=', '').strip()} для своей программы:\n")
-                                 for i in filter(bool, string.split(user_input_tag))])
-                        if user_input_tag in string and not string.startswith("user_input_tag") else string)
-                       for string in iter(file.read().split('\n'))]), file=wtiten_file)
+
+    # =======! Получение данных от пользователя !=======
+    with open(f"{example_settings_filename}", "r", encoding="utf-8") as file:
+        data = []
+        for string in iter(file.read().split('\n')):
+            if user_input_tag in string and not string.startswith("user_input_tag"):
+                user_data = input(f"\nВведите пожалуйста {string.replace('=', '').strip()} для своей программы:\n")
+                user_data = string.replace(user_input_tag, user_data.strip())
+                data.append(user_data)
+            else:
+                data.append(string)
+
+    # =======! Запись данных в файл !=======
+    with open(config_path, 'w', encoding='utf-8') as writen_file:
+        data = '\n'.join(data)
+        print(data, file=writen_file)
 
 
-def create_cfg(config_path='',
-               example_settings_filename=''):
-    import sys
-    from configparser import ConfigParser
-    from os.path import exists
+def create_cfg(config_file: str, example_settings_filename: str) -> ConfigParser:
+    """ Создаёт объект конфига (привязанный к файлу конфига)"""
 
-    if not exists(config_path) and not exists(example_settings_filename):
-        print(f"Config file ({config_path}) not found! Exiting!")
-        sys.exit(0)
-    if not exists(config_path):
-        create_new_settings(config_path, example_settings_filename)
-    if exists(config_path):
-        cfg = ConfigParser(allow_no_value=True, converters={'list': lambda x: [i.strip() for i in x.split(',')]})
-        cfg.read(config_path)
-    else:
-        print("Config not found! Exiting!")
-        print(f"I can't create {SETTINGS_FILE}...")
-        print(f"You can try cloning {EXAMPLE_SETTINGS_FILE} to {SETTINGS_FILE} and edit params into this")
-        sys.exit(0)
+    if not exists(config_file) and not exists(example_settings_filename):
+        print(f"Config file ({config_file}) not found! Exiting!")
+        exit()
+    if not exists(config_file):
+        create_new_settings(config_file, example_settings_filename)
+
+    cfg = ConfigParser(allow_no_value=True, converters={'list': lambda x: [i.strip() for i in x.split(',')]})
+    cfg.read(config_file)
     return cfg
 
 
-def save_change_in_cinfig_file(cfg=None):
-    if not cfg:
-        cfg = create_cfg(SETTINGS_FILE, EXAMPLE_SETTINGS_FILE)
-    with open(SETTINGS_FILE, "w") as config_file:
-        cfg.write(config_file)
-    return cfg
+def save_change_in_config_file(config_file: str, example_settings_filename: str,
+                               config: ConfigParser = None) -> ConfigParser:
+    """ Сохраняет изменения в конфиг-файле"""
 
-
-if __name__ == '__main__':
-    cfg = create_cfg(SETTINGS_FILE, EXAMPLE_SETTINGS_FILE)
+    if not config:
+        config = create_cfg(config_file, example_settings_filename)
+    with open(config_file, "w") as config_file:
+        config.write(config_file)
+    return config

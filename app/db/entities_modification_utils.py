@@ -3,12 +3,14 @@
 """Код, который модифицирует БД,
    но должен выполняться после импорта pydantic-моделей"""
 
+from typing import Union, Dict, Any, Tuple
+
 from pony.orm.core import MultipleObjectsFoundError
 
-from app.db.db_base_func import *
+from app.db.db_base_func import set, frozenset, change_field, AddArrtInDbClass, db_ent_to_dict
 from app.db.models import *
-from app.db.pydantic_models_db.pony_orm_to_pydantic_utils import *
-from app.db.pydantic_models_db.pydantic_models import *
+from app.db.pydantic_models_db.pony_orm_to_pydantic_utils import MyGetterDict, get_p_k, check_model, BaseModel
+# from app.db.pydantic_models_db.pydantic_models import *
 
 
 def primary_key_to_entity(ent: db.Entity, param_name: str, value: Any,
@@ -280,9 +282,12 @@ def change_to_dict_method(base_metod):
     """
 
     def is_iter(i) -> bool:
+        """ Вернёт True, если объект нужно перебирать циклом"""
+
         return (hasattr(i, '__iter__') and not type(i) == str) or hasattr(i, 'select')
 
     def is_ent(i) -> bool:
+        """ Вернёт True, если объект принадлежит Pony ORM"""
         return hasattr(i, 'select') or type(i) in db.entities.values()
 
     def decorator(self, *args, **kwargs):

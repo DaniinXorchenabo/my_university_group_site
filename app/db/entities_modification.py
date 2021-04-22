@@ -4,7 +4,7 @@
    для модификации БД), и модифицирует БД"""
 
 from app.settings.config import *
-from app.db.db_base_func import *
+from app.db.db_base_func import frozenset, set, AddArrtInDbClass, db_ent_to_dict
 from app.db.models import *
 
 
@@ -17,18 +17,30 @@ for name, ent in db.entities.items():
     entities_code[name] = entities_code[ent]
 
 
-from app.db.db_addition.user_addition import *
-from app.db.db_addition.Group_addition import *
-from app.db.db_addition.NoneVerification_additions import *
-from app.db.db_addition.Admin_additions import *
-from app.db.db_addition.SeniorInTheGroup_additions import *
-from app.db.db_addition.SeniorVerification_additions import *
+from app.db.db_addition.User_addition import User
+from app.db.db_addition.Group_addition import Group
+from app.db.db_addition.NoneVerification_additions import NoneVerification
+from app.db.db_addition.Admin_additions import Admin
+from app.db.db_addition.SeniorInTheGroup_additions import SeniorInTheGroup
+from app.db.db_addition.SeniorVerification_additions import SeniorVerification
 
-
-from app.db.pydantic_models_db.pony_orm_to_pydantic_utils import *
-from app.db.pydantic_models_db.pydantic_models import *
-from app.db.pydantic_models_db.pydantic_utils import *
-from app.db.entities_modification_utils import *
+from app.db.pydantic_models_db.pony_orm_to_pydantic_utils import (
+    MyGetterDict, BaseModel, check_model
+)
+from app.db.pydantic_models_db.pydantic_models import (
+    PdAdmin, PdUser, PdDustbiningChat, PdImportantChat,
+    PdImportantMessage, PdGroup, PdHomeTask, PdSubject,
+    PdWeekdayAndTimeSubject, PdELearningUrl, PdEvent,
+    PdTeacher, PdSeniorInTheGroup, PdNews, PdNoneVerification,
+    PdQueue, PdUserHasQueue, PdReminder, PdSeniorVerification
+)
+from app.db.pydantic_models_db.pydantic_utils import from_orm
+from app.db.entities_modification_utils import (
+    primary_key_to_entity, pydantic_obj_parser,
+    data_from_pydantic_decorator, ent_get_decorator,
+    ent_set_decorator, cl_set_creater, ent_exists_decorator,
+    change_to_dict_method
+)
 
 
 for name, ent in db.entities.items():

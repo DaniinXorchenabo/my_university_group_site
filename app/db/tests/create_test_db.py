@@ -106,6 +106,3 @@ def show_all():
     """Показывает все сущьности все сущности всех БД"""
     [(print('\n', key), val.select().show()) for key, val in db.entities.items()]
 
-
-if __name__ == '__main__':
-    connect_with_db()

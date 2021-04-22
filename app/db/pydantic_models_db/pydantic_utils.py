@@ -10,9 +10,9 @@ from datetime import date, datetime, time
 from pony.orm import *
 from pydantic import BaseModel, Json as PdJson
 
-from app.db.models import *
-from app.db.pydantic_models_db.pony_orm_to_pydantic_utils import *
-from app.db.pydantic_models_db.pydantic_models import *
+from app.db.models import db
+# from app.db.pydantic_models_db.pony_orm_to_pydantic_utils import *
+# from app.db.pydantic_models_db.pydantic_models import *
 
 
 def from_orm(ent: db.Entity):
