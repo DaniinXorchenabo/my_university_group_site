@@ -149,8 +149,8 @@ class MyGetterDictSeniorVerification(MyGetterDict):
 
 class PdAdmin(BaseModel):
 	user: PdOptional[Union[Dict, int, PdUser, Dict]]
-	mode: PdOptional[Union[Literal["new"], Literal["edit"], Literal["find"], Literal["strict_find"]]] = None
-	upload_orm: PdOptional[Union[bool, Literal["min"]]] = None
+	mode: PdOptional[Union[Literal["new"], Literal["edit"], Literal["find"], Literal["strict_find"]]] = lambda i: None
+	upload_orm: PdOptional[Union[bool, Literal["min"]]] = lambda i: None
 	primary_key: Any = None
 
 	@root_validator
@@ -184,8 +184,8 @@ class PdUser(BaseModel):
 	curse_count: PdOptional[int]
 	senior_verification: PdOptional[Union[Dict, Union[Dict, int, PdUser, Dict], PdSeniorVerification, Dict]]
 	groups: PdOptional[Union[Dict, str, PdGroup, Dict]]
-	mode: PdOptional[Union[Literal["new"], Literal["edit"], Literal["find"], Literal["strict_find"]]] = None
-	upload_orm: PdOptional[Union[bool, Literal["min"]]] = None
+	mode: PdOptional[Union[Literal["new"], Literal["edit"], Literal["find"], Literal["strict_find"]]] = lambda i: None
+	upload_orm: PdOptional[Union[bool, Literal["min"]]] = lambda i: None
 	primary_key: Any = None
 
 	@root_validator
@@ -205,8 +205,8 @@ class PdDustbiningChat(BaseModel):
 	id: PdOptional[int]
 	group: PdOptional[Union[Dict, str, PdGroup, Dict]]
 	reminders: PdOptional[List[Union[Dict, int, PdReminder, Dict, None]]] = [None]
-	mode: PdOptional[Union[Literal["new"], Literal["edit"], Literal["find"], Literal["strict_find"]]] = None
-	upload_orm: PdOptional[Union[bool, Literal["min"]]] = None
+	mode: PdOptional[Union[Literal["new"], Literal["edit"], Literal["find"], Literal["strict_find"]]] = lambda i: None
+	upload_orm: PdOptional[Union[bool, Literal["min"]]] = lambda i: None
 	primary_key: Any = None
 
 	@root_validator
@@ -226,8 +226,8 @@ class PdImportantChat(BaseModel):
 	id: PdOptional[int]
 	important_messages: PdOptional[List[Union[Dict, int, PdImportantMessage, Dict, None]]] = [None]
 	group: PdOptional[List[Union[Dict, str, PdGroup, Dict, None]]] = [None]
-	mode: PdOptional[Union[Literal["new"], Literal["edit"], Literal["find"], Literal["strict_find"]]] = None
-	upload_orm: PdOptional[Union[bool, Literal["min"]]] = None
+	mode: PdOptional[Union[Literal["new"], Literal["edit"], Literal["find"], Literal["strict_find"]]] = lambda i: None
+	upload_orm: PdOptional[Union[bool, Literal["min"]]] = lambda i: None
 	primary_key: Any = None
 
 	@root_validator
@@ -247,8 +247,8 @@ class PdImportantMessage(BaseModel):
 	id: PdOptional[int]
 	important_chat: PdOptional[Union[Dict, int, PdImportantChat, Dict]]
 	text: PdOptional[str]
-	mode: PdOptional[Union[Literal["new"], Literal["edit"], Literal["find"], Literal["strict_find"]]] = None
-	upload_orm: PdOptional[Union[bool, Literal["min"]]] = None
+	mode: PdOptional[Union[Literal["new"], Literal["edit"], Literal["find"], Literal["strict_find"]]] = lambda i: None
+	upload_orm: PdOptional[Union[bool, Literal["min"]]] = lambda i: None
 	primary_key: Any = None
 
 	@root_validator
@@ -275,8 +275,8 @@ class PdGroup(BaseModel):
 	timesheet_update: PdOptional[datetime] = lambda: datetime.now
 	news: PdOptional[List[Union[Dict, int, PdNews, Dict, None]]] = [None]
 	queues: PdOptional[List[Union[Dict, int, PdQueue, Dict, None]]] = [None]
-	mode: PdOptional[Union[Literal["new"], Literal["edit"], Literal["find"], Literal["strict_find"]]] = None
-	upload_orm: PdOptional[Union[bool, Literal["min"]]] = None
+	mode: PdOptional[Union[Literal["new"], Literal["edit"], Literal["find"], Literal["strict_find"]]] = lambda i: None
+	upload_orm: PdOptional[Union[bool, Literal["min"]]] = lambda i: None
 	primary_key: Any = None
 
 	@root_validator
@@ -299,8 +299,8 @@ class PdHomeTask(BaseModel):
 	deadline_time: PdOptional[time]
 	text: PdOptional[str]
 	files: PdOptional[PdJson]
-	mode: PdOptional[Union[Literal["new"], Literal["edit"], Literal["find"], Literal["strict_find"]]] = None
-	upload_orm: PdOptional[Union[bool, Literal["min"]]] = None
+	mode: PdOptional[Union[Literal["new"], Literal["edit"], Literal["find"], Literal["strict_find"]]] = lambda i: None
+	upload_orm: PdOptional[Union[bool, Literal["min"]]] = lambda i: None
 	primary_key: Any = None
 
 	@root_validator
@@ -323,8 +323,8 @@ class PdSubject(BaseModel):
 	queues: PdOptional[List[Union[Dict, int, PdQueue, Dict, None]]] = [None]
 	teachers: PdOptional[List[Union[Dict, int, PdTeacher, Dict, None]]] = [None]
 	weekday_and_time_subjects: PdOptional[List[Union[Dict, int, PdWeekdayAndTimeSubject, Dict, None]]] = [None]
-	mode: PdOptional[Union[Literal["new"], Literal["edit"], Literal["find"], Literal["strict_find"]]] = None
-	upload_orm: PdOptional[Union[bool, Literal["min"]]] = None
+	mode: PdOptional[Union[Literal["new"], Literal["edit"], Literal["find"], Literal["strict_find"]]] = lambda i: None
+	upload_orm: PdOptional[Union[bool, Literal["min"]]] = lambda i: None
 	primary_key: Any = None
 
 	@root_validator
@@ -350,8 +350,8 @@ class PdWeekdayAndTimeSubject(BaseModel):
 	e_learning_url: PdOptional[Union[Dict, int, PdELearningUrl, Dict]]
 	update_time: PdOptional[datetime] = lambda: datetime.now
 	type: PdOptional[str]
-	mode: PdOptional[Union[Literal["new"], Literal["edit"], Literal["find"], Literal["strict_find"]]] = None
-	upload_orm: PdOptional[Union[bool, Literal["min"]]] = None
+	mode: PdOptional[Union[Literal["new"], Literal["edit"], Literal["find"], Literal["strict_find"]]] = lambda i: None
+	upload_orm: PdOptional[Union[bool, Literal["min"]]] = lambda i: None
 	primary_key: Any = None
 
 	@root_validator
@@ -374,8 +374,8 @@ class PdELearningUrl(BaseModel):
 	login: PdOptional[str]
 	password: PdOptional[str]
 	additional_info: PdOptional[str]
-	mode: PdOptional[Union[Literal["new"], Literal["edit"], Literal["find"], Literal["strict_find"]]] = None
-	upload_orm: PdOptional[Union[bool, Literal["min"]]] = None
+	mode: PdOptional[Union[Literal["new"], Literal["edit"], Literal["find"], Literal["strict_find"]]] = lambda i: None
+	upload_orm: PdOptional[Union[bool, Literal["min"]]] = lambda i: None
 	primary_key: Any = None
 
 	@root_validator
@@ -397,8 +397,8 @@ class PdEvent(BaseModel):
 	name: PdOptional[str]
 	u_date: PdOptional[date]
 	u_time: PdOptional[time]
-	mode: PdOptional[Union[Literal["new"], Literal["edit"], Literal["find"], Literal["strict_find"]]] = None
-	upload_orm: PdOptional[Union[bool, Literal["min"]]] = None
+	mode: PdOptional[Union[Literal["new"], Literal["edit"], Literal["find"], Literal["strict_find"]]] = lambda i: None
+	upload_orm: PdOptional[Union[bool, Literal["min"]]] = lambda i: None
 	primary_key: Any = None
 
 	@root_validator
@@ -421,8 +421,8 @@ class PdTeacher(BaseModel):
 	email: PdOptional[str]
 	phone_number: PdOptional[str]
 	vk_url: PdOptional[str]
-	mode: PdOptional[Union[Literal["new"], Literal["edit"], Literal["find"], Literal["strict_find"]]] = None
-	upload_orm: PdOptional[Union[bool, Literal["min"]]] = None
+	mode: PdOptional[Union[Literal["new"], Literal["edit"], Literal["find"], Literal["strict_find"]]] = lambda i: None
+	upload_orm: PdOptional[Union[bool, Literal["min"]]] = lambda i: None
 	primary_key: Any = None
 
 	@root_validator
@@ -443,8 +443,8 @@ class PdSeniorInTheGroup(BaseModel):
 	senior_verifications: PdOptional[List[Union[Dict, Union[Dict, int, PdUser, Dict], PdSeniorVerification, Dict, None]]] = [None]
 	group: PdOptional[Union[Dict, str, PdGroup, Dict]]
 	is_verification: PdOptional[bool]
-	mode: PdOptional[Union[Literal["new"], Literal["edit"], Literal["find"], Literal["strict_find"]]] = None
-	upload_orm: PdOptional[Union[bool, Literal["min"]]] = None
+	mode: PdOptional[Union[Literal["new"], Literal["edit"], Literal["find"], Literal["strict_find"]]] = lambda i: None
+	upload_orm: PdOptional[Union[bool, Literal["min"]]] = lambda i: None
 	primary_key: Any = None
 
 	@root_validator
@@ -466,8 +466,8 @@ class PdNews(BaseModel):
 	title: PdOptional[str]
 	text: PdOptional[str]
 	files: PdOptional[PdJson]
-	mode: PdOptional[Union[Literal["new"], Literal["edit"], Literal["find"], Literal["strict_find"]]] = None
-	upload_orm: PdOptional[Union[bool, Literal["min"]]] = None
+	mode: PdOptional[Union[Literal["new"], Literal["edit"], Literal["find"], Literal["strict_find"]]] = lambda i: None
+	upload_orm: PdOptional[Union[bool, Literal["min"]]] = lambda i: None
 	primary_key: Any = None
 
 	@root_validator
@@ -487,8 +487,8 @@ class PdNoneVerification(BaseModel):
 	it_is_i: PdOptional[Union[Dict, int, PdUser, Dict]]
 	he_verificate_me: PdOptional[Union[Dict, int, PdUser, Dict]]
 	confirmation: PdOptional[int] = 0
-	mode: PdOptional[Union[Literal["new"], Literal["edit"], Literal["find"], Literal["strict_find"]]] = None
-	upload_orm: PdOptional[Union[bool, Literal["min"]]] = None
+	mode: PdOptional[Union[Literal["new"], Literal["edit"], Literal["find"], Literal["strict_find"]]] = lambda i: None
+	upload_orm: PdOptional[Union[bool, Literal["min"]]] = lambda i: None
 	primary_key: Any = None
 
 	@root_validator
@@ -510,8 +510,8 @@ class PdQueue(BaseModel):
 	group: PdOptional[Union[Dict, str, PdGroup, Dict]]
 	name: PdOptional[str]
 	subject: PdOptional[Union[Dict, Tuple[Union[Dict, str, PdGroup, Dict], str], PdSubject, Dict]]
-	mode: PdOptional[Union[Literal["new"], Literal["edit"], Literal["find"], Literal["strict_find"]]] = None
-	upload_orm: PdOptional[Union[bool, Literal["min"]]] = None
+	mode: PdOptional[Union[Literal["new"], Literal["edit"], Literal["find"], Literal["strict_find"]]] = lambda i: None
+	upload_orm: PdOptional[Union[bool, Literal["min"]]] = lambda i: None
 	primary_key: Any = None
 
 	@root_validator
@@ -532,8 +532,8 @@ class PdUserHasQueue(BaseModel):
 	queue: PdOptional[Union[Dict, int, PdQueue, Dict]]
 	number: PdOptional[int] = -1
 	id: PdOptional[int]
-	mode: PdOptional[Union[Literal["new"], Literal["edit"], Literal["find"], Literal["strict_find"]]] = None
-	upload_orm: PdOptional[Union[bool, Literal["min"]]] = None
+	mode: PdOptional[Union[Literal["new"], Literal["edit"], Literal["find"], Literal["strict_find"]]] = lambda i: None
+	upload_orm: PdOptional[Union[bool, Literal["min"]]] = lambda i: None
 	primary_key: Any = None
 
 	@root_validator
@@ -555,8 +555,8 @@ class PdReminder(BaseModel):
 	text: PdOptional[str] = " "
 	reminder_time: PdOptional[datetime]
 	dustbining_chat: PdOptional[Union[Dict, int, PdDustbiningChat, Dict]]
-	mode: PdOptional[Union[Literal["new"], Literal["edit"], Literal["find"], Literal["strict_find"]]] = None
-	upload_orm: PdOptional[Union[bool, Literal["min"]]] = None
+	mode: PdOptional[Union[Literal["new"], Literal["edit"], Literal["find"], Literal["strict_find"]]] = lambda i: None
+	upload_orm: PdOptional[Union[bool, Literal["min"]]] = lambda i: None
 	primary_key: Any = None
 
 	@root_validator
@@ -576,8 +576,8 @@ class PdSeniorVerification(BaseModel):
 	senior_in_the_group: PdOptional[Union[Dict, Tuple[Union[Dict, int, PdUser, Dict], Union[Dict, str, PdGroup, Dict]], PdSeniorInTheGroup, Dict]]
 	user: PdOptional[Union[Dict, int, PdUser, Dict]]
 	confirmation: PdOptional[int] = 0
-	mode: PdOptional[Union[Literal["new"], Literal["edit"], Literal["find"], Literal["strict_find"]]] = None
-	upload_orm: PdOptional[Union[bool, Literal["min"]]] = None
+	mode: PdOptional[Union[Literal["new"], Literal["edit"], Literal["find"], Literal["strict_find"]]] = lambda i: None
+	upload_orm: PdOptional[Union[bool, Literal["min"]]] = lambda i: None
 	primary_key: Any = None
 
 	@root_validator
