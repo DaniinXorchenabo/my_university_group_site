@@ -208,9 +208,10 @@ def create_pydantic_models(create_file=AUTO_PYDANTIC_MODELS):
     def create_const_params(work_modes: list) -> str:
         """Возвращает строку с параметрами, одинаковыми для каждой модели"""
 
-        string = '\n\tmode: PdOptional[Union[' + ', '.join(['Literal["' + i + '"]' for i in work_modes]) + ']] = None\n'
-        string += '\tupload_orm: PdOptional[Union[bool, Literal["min"]]] = None\n'
+        string = '\n\tmode: PdOptional[Union[' + ', '.join(['Literal["' + i + '"]' for i in work_modes]) + ']] = lambda i: None\n'
+        string += '\tupload_orm: PdOptional[Union[bool, Literal["min"]]] = lambda i: None\n'
         string += '\tprimary_key: Any = None'
+
         return string
 
     CreatePdModels.update_forward_refs()
