@@ -38,7 +38,7 @@ class MySet(set):
 frozenset = MyFrozenset
 set = MySet
 
-change_field = {}  # Список изменённых атрибутов
+
 
 
 class AddArrtInDbClass(object):

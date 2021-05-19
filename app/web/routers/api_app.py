@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 """Тут будут только роуты, предназначенные для API (взаимодействия с android)"""
+
 from typing import Union, Optional as PdOptional, List, Tuple, Dict, Literal, Any
 
 from pydantic import validator, root_validator
@@ -176,35 +177,33 @@ def settings_group_senior():
     return {"<какой-то параметр> : <какое-то значение>"}
 
 
-class PdGroup(BaseModel):
-    senior_in_the_group: PdOptional[
-        Union[Dict, Tuple[Union[Dict, int, PdUser, Dict], Union[Dict, str, PdGroup, Dict]], PdSeniorInTheGroup, Dict]]
-    users: PdOptional[List[Union[Dict, int, PdUser, Dict, None]]] = []
-    dustbining_chats: PdOptional[List[Union[Dict, int, PdDustbiningChat, Dict, None]]] = []
-    important_chats: PdOptional[List[Union[Dict, int, PdImportantChat, Dict, None]]] = []
-    subjects: PdOptional[List[Union[Dict, Tuple[Union[Dict, str, PdGroup, Dict], str], PdSubject, Dict, None]]] = []
-    name: PdOptional[str]
-    events: PdOptional[List[Union[Dict, int, PdEvent, Dict, None]]] = []
-    timesheet_update: PdOptional[datetime] = lambda: datetime.now
-    news: PdOptional[List[Union[Dict, int, PdNews, Dict, None]]] = []
-    queues: PdOptional[List[Union[Dict, int, PdQueue, Dict, None]]] = []
-    mode: PdOptional[Union[Literal["new"], Literal["edit"], Literal["find"], Literal["strict_find"]]] = lambda i: None
-    upload_orm: PdOptional[Union[bool, Literal["min"]]] = lambda i: None
-    primary_key: Any = None
-
-    @root_validator
-    def check_orm_correcting_model(cls, values):
-        primary_keys = ["name"]
-        unique_params = []
-        return check_model(cls, values, Group, pk=primary_keys, unique=unique_params)
-
-    class Config:
-        orm_mode = True
-        getter_dict = MyGetterDictGroup
-        my_primaty_key_field = ["name"]
-        my_required_fields = []
-
-
+# class PdGroup(BaseModel):
+#     senior_in_the_group: PdOptional[
+#         Union[Dict, Tuple[Union[Dict, int, PdUser, Dict], Union[Dict, str, PdGroup, Dict]], PdSeniorInTheGroup, Dict]]
+#     users: PdOptional[List[Union[Dict, int, PdUser, Dict, None]]] = []
+#     dustbining_chats: PdOptional[List[Union[Dict, int, PdDustbiningChat, Dict, None]]] = []
+#     important_chats: PdOptional[List[Union[Dict, int, PdImportantChat, Dict, None]]] = []
+#     subjects: PdOptional[List[Union[Dict, Tuple[Union[Dict, str, PdGroup, Dict], str], PdSubject, Dict, None]]] = []
+#     name: PdOptional[str]
+#     events: PdOptional[List[Union[Dict, int, PdEvent, Dict, None]]] = []
+#     timesheet_update: PdOptional[datetime] = lambda: datetime.now
+#     news: PdOptional[List[Union[Dict, int, PdNews, Dict, None]]] = []
+#     queues: PdOptional[List[Union[Dict, int, PdQueue, Dict, None]]] = []
+#     mode: PdOptional[Union[Literal["new"], Literal["edit"], Literal["find"], Literal["strict_find"]]] = lambda i: None
+#     upload_orm: PdOptional[Union[bool, Literal["min"]]] = lambda i: None
+#     primary_key: Any = None
+#
+#     @root_validator
+#     def check_orm_correcting_model(cls, values):
+#         primary_keys = ["name"]
+#         unique_params = []
+#         return check_model(cls, values, Group, pk=primary_keys, unique=unique_params)
+#
+#     class Config:
+#         orm_mode = True
+#         getter_dict = MyGetterDictGroup
+#         my_primaty_key_field = ["name"]
+#         my_required_fields = []
 
 """{
 "senior_in_the_group": {},
@@ -247,12 +246,14 @@ def testing_pd_model(upgrade_user_data: PdUser):
     return dict(data)
 
 
-@api_app.post("/test/set")
+@api_app.post("/test/cl_set")
 @db_session
 def testing_pd_model(user_data: PdUser):
-    edit_user = User.set(user_data)
+    print('---', user_data)
+    User.cl_set(user_data)
     commit()
-    return dict(PdUser(edit_user))
+
+    return dict(PdUser(User.get(user_data)))  # dict(PdUser(edit_user))
 
 
 @api_app.post('test/login')
@@ -261,6 +262,15 @@ def testing_pd_model(user_data: MyUserLogin):
     if User.exisst(user_data):
         return dict(PdUser(User.get(user_data)))
     return {'ans': 'не ok'}
+
+
+@api_app.get('test/test_group')
+@db_session
+def testing_pd_model():
+    # data = PdGroup.from_orm(Group["20ВП1"])
+    data = PdGroup(**Group["20ВП1"].to_dict(related_objects=False, with_collections=True))
+    print(data)
+    return data
 
 
 if __name__ == "__main__":
