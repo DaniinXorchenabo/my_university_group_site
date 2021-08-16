@@ -10,3 +10,5 @@ fastapi[all]
 pydantic
 flask
 GitPython
+selenium
+webdriver-manager
