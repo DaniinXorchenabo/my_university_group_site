@@ -55,7 +55,8 @@ from selenium.webdriver.common.action_chains import ActionChains
 
 class CellInYandexTable:
 
-    def __init__(self, i: int = None, j: int = None, name: Union[list[str], str] = None):
+    def __init__(self, driver: WebDriver, i: int = None, j: int = None, name: Union[list[str], str] = None):
+        self.driver = driver
         if name is None:
             assert i is not None and j is not None
             self.row_index: int = j  # Номер столбца (тот, что буквами) с единицы
@@ -76,7 +77,7 @@ class CellInYandexTable:
 
     @staticmethod
     def _read(current_driver: WebDriver) -> str:
-        return CellInYandexTable.get_current_text(current_driver)
+        return CellInYandexTable.get_current_text(None, current_driver)
 
     def write(self, current_driver: WebDriver, text: str) -> bool:
         correct_cell: bool = self.go_to_cell(current_driver)
@@ -94,7 +95,11 @@ class CellInYandexTable:
         sleep(0.2 + random() * 0.1)
         current_driver.switch_to.active_element.send_keys(Keys.ENTER)
 
-    def go_to_cell(self: Optional['CellInYandexTable'], current_driver: WebDriver, cell: Union[str, list[str]] = None):
+    def go_to_cell(self: Optional['CellInYandexTable'],
+                   current_driver: WebDriver = None,
+                   cell: Union[str, list[str]] = None):
+        if current_driver is None:
+            current_driver = self.driver
         if cell is None:
             cell: list[str] = self.name
         elif isinstance(cell, str):
@@ -110,7 +115,7 @@ class CellInYandexTable:
                                      *([Keys.BACKSPACE] * 10),
                                      cell[0], Keys.ENTER)
         actions.perform()
-        return cell[0] == CellInYandexTable.get_current_cell(current_driver)
+        return cell[0] == CellInYandexTable.get_current_cell(self, current_driver)
         # print(driver.execute_script(f'document.getElementById("ce-cell-name").click();'
         #                             f'document.getElementById("ce-cell-name").click();'
         #                             f'document.getElementById("ce-cell-name").value = "{cell}";' +
@@ -130,12 +135,14 @@ class CellInYandexTable:
         # exit()
         # driver.switch_to.active_element.send_keys(Keys.ENTER)
 
-    @staticmethod
-    def get_current_cell(driver: WebDriver) -> str:
+    def get_current_cell(self: Optional['CellInYandexTable'], driver: WebDriver) -> str:
+        if driver is None:
+            driver = self.driver
         return driver.execute_script('return document.getElementById("ce-cell-name").value ;')
 
-    @staticmethod
-    def get_current_text(driver: WebDriver) -> str:
+    def get_current_text(self: Optional['CellInYandexTable'], driver: WebDriver) -> str:
+        if driver is None:
+            driver = self.driver
         return driver.execute_script('return document.getElementById("ce-cell-content").value ;')
 
     @staticmethod
@@ -203,10 +210,50 @@ class CellInYandexTable:
         res.reverse()
         return "".join([chr(i) for i in res])
 
+    @classmethod
+    def join_cells(cls, cells: list[list['CellInYandexTable']]):
+        return cls._join_cells(cells[0][0], cells[-1][-1])
+
+    def _click_to_join_cell(self, old_actions: ActionChains = None):
+        if old_actions is None:
+            actions = ActionChains(self.driver)
+        else:
+            actions = old_actions
+        actions.move_to_element(self.driver.find_element_by_id("id-toolbar-rtn-merge"))
+        actions.click(self.driver.find_element_by_id("id-toolbar-rtn-merge"))
+        if old_actions is None:
+            actions.perform()
+
+    @classmethod
+    def _join_cells(cls, top_left: "CellInYandexTable", bottom_right: "CellInYandexTable"):
+        top_left.go_to_cell()
+        top_left._click_to_join_cell()
+        top_left.go_to_cell()
+        actions = ActionChains(top_left.driver)
+        actions.key_down(Keys.SHIFT).send_keys(
+            *([Keys.ARROW_RIGHT] * (bottom_right.row_index - top_left.row_index)),
+            *([Keys.ARROW_DOWN] * (bottom_right.col_index - top_left.col_index))
+        ).key_up(Keys.SHIFT).move_to_element(top_left.driver.find_element_by_id("id-toolbar-rtn-merge"))
+        actions.click(top_left.driver.find_element_by_id("id-toolbar-rtn-merge"))
+        actions.perform()
+        [i.find_element_by_xpath('//button[@result="yes"]').click() for i in
+         top_left.driver.find_elements_by_class_name("asc-window")]
+
 
 class YandexTable:
 
-    def __init__(self):
+    def __init__(self, got_table: list[list[str]] = None, size: tuple[int, int] = None):
+        """
+
+        :param size: size[0] - количество строк в таблице. size[1] - количество столбцов
+        """
+        assert got_table is not None or size is not None
+        self._start_browser()
+        if got_table is not None:
+            size: tuple[int, int] = (len(got_table), max([len(i) for i in got_table]))
+        self.table = [[CellInYandexTable(self.driver, i, j) for j in range(1, size[1] + 1)] for i in range(1, size[0] + 1)]
+
+    def _start_browser(self):
         self.yandex_url = "https://disk.yandex.ru/i/CUlgJ8bWhBvp7A"
         self.driver: WebDriver = webdriver.Chrome(ChromeDriverManager().install())
         # driver.implicitly_wait(10) # seconds
@@ -235,18 +282,23 @@ class YandexTable:
             self.driver.quit()
 
         _working_frame = self.driver.find_elements_by_name("frameEditor")[0]
+        self.driver.switch_to.frame(_working_frame)
         for i in range(5):
             try:
                 self.driver.find_element_by_id('ws-canvas-graphic-overlay')
                 break
             except NoSuchElementException:
-                self.driver.switch_to.active_element.send_key(Keys.ENTER)
+                for i in self.driver.find_elements_by_xpath('//button[@result="ok"]'):
+                    try:
+                        i.click()
+                    except ElementClickInterceptedException:
+                        pass
                 sleep(5)
 
         self.driver.switch_to.default_content()
 
 
-table = YandexTable()
+table = YandexTable(size=(7, 7))
 
 data = [
            ["Расписание на понедельник"],
@@ -267,38 +319,7 @@ print(table.driver.execute_script("""return document.activeElement.id ;"""))
 # sleep(1)
 table.driver.find_element_by_id("editor_sdk").click()
 
-
-
-# while True:
-#     try:
-#         print(driver.execute_script("""return document.activeElement.id ;"""))
-#         sleep(1)
-#         driver.find_element_by_id("ws-canvas-graphic-overlay").click()
-#         driver.switch_to.active_element.send_keys(Keys.ARROW_DOWN)
-#     except ElementClickInterceptedException:
-#         [(i.click(), print(i, end="\t")) for i in driver.find_elements_by_class_name("close")]
-#         print()
-#     # except ElementNotInteractableException:
-#         # driver.find_element_by_xpath("//a[@data-tab='home']").click()
-#         # select.select_by_index(1)
-#         # driver.find_elements_by_class_name("ribtab")[1].click()
-# [([(
-#     driver.switch_to.active_element.send_keys(Keys.BACKSPACE), sleep(0.2 + random() * 0.1),
-#     driver.switch_to.active_element.send_keys(cell), sleep(0.2 + random() * 0.1),
-#     driver.switch_to.active_element.send_keys(Keys.ENTER),
-#     driver.switch_to.active_element.send_keys(Keys.ARROW_UP),
-#     # print([driver.find_element_by_id("ce-cell-content").text]),
-#     print(driver.execute_script("""return document.getElementById("ce-cell-name").value ;"""), end="\t\t"),
-#
-#     print(driver.execute_script("""return document.getElementById("ce-cell-content").value ;""")),
-#     driver.switch_to.active_element.send_keys(Keys.ARROW_RIGHT)
-# ) for cell in string],
-#   driver.switch_to.active_element.send_keys(Keys.ARROW_DOWN),
-#   driver.switch_to.active_element.send_keys(Keys.HOME)
-# ) for string in data]
-#
-# driver.switch_to.active_element.send_keys(Keys.ENTER)
-
-
 CellInYandexTable.go_to_cell(None, table.driver, "D5")
+
+CellInYandexTable.join_cells([i[2:5] for i in table.table[1:4]])
 
