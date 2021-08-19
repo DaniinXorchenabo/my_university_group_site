@@ -12,3 +12,4 @@ flask
 GitPython
 selenium
 webdriver-manager
+arsenic
