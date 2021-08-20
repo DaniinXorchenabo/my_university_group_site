@@ -158,6 +158,7 @@ class CellInYandexTable:
             if char.isdigit():
                 row_index = int(name[ind:])
                 _chars = name[:ind - 1]
+                break
             col_index.append(ord(char) - 64)
         col_index.reverse()
         col_index: int = sum([i * ((ord("Z") - ord("A") + 1) ** ind) for ind, i in enumerate(col_index)])
@@ -297,7 +298,7 @@ class YandexTable:
     def _start_browser(self):
         """Запускаем коннект к таблице"""
         self.yandex_url = "https://disk.yandex.ru/i/CUlgJ8bWhBvp7A"
-        self.driver: WebDriver = webdriver.Firefox(GeckoDriverManager().install())
+        self.driver: WebDriver = webdriver.Chrome(ChromeDriverManager().install())
         # driver.implicitly_wait(10) # seconds
         self.driver.get(self.yandex_url)
         self._wait_loaded()
@@ -340,11 +341,11 @@ class YandexTable:
                         pass
                 sleep(2)
         self.driver.switch_to.default_content()
-        if reload is True:
-            # Если в процессе работы высвечиваются окна
-            # о некорректном завершении работы в прошлый раз - перезагружаемся
-            self.driver.refresh()
-            return self._wait_loaded()
+        # if reload is True:
+        #     # Если в процессе работы высвечиваются окна
+        #     # о некорректном завершении работы в прошлый раз - перезагружаемся
+        #     self.driver.refresh()
+        #     return self._wait_loaded()
 
     def write_table(self):
         """Записать таблицу"""
@@ -359,3 +360,10 @@ class YandexTable:
                     #     self.table[i][j]._click_to_join_cell()
                     self.table[i][j].write(self.driver, ob.text)
                     # self.table[i][j]
+
+
+y_table = YandexTable(size=(7, 7))
+while True:
+    print(y_table.driver.switch_to.active_element
+          )
+    sleep(1)
