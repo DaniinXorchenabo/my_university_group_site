@@ -471,18 +471,19 @@ class CellInYandexTable:
         while True:
             now_cell = await cls.get_cell_name(session)
             if now_cell == where:
-                return True
-            if (key := how_key(now_cell, where, last_cell)) is not None:
+                last_ind = (None, None)
+                last_cell = None
+                # el = await cls.get_active_element(session)
+                # return True
+            elif (key := how_key(now_cell, where, last_cell)) is not None:
                 print(key)
-                # el = await session.get_element("textarea[id=ce-cell-content]")
                 el = await cls.get_active_element(session)
-                print(el.__dict__)
-                # key = Keys.RIGHT
                 await el.send_keys(key)
+                last_cell = now_cell
                 # await cls.send_keys_to_active_element(session, key)
             else:
                 return await cls.go_as_teleport(session, where)
-            last_cell = now_cell
+
 
     @classmethod
     async def join_cells_to_names(cls, session: Session, top_left_cell: str, bottom_right_cell: str):
@@ -670,5 +671,5 @@ def main():
 
 if __name__ == '__main__':
     # 'C:\\Users\\Acer\\.wdm\\drivers\\geckodriver\\win64\\v0.29.1\\geckodriver.exe'
-    # main()
-    print(CellInYandexTable.name_to_ind("G10"))
+    main()
+    # print(CellInYandexTable.name_to_ind("G10"))
