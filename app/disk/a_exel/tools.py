@@ -406,14 +406,17 @@ class CellInYandexTable:
     async def go_as_walk(cls, session: Session, where: str):
         *where_ind, _ = cls.name_to_ind(where)
         last_ind = (None, None)
+        last_last_ind = (None, None)
         # reverse in [0, 2] - идем сначала вниз (или вверх),
         #                       а потом вправо (или влево)
         # reverse in [1, 3] - идем сначала влево (или вправо),
         #                       а потом вверх (или вниз)
         reverse: Union[int, str] = 0
 
-        def how_key(now: str, finish: str, last: Optional[str] = None) -> Optional[str]:
-            nonlocal where_ind, last_ind, reverse
+        def how_key(now: str, finish: str,
+                    last: Optional[str] = None,
+                    last_last: Optional[str] = None) -> Optional[str]:
+            nonlocal where_ind, last_ind, reverse, last_last_ind
             *now_ind, _ = cls.name_to_ind(now)
 
             def left_or_right():
@@ -427,6 +430,9 @@ class CellInYandexTable:
             # key = ""
             # если выделенная ячейка
             # находится в одной строке с целевой ячецкой
+            if last_last_ind[0] == now_ind[0] and last_last_ind[1] == now_ind[1]:
+                reverse -= 1
+
             if reverse > 20:
                 return None
             elif reverse > 3:
@@ -440,50 +446,55 @@ class CellInYandexTable:
                     else:
                         key = up_or_down()
                     reverse += 1
-            if reverse % 2 == 1:
+            elif reverse % 2 != 0:
                 if now_ind[1] == where_ind[1]:
                     key = up_or_down()
                 else:
                     if last_ind[0] is None or \
                             last_ind[0] <= now_ind[0] < where_ind[0] or \
-                            where_ind[0] < now_ind[0] <= last_ind[0]:
+                            where_ind[0] < now_ind[0] <= last_ind[0] or \
+                            (last_last_ind[0] == now_ind[0] and last_last_ind[1] == now_ind[1]):
 
                         key = left_or_right()
                     else:
                         reverse += 1
                         return how_key(now, finish, last)
-                last_ind = now_ind
+                # last_ind = now_ind
             elif reverse % 2 == 0:
                 if now_ind[0] == where_ind[0]:
                     key = left_or_right()
                 else:
                     if last_ind[1] is None or \
                             last_ind[1] <= now_ind[1] < where_ind[1] or \
-                            where_ind[1] < now_ind[1] <= last_ind[1]:
+                            where_ind[1] < now_ind[1] <= last_ind[1] or \
+                            (last_last_ind[0] == now_ind[0] and last_last_ind[1] == now_ind[1]):
                         key = up_or_down()
                     else:
                         reverse += 1
                         return how_key(now, finish, last)
-            last_ind = now_ind
+
+            if last_last_ind[0] == now_ind[0] and last_last_ind[1] == now_ind[1]:
+                reverse += 1
+
+            last_last_ind = (last_ind[0], last_ind[1])
+            last_ind = (now_ind[0], now_ind[1])
             return key
 
         last_cell = None
         while True:
             now_cell = await cls.get_cell_name(session)
             if now_cell == where:
-                last_ind = (None, None)
-                last_cell = None
+                # last_ind = (None, None)
+                # last_cell = None
+                # reverse = 0
                 # el = await cls.get_active_element(session)
-                # return True
+                return True
             elif (key := how_key(now_cell, where, last_cell)) is not None:
-                print(key)
                 el = await cls.get_active_element(session)
                 await el.send_keys(key)
                 last_cell = now_cell
-                # await cls.send_keys_to_active_element(session, key)
             else:
                 return await cls.go_as_teleport(session, where)
-
 
     @classmethod
     async def join_cells_to_names(cls, session: Session, top_left_cell: str, bottom_right_cell: str):
