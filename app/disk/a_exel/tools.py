@@ -6,7 +6,7 @@ from time import sleep, time
 from typing import Optional, Union
 
 from arsenic import get_session, browsers, services
-from arsenic.actions import Mouse, chain, Keyboard
+# from arsenic.actions import Mouse, chain, Keyboard
 from arsenic.session import Session, Element
 
 from app.disk.a_exel.keyboard import Keys
@@ -18,6 +18,8 @@ from app.disk.a_exel.keyboard import Keys
 # from webdriver_manager.chrome import ChromeDriverManager
 # from webdriver_manager.firefox import GeckoDriverManager
 from app.disk.exel.cells import Cell, BaseCell
+from app.disk.a_exel.actions_utils import ActionChain, Mouse, Keyboard
+
 
 if sys.platform.startswith('win'):
     GECKODRIVER = 'geckodriver.exe'
@@ -381,25 +383,20 @@ class CellInYandexTable:
             return await cls.go_as_walk(session, where) not in [False, None]
 
     @classmethod
-    async def go_as_teleport(cls, session: Session, where: str):
+    async def go_as_teleport(cls, session: Session, where: str, no_await=False):
         table_name_el = await cls.get_cell_name_el(session)
-        mouse = Mouse()
-        keyboard = Keyboard()
-        actions = chain(
-            mouse.move_to(table_name_el),
-            mouse.down(),
-            mouse.up(),
-            mouse.down(),
-            mouse.up(),
-            *itertools_chain(([keyboard.down(Keys.BACKSPACE),
-                               keyboard.up(Keys.BACKSPACE)] * 10
-                              ) + [func(i) for i in list(where)
-                                   for func in [keyboard.down, keyboard.up]]
-                             ),
-            keyboard.down(Keys.ENTER), keyboard.up(Keys.ENTER)
-        )
 
-        await session.perform_actions(actions)
+        actions = ActionChain()
+        actions.mouse.move_to(table_name_el)
+        actions.mouse.click()
+        actions.mouse.click()
+        actions += Keys.BACKSPACE * 10
+        actions += where
+        actions += Keys.ENTER
+
+        if no_await is True:
+            return actions
+        await actions.run(session)
         return (await cls.get_cell_name(session)) == where
 
     @classmethod
@@ -503,24 +500,12 @@ class CellInYandexTable:
                 return await cls.go_as_teleport(session, where)
 
     @classmethod
-    async def join_cells_to_names(cls, session: Session, top_left_cell: str, bottom_right_cell: str):
+    async def _raw_join_cells_to_names(cls, session: Session, top_left_cell: str, bottom_right_cell: str):
 
         table_name_el = await cls.get_cell_name_el(session)
         join_cell_button = await cls.get_join_button(session)
         mouse = Mouse()
         keyboard = Keyboard()
-
-        def _teleport(where: str):
-            nonlocal mouse, keyboard, table_name_el
-            return (
-                mouse.move_to(table_name_el),
-                mouse.down(), mouse.up(), mouse.down(), mouse.up(),
-                *itertools_chain(
-                    ([keyboard.down(Keys.BACKSPACE), keyboard.up(Keys.BACKSPACE)] * 10),
-                    [func(i) for i in list(where) for func in [keyboard.down, keyboard.up]]
-                ),
-                keyboard.down(Keys.ENTER), keyboard.up(Keys.ENTER),
-            )
 
         def _click_to_join_el():
             nonlocal mouse, join_cell_button
@@ -528,36 +513,36 @@ class CellInYandexTable:
                     mouse.down(),
                     mouse.up(),)
 
-        def _press_keys(keys: Union[str, list]):
-            return [func(key) for key in keys for func in [keyboard.down, keyboard.up]]
+        # def _press_keys(keys: Union[str, list]):
+        #     return [func(key) for key in keys for func in [keyboard.down, keyboard.up]]
 
         if (await cls.go_as_walk(session, top_left_cell)) in [False, None]:
-            actions = chain(
-                *_click_to_join_el()
-            )
-            await session.perform_actions(actions)
+            actions = ActionChain(_click_to_join_el())
+            await actions.run(session)
             await cls.go_as_walk(session, top_left_cell)
 
         keys = await cls.go_as_walk(session, bottom_right_cell)
         if keys in [False, None]:
-            actions = chain(*_click_to_join_el())
-            await session.perform_actions(actions)
+            actions = ActionChain(*_click_to_join_el())
+            await actions.run(session)
             await cls.go_as_walk(session, bottom_right_cell)
         reverse_keys = await cls.go_as_walk(session, top_left_cell)
         if keys in [False, None]:
             keys = await cls.go_as_walk(session, bottom_right_cell)
             keys, reverse_keys = reverse_keys, keys
 
-
-        actions = chain(
-            keyboard.down(Keys.SHIFT),
-            *_press_keys(keys),
-            keyboard.up(Keys.SHIFT),
-            *_click_to_join_el(),
-        )
-        await session.perform_actions(actions)
+        actions = ActionChain(keyboard.down(Keys.SHIFT), keys,
+                              keyboard.up(Keys.SHIFT),
+                              *_click_to_join_el())
+        await actions.run(session)
         print([(await i.send_keys(Keys.ENTER))
          for i in await session.get_elements("button[result=yes]")])
+
+        return keys
+
+    @classmethod
+    async def join_cells_to_names(cls, session: Session, top_left_cell: str, bottom_right_cell: str):
+        pass
 
     @staticmethod
     def name_to_ind(name: str) -> tuple[int, int, str]:
@@ -729,7 +714,7 @@ async def write_table():
     async with get_session(service, browser) as session:
         y_table = YandexTableTools(session)
         await y_table.start("https://disk.yandex.ru/i/CUlgJ8bWhBvp7A")
-        await CellInYandexTable.join_cells_to_names(y_table.session, "A1", "G10")
+        await CellInYandexTable._raw_join_cells_to_names(y_table.session, "A1", "G10")
         # search_box = await session.wait_for_element(5, 'input[name=q]')
         # await search_box.send_keys('Cats')
         # await search_box.send_keys(keys.ENTER)
