@@ -371,14 +371,14 @@ class CellInYandexTable:
     how_to_move = ["teleport", "walk"][1]
 
     @classmethod
-    async def go_to(cls, *args, how_to_move: str = None, **kwargs):
+    async def go_to(cls, session: Session, where: str, *args, how_to_move: str = None, **kwargs):
         """Общий метод перемещения. Зависит от настроек класса"""
         if how_to_move is None:
             how_to_move = cls.how_to_move
         if how_to_move == "teleport":
-            return cls.go_as_teleport(*args, **kwargs)
+            return await cls.go_as_teleport(session, where)
         else:
-            pass
+            return await cls.go_as_walk(session, where) not in [False, None]
 
     @classmethod
     async def go_as_teleport(cls, session: Session, where: str):
@@ -403,20 +403,23 @@ class CellInYandexTable:
         return (await cls.get_cell_name(session)) == where
 
     @classmethod
-    async def go_as_walk(cls, session: Session, where: str):
+    async def go_as_walk(cls, session: Session, where: str) -> Union[list[str], bool, None]:
         *where_ind, _ = cls.name_to_ind(where)
         last_ind = (None, None)
         last_last_ind = (None, None)
+        keys_list = []
+        cells_history = []
+        last_cell = None
         # reverse in [0, 2] - идем сначала вниз (или вверх),
         #                       а потом вправо (или влево)
         # reverse in [1, 3] - идем сначала влево (или вправо),
         #                       а потом вверх (или вниз)
-        reverse: Union[int, str] = 0
+        reverse: int = 0
 
         def how_key(now: str, finish: str,
                     last: Optional[str] = None,
                     last_last: Optional[str] = None) -> Optional[str]:
-            nonlocal where_ind, last_ind, reverse, last_last_ind
+            nonlocal where_ind, last_ind, reverse, last_last_ind, cells_history
             *now_ind, _ = cls.name_to_ind(now)
 
             def left_or_right():
@@ -432,8 +435,10 @@ class CellInYandexTable:
             # находится в одной строке с целевой ячецкой
             if last_last_ind[0] == now_ind[0] and last_last_ind[1] == now_ind[1]:
                 reverse -= 1
-
+            # print([now], cells_history)
             if reverse > 20:
+                return None
+            elif cells_history.count(now) > 5:
                 return None
             elif reverse > 3:
                 if now_ind[0] == where_ind[0]:
@@ -480,7 +485,6 @@ class CellInYandexTable:
             last_ind = (now_ind[0], now_ind[1])
             return key
 
-        last_cell = None
         while True:
             now_cell = await cls.get_cell_name(session)
             if now_cell == where:
@@ -488,9 +492,11 @@ class CellInYandexTable:
                 # last_cell = None
                 # reverse = 0
                 # el = await cls.get_active_element(session)
-                return True
+                return keys_list
             elif (key := how_key(now_cell, where, last_cell)) is not None:
                 el = await cls.get_active_element(session)
+                keys_list.append(key)
+                cells_history.append(now_cell)
                 await el.send_keys(key)
                 last_cell = now_cell
             else:
@@ -498,8 +504,60 @@ class CellInYandexTable:
 
     @classmethod
     async def join_cells_to_names(cls, session: Session, top_left_cell: str, bottom_right_cell: str):
-        element = await cls.go_as_teleport(session, top_left_cell)
-        # session.
+
+        table_name_el = await cls.get_cell_name_el(session)
+        join_cell_button = await cls.get_join_button(session)
+        mouse = Mouse()
+        keyboard = Keyboard()
+
+        def _teleport(where: str):
+            nonlocal mouse, keyboard, table_name_el
+            return (
+                mouse.move_to(table_name_el),
+                mouse.down(), mouse.up(), mouse.down(), mouse.up(),
+                *itertools_chain(
+                    ([keyboard.down(Keys.BACKSPACE), keyboard.up(Keys.BACKSPACE)] * 10),
+                    [func(i) for i in list(where) for func in [keyboard.down, keyboard.up]]
+                ),
+                keyboard.down(Keys.ENTER), keyboard.up(Keys.ENTER),
+            )
+
+        def _click_to_join_el():
+            nonlocal mouse, join_cell_button
+            return (mouse.move_to(join_cell_button),
+                    mouse.down(),
+                    mouse.up(),)
+
+        def _press_keys(keys: Union[str, list]):
+            return [func(key) for key in keys for func in [keyboard.down, keyboard.up]]
+
+        if (await cls.go_as_walk(session, top_left_cell)) in [False, None]:
+            actions = chain(
+                *_click_to_join_el()
+            )
+            await session.perform_actions(actions)
+            await cls.go_as_walk(session, top_left_cell)
+
+        keys = await cls.go_as_walk(session, bottom_right_cell)
+        if keys in [False, None]:
+            actions = chain(*_click_to_join_el())
+            await session.perform_actions(actions)
+            await cls.go_as_walk(session, bottom_right_cell)
+        reverse_keys = await cls.go_as_walk(session, top_left_cell)
+        if keys in [False, None]:
+            keys = await cls.go_as_walk(session, bottom_right_cell)
+            keys, reverse_keys = reverse_keys, keys
+
+
+        actions = chain(
+            keyboard.down(Keys.SHIFT),
+            *_press_keys(keys),
+            keyboard.up(Keys.SHIFT),
+            *_click_to_join_el(),
+        )
+        await session.perform_actions(actions)
+        print([(await i.send_keys(Keys.ENTER))
+         for i in await session.get_elements("button[result=yes]")])
 
     @staticmethod
     def name_to_ind(name: str) -> tuple[int, int, str]:
@@ -588,12 +646,12 @@ class CellInYandexTable:
     @staticmethod
     async def get_active_element(session: Session) -> Element:
         element_id = await session.request("/element/active", "GET")
-        print("**************************", element_id)
+        # print("**************************", element_id)
         return session.create_element(element_id)
 
     @classmethod
     async def send_keys_to_active_element(cls, session: Session, value: Union[str, list[str, Keys, int]]) -> Element:
-        print([cls.keys_to_typing(value), value])
+        # print([cls.keys_to_typing(value), value])
         return await session.request(
             "/keys", method="POST",
             data={"value": (_list := cls.keys_to_typing(value)),
@@ -617,6 +675,10 @@ class CellInYandexTable:
                 for i in range(len(val)):
                     typing.append(val[i])
         return typing
+
+    @staticmethod
+    async def get_join_button(session: Session):
+        return await session.get_element("div[id=id-toolbar-rtn-merge] button")
 
 
 class YandexTableTools:
@@ -667,7 +729,7 @@ async def write_table():
     async with get_session(service, browser) as session:
         y_table = YandexTableTools(session)
         await y_table.start("https://disk.yandex.ru/i/CUlgJ8bWhBvp7A")
-        await CellInYandexTable.go_as_walk(y_table.session, "G10")
+        await CellInYandexTable.join_cells_to_names(y_table.session, "A1", "G10")
         # search_box = await session.wait_for_element(5, 'input[name=q]')
         # await search_box.send_keys('Cats')
         # await search_box.send_keys(keys.ENTER)
