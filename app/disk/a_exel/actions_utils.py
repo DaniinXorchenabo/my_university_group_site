@@ -1,22 +1,18 @@
-import asyncio
-import sys
-from itertools import chain as itertools_chain
-from random import random
-from time import sleep, time
-from typing import Optional, Union, Awaitable
+from abc import ABC
+from typing import Union, Awaitable
 
-from arsenic import get_session, browsers, services
 from arsenic.actions import Mouse as BaseMouse, chain, Keyboard, Tick, Button
 from arsenic.session import Session, Element
 
 from app.disk.a_exel.keyboard import Keys
-from app.disk.exel.cells import Cell, BaseCell
 
 
 class Mouse(BaseMouse):
-    def click(self, button: Button = Button.left) ->list:
+    def click(self, button: Button = Button.left) -> list:
         return [self.down(button=button), self.up(button=button)]
 
+    def __repr__(self):
+        return 'Mouse'
 
 
 class ActionChain:
@@ -28,8 +24,8 @@ class ActionChain:
             return res
 
         if hasattr(func, "__annotations__") and \
-            (isinstance(func.__annotations__["return"], Tick) or \
-             "Tick" in str(func.__annotations__["return"])) \
+                (isinstance(func.__annotations__["return"], Tick) or \
+                 "Tick" in str(func.__annotations__["return"])) \
                 and func.__name__ != "_tick":
             return _warp
         return func
@@ -65,7 +61,8 @@ class ActionChain:
         res: list[Tick] = []
         for i in data:
             if isinstance(i, str):
-                res.extend([self._keyboard.down(i), self._keyboard.up(i)])
+                self._keyboard.down(i)  # добавляются автоматически
+                self._keyboard.up(i)  # добавляются автоматически
             elif isinstance(i, Tick):
                 res.append(i)
             else:
@@ -103,8 +100,34 @@ class ActionChain:
         return self
 
 
-# a = ActionChain()
-# a.mouse.up()
-# a.keyboard.down("f")
-# a.mouse.click()
-# print("-----------------", a.chain)
+class ActionChainsSet(ABC):
+
+    @classmethod
+    def click_to_join_element_button(cls, join_cell_button: Element, actions: ActionChain = None):
+        if actions is None:
+            actions = ActionChain()
+        actions.mouse.move_to(join_cell_button)
+        actions.mouse.click()
+        return actions
+
+    @classmethod
+    def join_cell(cls, keys: Union[list[str], str], join_cell_button, actions: ActionChain = None):
+        if actions is None:
+            actions = ActionChain()
+        actions.keyboard.down(Keys.SHIFT)
+        actions += keys,
+        actions.keyboard.up(Keys.SHIFT),
+        actions = cls.click_to_join_element_button(join_cell_button, actions)
+        return actions
+
+    @classmethod
+    def go_as_teleport(cls, cell, table_name_el: Element, actions: ActionChain = None):
+        if actions is None:
+            actions = ActionChain()
+        actions.mouse.move_to(table_name_el)
+        actions.mouse.click()
+        actions.mouse.click()
+        actions += Keys.BACKSPACE * 10
+        actions += cell
+        actions += Keys.ENTER
+        return actions

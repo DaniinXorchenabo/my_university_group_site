@@ -18,7 +18,7 @@ from app.disk.a_exel.keyboard import Keys
 # from webdriver_manager.chrome import ChromeDriverManager
 # from webdriver_manager.firefox import GeckoDriverManager
 from app.disk.exel.cells import Cell, BaseCell
-from app.disk.a_exel.actions_utils import ActionChain, Mouse, Keyboard
+from app.disk.a_exel.actions_utils import ActionChain, Mouse, Keyboard, ActionChainsSet
 
 
 if sys.platform.startswith('win'):
@@ -383,19 +383,9 @@ class CellInYandexTable:
             return await cls.go_as_walk(session, where) not in [False, None]
 
     @classmethod
-    async def go_as_teleport(cls, session: Session, where: str, no_await=False):
+    async def go_as_teleport(cls, session: Session, where: str):
         table_name_el = await cls.get_cell_name_el(session)
-
-        actions = ActionChain()
-        actions.mouse.move_to(table_name_el)
-        actions.mouse.click()
-        actions.mouse.click()
-        actions += Keys.BACKSPACE * 10
-        actions += where
-        actions += Keys.ENTER
-
-        if no_await is True:
-            return actions
+        actions = ActionChainsSet.go_as_teleport(where, table_name_el)
         await actions.run(session)
         return (await cls.get_cell_name(session)) == where
 
@@ -500,49 +490,64 @@ class CellInYandexTable:
                 return await cls.go_as_teleport(session, where)
 
     @classmethod
-    async def _raw_join_cells_to_names(cls, session: Session, top_left_cell: str, bottom_right_cell: str):
-
-        table_name_el = await cls.get_cell_name_el(session)
-        join_cell_button = await cls.get_join_button(session)
-        mouse = Mouse()
-        keyboard = Keyboard()
-
-        def _click_to_join_el():
-            nonlocal mouse, join_cell_button
-            return (mouse.move_to(join_cell_button),
-                    mouse.down(),
-                    mouse.up(),)
-
-        # def _press_keys(keys: Union[str, list]):
-        #     return [func(key) for key in keys for func in [keyboard.down, keyboard.up]]
+    async def _get_keys_to_cell(cls, session: Session, join_cell_button: Element,
+                                top_left_cell: str, bottom_right_cell: str):
 
         if (await cls.go_as_walk(session, top_left_cell)) in [False, None]:
-            actions = ActionChain(_click_to_join_el())
+            actions = ActionChainsSet.click_to_join_element_button(join_cell_button)
             await actions.run(session)
             await cls.go_as_walk(session, top_left_cell)
-
         keys = await cls.go_as_walk(session, bottom_right_cell)
         if keys in [False, None]:
-            actions = ActionChain(*_click_to_join_el())
+            actions = ActionChainsSet.click_to_join_element_button(join_cell_button)
             await actions.run(session)
             await cls.go_as_walk(session, bottom_right_cell)
         reverse_keys = await cls.go_as_walk(session, top_left_cell)
         if keys in [False, None]:
             keys = await cls.go_as_walk(session, bottom_right_cell)
             keys, reverse_keys = reverse_keys, keys
+            top_left_cell, bottom_right_cell = bottom_right_cell, top_left_cell
+        return keys, reverse_keys, top_left_cell, bottom_right_cell
 
-        actions = ActionChain(keyboard.down(Keys.SHIFT), keys,
-                              keyboard.up(Keys.SHIFT),
-                              *_click_to_join_el())
-        await actions.run(session)
-        print([(await i.send_keys(Keys.ENTER))
-         for i in await session.get_elements("button[result=yes]")])
+    # @classmethod
+    # async def _raw_join_cells_to_names(cls, session: Session, top_left_cell: str, bottom_right_cell: str):
+    #     join_cell_button = await cls.get_join_button(session)
+    #     keys, _, top_left_cell, bottom_right_cell = await cls._get_keys_to_cell(session, join_cell_button, top_left_cell, bottom_right_cell)
+    #
+    #     actions = ActionChainsSet.join_cell(keys, join_cell_button)
+    #     await actions.run(session)
+    #     [(await i.send_keys(Keys.ENTER)) for i in await session.get_elements("button[result=yes]")]
+    #
+    #     return keys
 
-        return keys
+    @classmethod
+    async def rejoin_cells_to_names(cls, session: Session, top_left_cell: str, bottom_right_cell: str):
+        """Разъеденить указанные ячейки"""
+        join_cell_button = await cls.get_join_button(session)
+        table_name_el = await cls.get_cell_name_el(session)
+        keys, _, top_left_cell, bottom_right_cell = await cls._get_keys_to_cell(session, join_cell_button, top_left_cell, bottom_right_cell)
+        actions1 = ActionChainsSet.join_cell(keys, join_cell_button)
+        await actions1.run(session)
+        [(await i.send_keys(Keys.ENTER)) for i in await session.get_elements("button[result=yes]")]
+
+        actions2 = ActionChainsSet.go_as_teleport(top_left_cell, table_name_el)
+        actions2 = ActionChainsSet.click_to_join_element_button(join_cell_button, actions=actions2)
+        actions2 = ActionChainsSet.go_as_teleport(top_left_cell, table_name_el, actions=actions2)
+        actions2 += Keys.ENTER
+        actions2 = ActionChainsSet.click_to_join_element_button(join_cell_button, actions=actions2)
+        actions2 = ActionChainsSet.go_as_teleport(top_left_cell, table_name_el, actions=actions2)
+        await actions2.run(session)
+
+        return join_cell_button, top_left_cell, bottom_right_cell
 
     @classmethod
     async def join_cells_to_names(cls, session: Session, top_left_cell: str, bottom_right_cell: str):
-        pass
+        join_cell_button, top_left_cell, bottom_right_cell = await cls.rejoin_cells_to_names(session, top_left_cell, bottom_right_cell)
+
+        keys, _, top_left_cell, bottom_right_cell = await cls._get_keys_to_cell(session, join_cell_button,
+                                                                                top_left_cell, bottom_right_cell)
+        actions3 = ActionChainsSet.join_cell(keys, join_cell_button)
+        await actions3.run(session)
 
     @staticmethod
     def name_to_ind(name: str) -> tuple[int, int, str]:
@@ -714,7 +719,7 @@ async def write_table():
     async with get_session(service, browser) as session:
         y_table = YandexTableTools(session)
         await y_table.start("https://disk.yandex.ru/i/CUlgJ8bWhBvp7A")
-        await CellInYandexTable._raw_join_cells_to_names(y_table.session, "A1", "G10")
+        await CellInYandexTable.join_cells_to_names(y_table.session, "A1", "G10")
         # search_box = await session.wait_for_element(5, 'input[name=q]')
         # await search_box.send_keys('Cats')
         # await search_box.send_keys(keys.ENTER)
