@@ -17,7 +17,7 @@ from app.disk.a_exel.keyboard import Keys
 # from selenium.webdriver.remote.webdriver import WebDriver
 # from webdriver_manager.chrome import ChromeDriverManager
 # from webdriver_manager.firefox import GeckoDriverManager
-from app.disk.exel.cells import Cell, BaseCell
+from app.disk.exel.cells import Cell, BaseCell, DataTaleType
 from app.disk.a_exel.actions_utils import ActionChain, Mouse, Keyboard, ActionChainsSet
 
 
@@ -63,7 +63,7 @@ try:
         @staticmethod
         def _read(current_driver: WebDriver) -> str:
             """Процесс чтения из текущей ячецки"""
-            return CellInYandexTable.get_current_text(None, current_driver)
+            return CellInYandexTableTools.get_current_text(None, current_driver)
 
         def write(self, current_driver: WebDriver, text: str) -> bool:
             """Перейти в ячецку и записать что-то и проверить, что это записалось
@@ -86,7 +86,7 @@ try:
             sleep(0.2 + random() * 0.1)
             current_driver.switch_to.active_element.send_keys(Keys.ENTER)
 
-        def go_to_cell(self: Optional['CellInYandexTable'],
+        def go_to_cell(self: Optional['CellInYandexTableTools'],
                        current_driver: WebDriver = None,
                        cell: Union[str, list[str]] = None):
             """Перейти в ячейку через поле ввода ячейки"""
@@ -107,7 +107,7 @@ try:
                                          *([Keys.BACKSPACE] * 10),
                                          cell[0], Keys.ENTER)
             actions.perform()
-            return cell[0] == CellInYandexTable.get_current_cell(self, current_driver)
+            return cell[0] == CellInYandexTableTools.get_current_cell(self, current_driver)
             # print(driver.execute_script(f'document.getElementById("ce-cell-name").click();'
             #                             f'document.getElementById("ce-cell-name").click();'
             #                             f'document.getElementById("ce-cell-name").value = "{cell}";' +
@@ -127,13 +127,13 @@ try:
             # exit()
             # driver.switch_to.active_element.send_keys(Keys.ENTER)
 
-        def get_current_cell(self: Optional['CellInYandexTable'], driver: WebDriver) -> str:
+        def get_current_cell(self: Optional['CellInYandexTableTools'], driver: WebDriver) -> str:
             """Функция получения текущей ячейки"""
             if driver is None:
                 driver = self.driver
             return driver.execute_script('return document.getElementById("ce-cell-name").value ;')
 
-        def get_current_text(self: Optional['CellInYandexTable'], driver: WebDriver) -> str:
+        def get_current_text(self: Optional['CellInYandexTableTools'], driver: WebDriver) -> str:
             """Функйия получения текста в текущей ячецке"""
             if driver is None:
                 driver = self.driver
@@ -151,8 +151,8 @@ try:
             >>>base2 = [i + j for i in base for j in base]
             >>>base3 = [i + j + i1 for i in base for j in base for i1 in base]
             >>>for ind, i in enumerate(base + base2 + base3, 1):
-            >>>    print(ind, i, CellInYandexTable.name_to_ind(str(i)))
-            >>>    assert ind == CellInYandexTable.name_to_ind(str(i)[1])
+            >>>    print(ind, i, CellInYandexTableTools.name_to_ind(str(i)))
+            >>>    assert ind == CellInYandexTableTools.name_to_ind(str(i)[1])
 
             :param name:
             :return: первый элемент - индекс по строке
@@ -185,8 +185,8 @@ try:
             >>>base2 = [i + j for i in base for j in base]
             >>>base3 = [i + j + i1 for i in base for j in base for i1 in base]
             >>>for ind, i in enumerate(base + base2 + base3, 1):
-            >>>    print(ind, i, CellInYandexTable.ind_to_name(ind))
-            >>>    assert i == CellInYandexTable.ind_to_name(ind)
+            >>>    print(ind, i, CellInYandexTableTools.ind_to_name(ind))
+            >>>    assert i == CellInYandexTableTools.ind_to_name(ind)
 
             :param col_index: номер ячейки, начиная с единицы. Если ячейка A124, то number=1
             :return: буквенный номер ячейки. Если number=4, то return "D"
@@ -210,9 +210,9 @@ try:
             return "".join([chr(i) for i in res])
 
         @classmethod
-        def join_cells(cls, cells: list[list['CellInYandexTable']],
+        def join_cells(cls, cells: list[list['CellInYandexTableTools']],
                        start: tuple[int, int] = None,
-                       end: tuple[int, int] = None) -> list[list['CellInYandexTable']]:
+                       end: tuple[int, int] = None) -> list[list['CellInYandexTableTools']]:
             """Соеденить, слепить, объеденить несколько ячеек в одну.
 
             :param cells: Весь массив ячеек, который используется в программе
@@ -253,7 +253,7 @@ try:
             actions.perform()
 
         @classmethod
-        def _join_cells(cls, top_left: "CellInYandexTable", bottom_right: "CellInYandexTable"):
+        def _join_cells(cls, top_left: "CellInYandexTableTools", bottom_right: "CellInYandexTableTools"):
             """Сам процесс объединения ячеек
 
             :param top_left:
@@ -274,7 +274,7 @@ try:
             [i.find_element_by_xpath('//button[@result="yes"]').click() for i in
              top_left.driver.find_elements_by_class_name("asc-window")]
 
-        def __add__(self, other: "CellInYandexTable"):
+        def __add__(self, other: "CellInYandexTableTools"):
             """ Переопределение метода складывания ячеек"""
             self.name.extend(other.name)
             return self
@@ -294,7 +294,7 @@ try:
             # self._start_browser()
             if got_table is not None:
                 size: tuple[int, int] = (len(got_table), max([len(i) for i in got_table]))
-            self.table = [[CellInYandexTable(self.driver, i, j) for j in range(1, size[1] + 1)]
+            self.table = [[CellInYandexTableTools(self.driver, i, j) for j in range(1, size[1] + 1)]
                           for i in range(1, size[0] + 1)]
             self.got_table = got_table
             self.service = services.Geckodriver(binary=GECKODRIVER)
@@ -358,7 +358,7 @@ try:
                     for j, cell in enumerate(coll):
                         ob = BaseCell(cell, (len(self.table), len(self.table[0])))
                         if ob.size != (1, 1):
-                            self.table = CellInYandexTable.join_cells(self.table, (i, j),
+                            self.table = CellInYandexTableTools.join_cells(self.table, (i, j),
                                                                       (i + ob.size[0] - 1, j + ob.size[1] - 1))
                         # if self.table[i][j].get_current_cell(self.driver) not in self.table[i][j].name:
                         #     self.table[i][j]._click_to_join_cell()
@@ -369,7 +369,24 @@ except Exception:
     pass
 
 
-class CellInYandexTable:
+class YandexTable:
+
+    def __init__(self, size: tuple[int, int] = None, table: DataTaleType = None):
+        assert size is None and table is None
+        if table is not None:
+            self.size = len(table), max([len(i) for i in table])
+            self.table: list[list[Cell]] = [[BaseCell(j, self.size) for j in i] for i in table]
+            self.matrix_size = len(self.table), max([sum([j.size[1] for j in i]) for i in self.table])
+            self.matrix_table: list[list[Cell]] = [[j for j in i for ind in range(j.size[1])] for i in self.table]
+        else:
+            self.table = self.matrix_table = [[""] * size[1] for i in range(size[0])]
+            self.size = self.matrix_size = size
+
+    def write_current_table(self):
+        pass
+
+
+class CellInYandexTableTools:
     how_to_move = ["teleport", "walk"][1]
 
     @classmethod
@@ -549,6 +566,23 @@ class CellInYandexTable:
         actions3 = ActionChainsSet.join_cell(keys, join_cell_button)
         await actions3.run(session)
 
+    @classmethod
+    async def write_in_clean_table(cls, session: Session, table):
+        await cls.set_table_structure(session, table)
+        await cls.write_in_formatted_table(session, table)
+
+    @classmethod
+    async def set_table_structure(cls, session: Session, table: list[list[Cell]]):
+        for coll in table:
+            for cell in coll:
+                if cell.size[1] > 1:
+                    cls.join_cells_to_names()
+
+
+    @classmethod
+    async def write_in_formatted_table(cls, session: Session, table):
+        pass
+
     @staticmethod
     def name_to_ind(name: str) -> tuple[int, int, str]:
 
@@ -561,8 +595,8 @@ class CellInYandexTable:
         >>>base2 = [i + j for i in base for j in base]
         >>>base3 = [i + j + i1 for i in base for j in base for i1 in base]
         >>>for ind, i in enumerate(base + base2 + base3, 1):
-        >>>    print(ind, i, CellInYandexTable.name_to_ind(str(i)))
-        >>>    assert ind == CellInYandexTable.name_to_ind(str(i)[1])
+        >>>    print(ind, i, CellInYandexTableTools.name_to_ind(str(i)))
+        >>>    assert ind == CellInYandexTableTools.name_to_ind(str(i)[1])
 
         :param name:
         :return: первый элемент - индекс по строке
@@ -599,8 +633,8 @@ class CellInYandexTable:
         >>>base2 = [i + j for i in base for j in base]
         >>>base3 = [i + j + i1 for i in base for j in base for i1 in base]
         >>>for ind, i in enumerate(base + base2 + base3, 1):
-        >>>    print(ind, i, CellInYandexTable.ind_to_name(ind))
-        >>>    assert i == CellInYandexTable.ind_to_name(ind)
+        >>>    print(ind, i, CellInYandexTableTools.ind_to_name(ind))
+        >>>    assert i == CellInYandexTableTools.ind_to_name(ind)
 
         :param col_index: номер ячейки, начиная с единицы. Если ячейка A124, то number=1
         :return: буквенный номер ячейки. Если number=4, то return "D"
@@ -671,6 +705,24 @@ class CellInYandexTable:
         return await session.get_element("div[id=id-toolbar-rtn-merge] button")
 
 
+class CellInYandexTable(CellInYandexTableTools, BaseCell):
+
+    def __init__(self, names: Union[str, list[str]], session: Session, text="", coll_len=1, row_len=1, burned_obj: Cell = None):
+        if isinstance(names, str):
+            names = [names]
+        self.names: list[str] = names
+        self.session = session
+        if burned_obj is not None:
+            text = burned_obj.text
+            coll_len = burned_obj.size[1]
+            row_len = burned_obj.size[0]
+        super(BaseCell, self).__init__(text, coll_len, row_len)
+
+    @property
+    def name(self):
+        return self.names[0]
+
+
 class YandexTableTools:
 
     def __init__(self, session: Session):
@@ -706,20 +758,21 @@ class YandexTableTools:
             # Если в процессе работы высвечиваются окна
             # о некорректном завершении работы в прошлый раз - перезагружаемся
             return self.start(url)
-        await (await CellInYandexTable.get_active_element(self.session)).send_keys(Keys.ENTER)
+        await (await CellInYandexTableTools.get_active_element(self.session)).send_keys(Keys.ENTER)
         return None
 
-    async def write_table(self, table: list[list[CellInYandexTable]]):
+    async def write_table(self, table: list[list[CellInYandexTableTools]]):
         pass
 
 
-async def write_table():
+async def write_table(writen_table: DataTaleType):
     service = services.Geckodriver(binary=GECKODRIVER)
     browser = browsers.Firefox()
     async with get_session(service, browser) as session:
         y_table = YandexTableTools(session)
         await y_table.start("https://disk.yandex.ru/i/CUlgJ8bWhBvp7A")
-        await CellInYandexTable.join_cells_to_names(y_table.session, "A1", "G10")
+        await CellInYandexTableTools.rejoin_cells_to_names(y_table.session, "A1", "G10")
+        await CellInYandexTableTools.write_in_clean_table(y_table.session, writen_table)
         # search_box = await session.wait_for_element(5, 'input[name=q]')
         # await search_box.send_keys('Cats')
         # await search_box.send_keys(keys.ENTER)
@@ -735,4 +788,4 @@ def main():
 if __name__ == '__main__':
     # 'C:\\Users\\Acer\\.wdm\\drivers\\geckodriver\\win64\\v0.29.1\\geckodriver.exe'
     main()
-    # print(CellInYandexTable.name_to_ind("G10"))
+    # print(CellInYandexTableTools.name_to_ind("G10"))

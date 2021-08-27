@@ -65,6 +65,9 @@ class BigCell(CollCell):
         self.size: tuple[Union[int, Cell.C], Union[int, Cell.C]] = (row_len, coll_len)
 
 
+DataTaleType = Union[str, Cell, tuple[str, int], tuple[str, int, int]]
+
+
 class BaseCell(BigCell, CollCell, Cell):
     """Класс-конструктор
 
@@ -72,7 +75,7 @@ class BaseCell(BigCell, CollCell, Cell):
     в единую форму.
     """
 
-    def __init__(self, data: Union[str, Cell, tuple[str, int], tuple[str, int, int]],
+    def __init__(self, data: DataTaleType,
                  table_size: tuple[int, int]):
         """
         :param data: строка, экземпляр класса Cell или его потомков,
