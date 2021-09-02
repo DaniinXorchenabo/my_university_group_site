@@ -15,8 +15,13 @@ __all__ = [
     "Cell",
     "CollCell",
     "BigCell",
-    "BaseCell"
+    "BaseCell",
+    "DataTaleType",
+    "DataCellType"
 ]
+
+# class CellFields(object):
+#     __slots__ = ["text"]
 
 
 class Cell(object):
@@ -25,6 +30,8 @@ class Cell(object):
     Просто ячейка таблицы, которая может содержать какой-то текст.
     Возможно сюда же будут добавлены стили ячейки, ее размеры и т.д.
     """
+
+    # __slots__ = ()
 
     class C(Enum):
         """Набор констант для динамического вычисления размера ячеек"""
@@ -65,7 +72,8 @@ class BigCell(CollCell):
         self.size: tuple[Union[int, Cell.C], Union[int, Cell.C]] = (row_len, coll_len)
 
 
-DataTaleType = Union[str, Cell, tuple[str, int], tuple[str, int, int]]
+DataTaleType = list[list[Union[str, Cell, tuple[str, int], tuple[str, int, int]]]]
+DataCellType = Union[str, Cell, tuple[str, int], tuple[str, int, int]]
 
 
 class BaseCell(BigCell, CollCell, Cell):
@@ -75,7 +83,9 @@ class BaseCell(BigCell, CollCell, Cell):
     в единую форму.
     """
 
-    def __init__(self, data: DataTaleType,
+    __slots__ = ("table_size", "size", "text")
+
+    def __init__(self, data: DataCellType,
                  table_size: tuple[int, int]):
         """
         :param data: строка, экземпляр класса Cell или его потомков,
@@ -89,13 +99,12 @@ class BaseCell(BigCell, CollCell, Cell):
 
         self.table_size = table_size
         if isinstance(data, str):
-            data = Cell(data)
+            super(Cell, self).__init__(data)
         elif isinstance(data, tuple):
             if len(data) == 2:
-                data = CollCell(*data)
+                super(CollCell, self).__init__(*data)
             elif len(data) == 3:
-                data = BigCell(*data)
-        self.__dict__.update(data.__dict__)
+                super(BigCell, self).__init__(*data)
         if isinstance(self.size[0], Cell.C):
             if self.size[0] == Cell.C.to_end:
                 self.size = (table_size[0], self.size[1])
@@ -103,3 +112,4 @@ class BaseCell(BigCell, CollCell, Cell):
             if self.size[1] == Cell.C.to_end:
                 self.size = (self.size[0], table_size[1])
         self.size: tuple[int, int]
+

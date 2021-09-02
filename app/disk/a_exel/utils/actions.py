@@ -4,7 +4,7 @@ from typing import Union, Awaitable
 from arsenic.actions import Mouse as BaseMouse, chain, Keyboard, Tick, Button
 from arsenic.session import Session, Element
 
-from app.disk.a_exel.keyboard import Keys
+from app.disk.a_exel.utils.keyboard import Keys
 
 
 class Mouse(BaseMouse):
