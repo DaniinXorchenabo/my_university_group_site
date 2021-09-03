@@ -16,6 +16,8 @@ from app.disk.a_exel.utils.keyboard import Keys
 # from webdriver_manager.firefox import GeckoDriverManager
 from app.disk.exel.cells import Cell as ConstructCell, BaseCell, DataTaleType, CollCell
 from app.disk.a_exel.utils.actions import ActionChainsSet
+from app.disk.a_exel.yandex.table import Table as YandexTable
+from app.disk.a_exel.yandex.cell import Cell
 
 
 if sys.platform.startswith('win'):
@@ -112,7 +114,7 @@ else:
     # async def rejoin_cells_to_names(cls, session: Session, top_left_cell: str, bottom_right_cell: str):
     #     """Разъеденить указанные ячейки"""
     #     join_cell_button = await cls.get_join_button(session)
-    #     table_name_el = await cls.get_cell_name_el(session)
+    #     table_name_el = await cls.get_current_cell_name_el(session)
     #     keys, _, top_left_cell, bottom_right_cell = await cls._get_keys_to_cell(session, join_cell_button, top_left_cell, bottom_right_cell)
     #     actions1 = ActionChainsSet.join_cell(keys, join_cell_button)
     #     await actions1.run(session)
@@ -214,11 +216,11 @@ else:
     # # =======! Геттеры !=======
     #
     # @staticmethod
-    # async def get_cell_name_el(session: Session) -> Element:
+    # async def get_current_cell_name_el(session: Session) -> Element:
     #     return await session.get_element("input[id=ce-cell-name]")
     #
     # @staticmethod
-    # async def get_cell_name(session: Session):
+    # async def get_current_cell_name(session: Session):
     #     return await session.execute_script("return document.getElementById('ce-cell-name').value;")
 
     # @staticmethod
@@ -306,21 +308,25 @@ async def write_table(writen_table: DataTaleType):
     service = services.Geckodriver(binary=GECKODRIVER)
     browser = browsers.Firefox()
     async with get_session(service, browser) as session:
-        y_table = YandexTable(session)
-        await y_table.start("https://disk.yandex.ru/i/CUlgJ8bWhBvp7A")
-        await CellTools.rejoin_cells_to_names(y_table.session, "A1", "G10")
-        await CellTools.write_in_clean_table(y_table.session, writen_table)
+        print("--------------------Session is started")
+        y_table = YandexTable(session, size=(5, 5))
+        # await y_table.start("https://disk.yandex.ru/i/CUlgJ8bWhBvp7A")
+        # test_cell = Cell(session, BaseCell("Работает", (5, 5)), (1, 1))
+        # print("------------------------------------------------------", (await test_cell.read()))
+
+        # await CellTools.rejoin_cells_to_names(y_table.session, "A1", "G10")
+        # await CellTools.write_in_clean_table(y_table.session, writen_table)
         # search_box = await session.wait_for_element(5, 'input[name=q]')
         # await search_box.send_keys('Cats')
         # await search_box.send_keys(keys.ENTER)
         print("------------------------")
-        await asyncio.sleep(60)
+        await asyncio.sleep(1)
 
 
 def main():
     table = [
         ["С", "По", "Предмет", "Кабинет/Ссылка", "Идентификатор", "Код доступа", "Дата, время обновления ссылки"],
-        [CollCell("Понидельник", Cell.C.to_end)],
+        [CollCell("Понидельник", ConstructCell.C.to_end)],
         ["8:00", "9:35", "Предмет1", "7a-308"],
     ]
     loop = asyncio.get_event_loop()

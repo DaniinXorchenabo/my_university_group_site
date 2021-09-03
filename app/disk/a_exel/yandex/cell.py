@@ -33,10 +33,10 @@ class Cell(AbcCell, CellUtils):
     async def go_as_teleport(self, where: str = None):
         if where is None:
             where = self.name
-        table_name_el = await self.get_cell_name_el(self.session)
+        table_name_el = await self.get_current_cell_name_el(self.session)
         actions = ActionChainsSet.go_as_teleport(where, table_name_el)
         await actions.run(self.session)
-        return (await self.get_cell_name(self.session)) == where
+        return (await self.get_current_cell_name(self.session)) == where
 
     async def go_as_walk(self, where: str = None) -> Union[list[str], bool, None]:
         if where is None:
@@ -123,7 +123,7 @@ class Cell(AbcCell, CellUtils):
             return key
 
         while True:
-            now_cell = await self.get_cell_name(self.session)
+            now_cell = await self.get_current_cell_name(self.session)
             if now_cell == where:
                 return keys_list
             elif (_key := how_key(now_cell, where, last_cell)) is not None:
@@ -134,52 +134,6 @@ class Cell(AbcCell, CellUtils):
                 last_cell = now_cell
             else:
                 return await self.go_as_teleport(where)
-
-    # async def _get_keys_to_cell(self, join_cell_button: Element,
-    #                             top_left_cell: str, bottom_right_cell: str):
-    #
-    #     if (await self.go_as_walk(top_left_cell)) in [False, None]:
-    #         actions = ActionChainsSet.click_to_join_element_button(join_cell_button)
-    #         await actions.run(self.session)
-    #         await self.go_as_walk(top_left_cell)
-    #     keys = await self.go_as_walk(bottom_right_cell)
-    #     if keys in [False, None]:
-    #         actions = ActionChainsSet.click_to_join_element_button(join_cell_button)
-    #         await actions.run(self.session)
-    #         await self.go_as_walk(bottom_right_cell)
-    #     reverse_keys = await self.go_as_walk(top_left_cell)
-    #     if keys in [False, None]:
-    #         keys = await self.go_as_walk(bottom_right_cell)
-    #         keys, reverse_keys = reverse_keys, keys
-    #         top_left_cell, bottom_right_cell = bottom_right_cell, top_left_cell
-    #     return keys, reverse_keys, top_left_cell, bottom_right_cell
-    #
-    # async def rejoin_cells_to_names(self, top_left_cell: str, bottom_right_cell: str):
-    #     """Разъеденить указанные ячейки"""
-    #     join_cell_button = await self.get_join_button(self.session)
-    #     table_name_el = await self.get_cell_name_el(self.session)
-    #     keys, _, top_left_cell, bottom_right_cell = await self._get_keys_to_cell(join_cell_button, top_left_cell, bottom_right_cell)
-    #     actions1 = ActionChainsSet.join_cell(keys, join_cell_button)
-    #     await actions1.run(self.session)
-    #     [(await i.send_keys(Keys.ENTER)) for i in await self.session.get_elements("button[result=yes]")]
-    #
-    #     actions2 = ActionChainsSet.go_as_teleport(top_left_cell, table_name_el)
-    #     actions2 = ActionChainsSet.click_to_join_element_button(join_cell_button, actions=actions2)
-    #     actions2 = ActionChainsSet.go_as_teleport(top_left_cell, table_name_el, actions=actions2)
-    #     actions2 += Keys.ENTER
-    #     actions2 = ActionChainsSet.click_to_join_element_button(join_cell_button, actions=actions2)
-    #     actions2 = ActionChainsSet.go_as_teleport(top_left_cell, table_name_el, actions=actions2)
-    #     await actions2.run(self.session)
-    #
-    #     return join_cell_button, top_left_cell, bottom_right_cell
-    #
-    # async def join_cells_to_names(self, top_left_cell: str, bottom_right_cell: str):
-    #     join_cell_button, top_left_cell, bottom_right_cell = await self.rejoin_cells_to_names(top_left_cell, bottom_right_cell)
-    #
-    #     keys, _, top_left_cell, bottom_right_cell = await self._get_keys_to_cell(join_cell_button,
-    #                                                                             top_left_cell, bottom_right_cell)
-    #     actions3 = ActionChainsSet.join_cell(keys, join_cell_button)
-    #     await actions3.run(self.session)
 
     @classmethod
     async def _get_keys_to_cell(cls, session: Session, join_cell_button: Element,
@@ -206,7 +160,7 @@ class Cell(AbcCell, CellUtils):
         """Разъеденить указанные ячейки"""
 
         join_cell_button = await cls.get_join_button(session)
-        table_name_el = await cls.get_cell_name_el(session)
+        table_name_el = await cls.get_current_cell_name_el(session)
         keys, _, top_left_cell, bottom_right_cell = await cls._get_keys_to_cell(session, join_cell_button,
                                                                                 top_left_cell, bottom_right_cell)
         actions1 = ActionChainsSet.join_cell(keys, join_cell_button)
@@ -232,5 +186,17 @@ class Cell(AbcCell, CellUtils):
                                                                                 top_left_cell, bottom_right_cell)
         actions3 = ActionChainsSet.join_cell(keys, join_cell_button)
         await actions3.run(session)
+
+    async def read(self) -> str:
+        await self.go_to()
+        return await self.get_current_cell_text(self.session)
+
+    async def write(self, text: str = None):
+        if text is None:
+            text = self.text
+        await self.go_to()
+        await self.set_current_text(self.session, text)
+        return (await self.read()) == text
+
 
 

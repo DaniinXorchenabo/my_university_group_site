@@ -10,14 +10,5 @@ __all__ = ["CellUtils"]
 
 
 class CellUtils(BaseUtils, AbcCellUtils):
-
-    # =======! Геттеры !=======
-
-    @staticmethod
-    async def get_cell_name_el(session: Session) -> Element:
-        return await session.get_element("input[id=ce-cell-name]")
-
-    @staticmethod
-    async def get_cell_name(session: Session):
-        return await session.execute_script("return document.getElementById('ce-cell-name').value;")
+    pass
 

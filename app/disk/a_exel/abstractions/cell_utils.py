@@ -1,7 +1,7 @@
 from abc import ABC
 
 
-class AbcCellUtils(ABC):
+class AbcCellUtils(object):
 
     @staticmethod
     def name_to_ind(name: str) -> tuple[int, int, str]:

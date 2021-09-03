@@ -96,15 +96,15 @@ class BaseCell(BigCell, CollCell, Cell):
         :param table_size: размер итоговой таблицы
             для вычисления динамических констант из  Cell.C
         """
-
+        print("$$ начал")
         self.table_size = table_size
         if isinstance(data, str):
-            super(Cell, self).__init__(data)
+            Cell.__init__(self, data)
         elif isinstance(data, tuple):
             if len(data) == 2:
-                super(CollCell, self).__init__(*data)
+                CollCell.__init__(self, *data)
             elif len(data) == 3:
-                super(BigCell, self).__init__(*data)
+                BigCell.__init__(self, *data)
         if isinstance(self.size[0], Cell.C):
             if self.size[0] == Cell.C.to_end:
                 self.size = (table_size[0], self.size[1])
@@ -112,4 +112,5 @@ class BaseCell(BigCell, CollCell, Cell):
             if self.size[1] == Cell.C.to_end:
                 self.size = (self.size[0], table_size[1])
         self.size: tuple[int, int]
+        print("$$99--------- ок")
 
