@@ -310,17 +310,19 @@ async def write_table(writen_table: DataTaleType):
     async with get_session(service, browser) as session:
         print("--------------------Session is started")
         y_table = YandexTable(session, size=(5, 5))
-        # await y_table.start("https://disk.yandex.ru/i/CUlgJ8bWhBvp7A")
-        # test_cell = Cell(session, BaseCell("Работает", (5, 5)), (1, 1))
-        # print("------------------------------------------------------", (await test_cell.read()))
+        await y_table.start("https://disk.yandex.ru/i/CUlgJ8bWhBvp7A")
+        test_cell = Cell(session, BaseCell("Работает", (15, 15)), (1, 1))
+        end_cell = Cell(session, BaseCell("Работает", (15, 15)), (4, 2))
 
-        # await CellTools.rejoin_cells_to_names(y_table.session, "A1", "G10")
+        print("------------------------------------------------------", (await test_cell.read()))
+
+        await Cell.join_cells_to_names(y_table.session, test_cell, end_cell)
         # await CellTools.write_in_clean_table(y_table.session, writen_table)
         # search_box = await session.wait_for_element(5, 'input[name=q]')
         # await search_box.send_keys('Cats')
         # await search_box.send_keys(keys.ENTER)
         print("------------------------")
-        await asyncio.sleep(1)
+        await asyncio.sleep(100)
 
 
 def main():

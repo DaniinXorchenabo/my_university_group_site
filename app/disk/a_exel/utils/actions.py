@@ -5,6 +5,7 @@ from arsenic.actions import Mouse as BaseMouse, chain, Keyboard, Tick, Button
 from arsenic.session import Session, Element
 
 from app.disk.a_exel.utils.keyboard import Keys
+from app.disk.a_exel.abstractions.cell import AbcCell
 
 
 class Mouse(BaseMouse):
@@ -121,7 +122,9 @@ class ActionChainsSet(ABC):
         return actions
 
     @classmethod
-    def go_as_teleport(cls, cell, table_name_el: Element, actions: ActionChain = None):
+    def go_as_teleport(cls, cell: Union[str, AbcCell], table_name_el: Element, actions: ActionChain = None):
+        if isinstance(cell, AbcCell):
+            cell: str = cell.name
         if actions is None:
             actions = ActionChain()
         actions.mouse.move_to(table_name_el)

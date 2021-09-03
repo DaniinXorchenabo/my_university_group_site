@@ -1,5 +1,5 @@
 import asyncio
-from typing import Type
+from typing import Type, Union
 
 from arsenic.session import Session, Element
 
@@ -8,6 +8,8 @@ from app.disk.a_exel.abstractions.table import AbcTable
 from app.disk.a_exel.yandex.table_utils import TableUtils
 from app.disk.exel.cells import DataTaleType
 from app.disk.a_exel.yandex.cell import Cell
+from app.disk.exel.cells import BaseCell
+
 
 
 __all__ = ["Table"]
@@ -17,8 +19,13 @@ class Table(AbcTable, TableUtils):
 
     def __init__(self, session: Session, size: tuple[int, int] = None, table: DataTaleType = None,
                  target_cell_class: Type[Cell] = Cell):
+
+        def create_cell(abc_cell: BaseCell, names: Union[tuple[int, int], str, list[str]]):
+            return target_cell_class(session=session, abc_cell=abc_cell, names=names)
+
         print('-----))))))))))------------------', size, table)
-        super().__init__(size=size, table=table, target_cell_class=target_cell_class)
+
+        super().__init__(size=size, table=table, target_cell_class=create_cell)
         print('****************')
         self.session = session
         self.url = None

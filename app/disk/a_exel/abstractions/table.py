@@ -1,5 +1,5 @@
 from abc import ABC, abstractmethod
-from typing import Type
+from typing import Type, Callable, Union
 
 from app.disk.exel.cells import Cell as PCell, BaseCell, DataTaleType, CollCell
 from app.disk.a_exel.utils.actions import ActionChainsSet
@@ -11,7 +11,9 @@ __all__ = ["AbcTable"]
 
 class AbcTable(ABC):
 
-    def __init__(self, size: tuple[int, int] = None, table: DataTaleType = None, target_cell_class: tuple[Type[AbcCell], ...] = None):
+    def __init__(self, size: tuple[int, int] = None,
+                 table: DataTaleType = None,
+                 target_cell_class: Union[Callable[[BaseCell, tuple[int, int]], AbcCell], Type[AbcCell]] = None):
         print("^^111111", size is None,  table is None, )
         assert size is None or table is None, "размер или таблица должны быть заданы явно!"
         print("^^222")
@@ -25,25 +27,8 @@ class AbcTable(ABC):
             self.size = self.matrix_size = size
             print("^^44")
             self.table = self.matrix_table = [
-                [
-                    (
-                        print("до"),
-                        target_cell_class(
-                            session,
-                            BaseCell("", size),
-                            (i, j)
-                        ),
-
-                        print("после")
-
-                    )
-                                               for j in range(1, size[1] + 1)
-                    if not print("dddd")
-                ]
-                for i in range(1, size[0] + 1)
-                if not print("ssss")
-            ]
-            print("^^45")
+                [target_cell_class(BaseCell("", size), (i, j))
+                 for j in range(1, size[1] + 1)] for i in range(1, size[0] + 1)]
 
 
     @abstractmethod
